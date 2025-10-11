@@ -15,7 +15,6 @@
 <body>
   <div id="root"></div>
 
-  <!-- Your app (TSX compiled in-browser) -->
   <script type="text/babel" data-presets="react,typescript">
     const { useMemo, useState } = React;
 
@@ -27,6 +26,27 @@
 
     function roundToNearestTenK(n){ if(!isFinite(n)) return 0; return Math.round(n/10000)*10000; }
     function formatUSD(n){ return n.toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0}); }
+
+    function NowVsGrowth({ baseline, growthPct }){
+      const after = Math.round(baseline * (1 + growthPct));
+      const max = Math.max(baseline, after, 1);
+      const h = 140, pad = 24, bw = 120, gap = 80, w = 520;
+      const scale = v => Math.round((v/max) * (h - pad));
+      const bH = scale(baseline), aH = scale(after);
+      return (
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[140px]" role="img" aria-label="Now vs Growth">
+          <g fill="currentColor" opacity="0.12">
+            <rect x={(w/2)-gap-bw} y={h-bH} width={bw} height={bH} rx="8" />
+            <rect x={(w/2)+gap}   y={h-aH} width={bw} height={aH} rx="8" opacity="0.26" />
+          </g>
+          <g fill="#68707a" fontSize="12">
+            <text x={(w/2)-gap-bw/2} y={h-bH-8} textAnchor="middle">Now: {baseline.toLocaleString()}</text>
+            <text x={(w/2)+gap+bw/2} y={h-aH-8} textAnchor="middle">After: {after.toLocaleString()}</text>
+            <text x={w-6} y="14" textAnchor="end">max {max.toLocaleString()}</text>
+          </g>
+        </svg>
+      );
+    }
 
     function App(){
       // Funnel inputs
@@ -49,6 +69,13 @@
       const [activeMarkets,setActiveMarkets]=useState([...marketsAll.slice(0,8)]);
       const [infraPerMarketPerMonth,setInfraPerMarketPerMonth]=useState(2500);
 
+      // **NEW** Agent cost surfaced
+      const [agentCostPerHirePerMonth,setAgentCostPerHirePerMonth]=useState(2000); // hybrid W-2 base/benefits blended
+      const [agentsPerMarket,setAgentsPerMarket]=useState(2);
+
+      // Growth overlay
+      const [growthPct,setGrowthPct]=useState(0.25);
+
       const funnel = useMemo(()=>{
         const offered  = Math.round(assessments*offerRate);
         const accepted = Math.round(offered*acceptRate);
@@ -65,12 +92,19 @@
         const mlsCommission  = mlsAnnual*mlsAvgPrice*mlsCommissionRate;
         const titleDeals     = (offMktAnnual+mlsAnnual)*titleCaptureRate;
         const titleProfit    = titleDeals*titleProfitPerDeal;
-        const gross          = offMarketFees + mlsCommission + titleProfit;
+
+        // Infra + Agent cost
         const infra          = infraPerMarketPerMonth*activeMarkets.length*12;
-        const net            = gross - infra;
+        const agentSeats     = agentsPerMarket*activeMarkets.length;
+        const agentCost      = agentCostPerHirePerMonth*agentSeats*12;
+
+        const gross          = offMarketFees + mlsCommission + titleProfit;
+        const net            = gross - infra - agentCost;
+
         return {
-          annualClosed, offMktAnnual, mlsAnnual, offMarketFees, mlsCommission,
-          titleProfit, gross, infra, net,
+          annualClosed, offMktAnnual, mlsAnnual,
+          offMarketFees, mlsCommission, titleProfit,
+          infra, agentCost, gross, net,
           rounded:{
             offMarketFees: roundToNearestTenK(offMarketFees),
             mlsCommission: roundToNearestTenK(mlsCommission),
@@ -79,7 +113,11 @@
             net:           roundToNearestTenK(net)
           }
         };
-      },[funnel.closed,offMarketShare,offMarketCapture,offMarketFee,mlsAvgPrice,mlsCommissionRate,titleCaptureRate,titleProfitPerDeal,infraPerMarketPerMonth,activeMarkets.length]);
+      },[
+        funnel.closed, offMarketShare, offMarketCapture, offMarketFee,
+        mlsAvgPrice, mlsCommissionRate, titleCaptureRate, titleProfitPerDeal,
+        infraPerMarketPerMonth, activeMarkets.length, agentCostPerHirePerMonth, agentsPerMarket
+      ]);
 
       const assessmentsPct = useMemo(()=> !intakes?0:Math.round((assessments/intakes)*100), [assessments,intakes]);
 
@@ -97,7 +135,7 @@
             <section className="mt-8 p-6 bg-white rounded-2xl shadow-sm border border-neutral-200">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <h2 className="text-lg font-semibold">Markets</h2>
-                <div className="text-sm text-neutral-600">Toggle to include in infra modeling</div>
+                <div className="text-sm text-neutral-600">Toggle to include in infra & agent modeling</div>
               </div>
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                 {marketsAll.map(m=>{
@@ -126,11 +164,6 @@
                     <div><div>Accept: <span className="font-medium">{Math.round(acceptRate*100)}%</span></div><input type="range" min={0.2} max={0.95} step={0.01} value={acceptRate} onChange={e=>setAcceptRate(parseFloat(e.target.value))}/></div>
                     <div><div>Close: <span className="font-medium">{Math.round(closeRate*100)}%</span></div><input type="range" min={0.5} max={1} step={0.01} value={closeRate} onChange={e=>setCloseRate(parseFloat(e.target.value))}/></div>
                   </div>
-                  <div className="mt-2 grid grid-cols-3 gap-3">
-                    <div className="p-3 rounded-xl bg-neutral-50 border text-center"><div className="text-xs text-neutral-500">Offered</div><div className="text-lg font-semibold">{funnel.offered.toLocaleString()}</div></div>
-                    <div className="p-3 rounded-xl bg-neutral-50 border text-center"><div className="text-xs text-neutral-500">Accepted</div><div className="text-lg font-semibold">{funnel.accepted.toLocaleString()}</div></div>
-                    <div className="p-3 rounded-xl bg-neutral-50 border text-center"><div className="text-xs text-neutral-500">Closed</div><div className="text-lg font-semibold">{funnel.closed.toLocaleString()}</div></div>
-                  </div>
                 </div>
               </div>
 
@@ -158,12 +191,49 @@
               </div>
             </section>
 
+            {/* Infra & Agent cost */}
+            <section className="mt-8 grid gap-6 md:grid-cols-3">
+              <div className="p-6 bg-white rounded-2xl shadow-sm border">
+                <h3 className="text-sm font-semibold">Infrastructure Modeling</h3>
+                <div className="mt-3 text-sm">Active Markets: <span className="font-medium">{activeMarkets.length}</span></div>
+                <div className="mt-1 text-sm">Per-Market / month: <span className="font-medium">{formatUSD(infraPerMarketPerMonth)}</span></div>
+                <input className="mt-2 w-full" type="range" min={1000} max={5000} step={100} value={infraPerMarketPerMonth} onChange={e=>setInfraPerMarketPerMonth(parseInt(e.target.value))} />
+              </div>
+              <div className="p-6 bg-white rounded-2xl shadow-sm border">
+                <h3 className="text-sm font-semibold">Agent Cost (Hybrid W-2)</h3>
+                <div className="mt-3 text-sm">Agents / market: <span className="font-medium">{agentsPerMarket}</span></div>
+                <input className="mt-2 w-full" type="range" min={1} max={6} step={1} value={agentsPerMarket} onChange={e=>setAgentsPerMarket(parseInt(e.target.value))} />
+                <div className="mt-3 text-sm">Cost / agent / month: <span className="font-medium">{formatUSD(agentCostPerHirePerMonth)}</span></div>
+                <input className="mt-2 w-full" type="range" min={800} max={4000} step={50} value={agentCostPerHirePerMonth} onChange={e=>setAgentCostPerHirePerMonth(parseInt(e.target.value))} />
+              </div>
+              <div className="p-6 bg-emerald-600 text-white rounded-2xl shadow-sm text-center">
+                <div className="text-sm font-semibold">Net (Annual)</div>
+                <div className="text-3xl font-bold mt-1">{formatUSD(economics.rounded.net)}</div>
+                <div className="text-xs mt-1 opacity-90">Gross: {formatUSD(economics.rounded.gross)} • Infra: {formatUSD(economics.infra)} • Agents: {formatUSD(economics.agentCost)}</div>
+              </div>
+            </section>
+
+            {/* Now vs Growth mini chart */}
+            <section className="mt-10 p-6 bg-white rounded-2xl shadow-sm border">
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <h3 className="text-lg font-semibold">Now vs Growth (agreements preview)</h3>
+                <div className="text-sm text-neutral-600">Adjust growth below; for full detail see Drivers or top-of-page KPIs.</div>
+              </div>
+              <div className="mt-4">
+                <label className="text-sm">Growth slider (%)</label>
+                <input className="w-full" type="range" min={0} max={100} step={5} value={Math.round(growthPct*100)} onChange={e=>setGrowthPct(parseInt(e.target.value)/100)} />
+              </div>
+              <div className="mt-4">
+                <NowVsGrowth baseline={Math.round(15000 * 0.01 * 0.35)} growthPct={growthPct} />
+              </div>
+            </section>
+
             {/* Results */}
-            <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="p-5 rounded-2xl border shadow-sm bg-amber-50 border-amber-200 text-center"><div className="text-sm font-semibold">Off-Market (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.offMarketFees)}</div><div className="text-xs text-neutral-500 mt-1">Incremental fee on HUD $500</div></div>
-              <div className="p-5 rounded-2xl border shadow-sm bg-emerald-50 border-emerald-200 text-center"><div className="text-sm font-semibold">MLS (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.mlsCommission)}</div><div className="text-xs text-neutral-500 mt-1">Fee Paid by Seller or $0 no charge</div></div>
-              <div className="p-5 rounded-2xl border shadow-sm bg-emerald-50 border-emerald-200 text-center"><div className="text-sm font-semibold">Title (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.titleProfit)}</div><div className="text-xs text-neutral-500 mt-1">Picket Title — at or below market rates</div></div>
-              <div className="p-5 rounded-2xl border shadow-sm bg-indigo-50 border-indigo-200 text-center"><div className="text-sm font-semibold">Combined (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.gross)}</div><div className="text-xs text-neutral-500 mt-1">Net after infra: {formatUSD(economics.rounded.net)}</div></div>
+            <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="p-5 rounded-2xl border shadow-sm bg-amber-50 border-amber-200 text-center"><div className="text-sm font-semibold">Off-Market (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.offMarketFees)}</div><div className="text-xs text-neutral-700 mt-1">Incremental fee on HUD ${offMarketFee}</div></div>
+              <div className="p-5 rounded-2xl border shadow-sm bg-emerald-50 border-emerald-200 text-center"><div className="text-sm font-semibold">MLS (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.mlsCommission)}</div><div className="text-xs text-neutral-700 mt-1">Fee paid by Seller or $0 buyer charge</div></div>
+              <div className="p-5 rounded-2xl border shadow-sm bg-emerald-50 border-emerald-200 text-center"><div className="text-sm font-semibold">Title (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.titleProfit)}</div><div className="text-xs text-neutral-700 mt-1">Picket Title — at/below market rates</div></div>
+              <div className="p-5 rounded-2xl border shadow-sm bg-indigo-50 border-indigo-200 text-center"><div className="text-sm font-semibold">Combined (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.gross)}</div><div className="text-xs text-neutral-700 mt-1">Net after infra + agents: {formatUSD(economics.rounded.net)}</div></div>
             </section>
           </main>
         </div>
@@ -174,4 +244,3 @@
   </script>
 </body>
 </html>
-
