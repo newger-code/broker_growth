@@ -1,1 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>After the Merge — Sensitivity</title>
+  <meta name="robots" content="noindex" />
+  <!-- No-build stack (CDNs) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>html,body{background:#fafafa}</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Your app (TSX compiled in-browser) -->
+  <script type="text/babel" data-presets="react,typescript">
+    const { useMemo, useState } = React;
+
+    const marketsAll = [
+      "Memphis","Dallas–Fort Worth","Houston","Little Rock","Oklahoma City",
+      "Tulsa","St. Louis","San Antonio","Birmingham","Huntsville","Tuscaloosa",
+      "Chattanooga","Nashville","Knoxville","Jackson, TN"
+    ];
+
+    function roundToNearestTenK(n){ if(!isFinite(n)) return 0; return Math.round(n/10000)*10000; }
+    function formatUSD(n){ return n.toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0}); }
+
+    function App(){
+      // Funnel inputs
+      const [intakes,setIntakes]=useState(6800);
+      const [assessments,setAssessments]=useState(2100);
+      const [offerRate,setOfferRate]=useState(0.6);
+      const [acceptRate,setAcceptRate]=useState(0.6);
+      const [closeRate,setCloseRate]=useState(0.9);
+
+      // Mix / economics
+      const [offMarketShare,setOffMarketShare]=useState(0.9);
+      const [offMarketCapture,setOffMarketCapture]=useState(0.8);
+      const [offMarketFee,setOffMarketFee]=useState(500);
+      const [mlsAvgPrice,setMlsAvgPrice]=useState(150000);
+      const [mlsCommissionRate,setMlsCommissionRate]=useState(0.022);
+      const [titleCaptureRate,setTitleCaptureRate]=useState(0.3);
+      const [titleProfitPerDeal,setTitleProfitPerDeal]=useState(400);
+
+      // Infra
+      const [activeMarkets,setActiveMarkets]=useState([...marketsAll.slice(0,8)]);
+      const [infraPerMarketPerMonth,setInfraPerMarketPerMonth]=useState(2500);
+
+      const funnel = useMemo(()=>{
+        const offered  = Math.round(assessments*offerRate);
+        const accepted = Math.round(offered*acceptRate);
+        const closed   = Math.round(accepted*closeRate);
+        return { offered, accepted, closed };
+      },[assessments,offerRate,acceptRate,closeRate]);
+
+      const economics = useMemo(()=>{
+        const annualClosed   = Math.max(0,funnel.closed);
+        const offMktAnnual   = Math.round(annualClosed*offMarketShare);
+        const mlsAnnual      = Math.max(0, annualClosed - offMktAnnual);
+        const capturedOffMkt = offMktAnnual*offMarketCapture;
+        const offMarketFees  = capturedOffMkt*offMarketFee;
+        const mlsCommission  = mlsAnnual*mlsAvgPrice*mlsCommissionRate;
+        const titleDeals     = (offMktAnnual+mlsAnnual)*titleCaptureRate;
+        const titleProfit    = titleDeals*titleProfitPerDeal;
+        const gross          = offMarketFees + mlsCommission + titleProfit;
+        const infra          = infraPerMarketPerMonth*activeMarkets.length*12;
+        const net            = gross - infra;
+        return {
+          annualClosed, offMktAnnual, mlsAnnual, offMarketFees, mlsCommission,
+          titleProfit, gross, infra, net,
+          rounded:{
+            offMarketFees: roundToNearestTenK(offMarketFees),
+            mlsCommission: roundToNearestTenK(mlsCommission),
+            titleProfit:   roundToNearestTenK(titleProfit),
+            gross:         roundToNearestTenK(gross),
+            net:           roundToNearestTenK(net)
+          }
+        };
+      },[funnel.closed,offMarketShare,offMarketCapture,offMarketFee,mlsAvgPrice,mlsCommissionRate,titleCaptureRate,titleProfitPerDeal,infraPerMarketPerMonth,activeMarkets.length]);
+
+      const assessmentsPct = useMemo(()=> !intakes?0:Math.round((assessments/intakes)*100), [assessments,intakes]);
+
+      return (
+        <div className="min-h-screen bg-neutral-50 text-neutral-900">
+          <header className="sticky top-0 z-20 backdrop-blur bg-white/70 border-b border-neutral-200">
+            <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
+              <h1 className="text-xl md:text-2xl font-semibold tracking-tight">After the Merge — Sensitivity</h1>
+              <a className="text-sm text-emerald-700 underline" href="../drivers/index.html">Back to Drivers</a>
+            </div>
+          </header>
+
+          <main className="mx-auto max-w-7xl px-4 pb-24">
+            {/* Markets toggle */}
+            <section className="mt-8 p-6 bg-white rounded-2xl shadow-sm border border-neutral-200">
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <h2 className="text-lg font-semibold">Markets</h2>
+                <div className="text-sm text-neutral-600">Toggle to include in infra modeling</div>
+              </div>
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                {marketsAll.map(m=>{
+                  const active = activeMarkets.includes(m);
+                  return (
+                    <button key={m}
+                      onClick={()=>setActiveMarkets(p=>p.includes(m)?p.filter(x=>x!==m):[...p,m])}
+                      className={`px-3 py-2 text-sm rounded-xl border transition text-center ${active ? "bg-emerald-600 text-white border-emerald-600" : "bg-white border-neutral-300 hover:border-neutral-400"}`}
+                      aria-pressed={active}>{m}</button>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Funnel */}
+            <section className="mt-8 grid gap-6 md:grid-cols-2">
+              <div className="p-6 bg-white rounded-2xl shadow-sm border border-neutral-200">
+                <h2 className="text-lg font-semibold">Acquisitions Funnel (12-month)</h2>
+                <div className="mt-4 grid gap-4">
+                  <label className="text-sm">Intakes: <span className="font-medium">{intakes.toLocaleString()}</span></label>
+                  <input type="range" min={2000} max={12000} step={100} value={intakes} onChange={e=>setIntakes(parseInt(e.target.value))}/>
+                  <label className="text-sm">Assessments: <span className="font-medium">{assessments.toLocaleString()} ({assessmentsPct}%)</span></label>
+                  <input type="range" min={500} max={intakes} step={50} value={assessments} onChange={e=>setAssessments(parseInt(e.target.value))}/>
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div><div>Offer: <span className="font-medium">{Math.round(offerRate*100)}%</span></div><input type="range" min={0.2} max={0.95} step={0.01} value={offerRate} onChange={e=>setOfferRate(parseFloat(e.target.value))}/></div>
+                    <div><div>Accept: <span className="font-medium">{Math.round(acceptRate*100)}%</span></div><input type="range" min={0.2} max={0.95} step={0.01} value={acceptRate} onChange={e=>setAcceptRate(parseFloat(e.target.value))}/></div>
+                    <div><div>Close: <span className="font-medium">{Math.round(closeRate*100)}%</span></div><input type="range" min={0.5} max={1} step={0.01} value={closeRate} onChange={e=>setCloseRate(parseFloat(e.target.value))}/></div>
+                  </div>
+                  <div className="mt-2 grid grid-cols-3 gap-3">
+                    <div className="p-3 rounded-xl bg-neutral-50 border text-center"><div className="text-xs text-neutral-500">Offered</div><div className="text-lg font-semibold">{funnel.offered.toLocaleString()}</div></div>
+                    <div className="p-3 rounded-xl bg-neutral-50 border text-center"><div className="text-xs text-neutral-500">Accepted</div><div className="text-lg font-semibold">{funnel.accepted.toLocaleString()}</div></div>
+                    <div className="p-3 rounded-xl bg-neutral-50 border text-center"><div className="text-xs text-neutral-500">Closed</div><div className="text-lg font-semibold">{funnel.closed.toLocaleString()}</div></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mix & economics */}
+              <div className="p-6 bg-white rounded-2xl shadow-sm border border-neutral-200">
+                <h2 className="text-lg font-semibold">Deal Mix & Economics</h2>
+                <div className="mt-2 text-xs text-neutral-500">Volumes derive from the funnel’s <span className="font-medium text-neutral-700">Closed</span> count.</div>
+                <div className="mt-4 grid gap-4">
+                  <div>
+                    <div className="text-sm">Off-Market Share: <span className="font-medium">{Math.round(offMarketShare*100)}%</span></div>
+                    <input type="range" min={0} max={1} step={0.01} value={offMarketShare} onChange={e=>setOffMarketShare(parseFloat(e.target.value))}/>
+                    <div className="mt-1 text-xs text-neutral-500">Off-Mkt: {economics.offMktAnnual.toLocaleString()} • MLS: {economics.mlsAnnual.toLocaleString()}</div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div><div>Off-Mkt Capture: <span className="font-medium">{Math.round(offMarketCapture*100)}%</span></div><input type="range" min={0.4} max={1} step={0.01} value={offMarketCapture} onChange={e=>setOffMarketCapture(parseFloat(e.target.value))}/></div>
+                    <div><div>Off-Mkt Fee: <span className="font-medium">{formatUSD(offMarketFee)}</span></div><input type="range" min={200} max={1000} step={25} value={offMarketFee} onChange={e=>setOffMarketFee(parseInt(e.target.value))}/></div>
+                    <div><div>Title Capture: <span className="font-medium">{Math.round(titleCaptureRate*100)}%</span></div><input type="range" min={0} max={0.8} step={0.01} value={titleCaptureRate} onChange={e=>setTitleCaptureRate(parseFloat(e.target.value))}/></div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div><div>MLS Avg Price: <span className="font-medium">{formatUSD(mlsAvgPrice)}</span></div><input type="range" min={100000} max={300000} step={5000} value={mlsAvgPrice} onChange={e=>setMlsAvgPrice(parseInt(e.target.value))}/></div>
+                    <div><div>MLS Commission: <span className="font-medium">{(mlsCommissionRate*100).toFixed(1)}%</span></div><input type="range" min={0.01} max={0.04} step={0.001} value={mlsCommissionRate} onChange={e=>setMlsCommissionRate(parseFloat(e.target.value))}/></div>
+                    <div><div>Title Profit/Deal: <span className="font-medium">{formatUSD(titleProfitPerDeal)}</span></div><input type="range" min={200} max={800} step={25} value={titleProfitPerDeal} onChange={e=>setTitleProfitPerDeal(parseInt(e.target.value))}/></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Results */}
+            <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="p-5 rounded-2xl border shadow-sm bg-amber-50 border-amber-200 text-center"><div className="text-sm font-semibold">Off-Market (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.offMarketFees)}</div><div className="text-xs text-neutral-500 mt-1">Incremental fee on HUD $500</div></div>
+              <div className="p-5 rounded-2xl border shadow-sm bg-emerald-50 border-emerald-200 text-center"><div className="text-sm font-semibold">MLS (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.mlsCommission)}</div><div className="text-xs text-neutral-500 mt-1">Fee Paid by Seller or $0 no charge</div></div>
+              <div className="p-5 rounded-2xl border shadow-sm bg-emerald-50 border-emerald-200 text-center"><div className="text-sm font-semibold">Title (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.titleProfit)}</div><div className="text-xs text-neutral-500 mt-1">Picket Title — at or below market rates</div></div>
+              <div className="p-5 rounded-2xl border shadow-sm bg-indigo-50 border-indigo-200 text-center"><div className="text-sm font-semibold">Combined (Annual)</div><div className="text-2xl font-bold mt-1">{formatUSD(economics.rounded.gross)}</div><div className="text-xs text-neutral-500 mt-1">Net after infra: {formatUSD(economics.rounded.net)}</div></div>
+            </section>
+          </main>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>
 
