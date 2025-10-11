@@ -7,11 +7,13 @@
   <meta name="robots" content="noindex" />
   <style>
     :root { --fg:#0a0a0a; --muted:#68707a; --border:#e6e8eb; --accent:#0ea5e9; --card:#fff; }
+    * { box-sizing:border-box }
     body { margin:0; font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--fg); background:#fff; }
     .wrap { width:min(1100px,92%); margin:auto; padding:24px 0 60px; }
     .top { display:flex; align-items:center; justify-content:space-between; padding:16px 0; border-bottom:1px solid var(--border); }
     .brand { display:flex; align-items:center; gap:10px; font-weight:700; }
     .brand img { height:18px; width:auto; display:block; }
+    .links { display:flex; gap:8px; flex-wrap:wrap; }
     .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border:1px solid var(--border); border-radius:12px; text-decoration:none; box-shadow:0 6px 20px rgb(10 10 10 / .06); background:#fff; color:inherit; }
     .btn.primary { background:var(--accent); color:#fff; border-color:#0b8ec7; }
     .hero h1 { font-size:clamp(28px,4.2vw,44px); line-height:1.1; margin:14px 0 10px; font-weight:750; }
@@ -19,7 +21,14 @@
     .cta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
     .divider { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:22px 0; }
     iframe.embed { width:100%; height:72vh; border:1px solid var(--border); border-radius:16px; background:#fff; }
-    .links { display:flex; gap:8px; flex-wrap:wrap; }
+    /* KPI preview */
+    .row { display:grid; gap:12px; grid-template-columns:1fr; }
+    @media (min-width: 900px){ .row{ grid-template-columns:1fr 1fr; } }
+    .card { border:1px solid var(--border); border-radius:16px; padding:16px; background:#fff; }
+    .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid var(--border); border-radius:999px; background:#fff; color:var(--muted); font-size:12px; }
+    .pills { display:flex; gap:8px; flex-wrap:wrap; }
+    label { font-size:13px; color:var(--muted); display:block; margin:6px 0 4px; }
+    input[type=range]{ width:100%; }
   </style>
 </head>
 <body>
@@ -45,15 +54,37 @@
       </div>
     </section>
 
+    <!-- KPI preview (quick read; your sensitivity page remains source of truth) -->
+    <div class="row">
+      <div class="card">
+        <h3 style="margin:0 0 8px;">Quick KPI preview</h3>
+        <label for="inb">Inbound capture from site visitors (%)</label>
+        <input id="inb" type="range" min="0.25" max="5" step="0.25" value="1" />
+        <label for="agr">Buyer-agreement capture after consult (%)</label>
+        <input id="agr" type="range" min="10" max="70" step="5" value="35" />
+        <label for="gro">Growth slider (adds to baseline, %)</label>
+        <input id="gro" type="range" min="0" max="100" step="5" value="25" />
+        <div class="pills" id="kpis" style="margin-top:10px;"></div>
+        <div class="pill" id="note" style="margin-top:6px;"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 8px;">How this reads</h3>
+        <p class="sub">Estimating signed buyer agreements per month from ~15k visitors. High-level only; detailed unit economics live on the sensitivity page.</p>
+        <div class="pills">
+          <span class="pill">Source: ~15,000 site visitors/mo</span>
+          <span class="pill">Use seller concessions where possible</span>
+        </div>
+      </div>
+    </div>
+
     <div class="divider"></div>
 
-    <!-- Embedded Sensitivity (visible by default) -->
-    <h2 style="font-size:18px; margin:0 0 10px;">After the Merge — Sensitivity</h2>
+    <h2 style="font-size:18px; margin:0 0 10px;">After the Merge — Sensitivity (embedded)</h2>
     <iframe id="embed" class="embed" src="../sensitivity/index.html" title="Sensitivity (embedded)"></iframe>
   </div>
 
   <script>
-    // simple show/hide for the embedded sensitivity
+    // show/hide embedded sensitivity
     (function(){
       const btn = document.getElementById('toggle');
       const fr  = document.getElementById('embed');
@@ -62,6 +93,36 @@
         fr.style.display = hidden ? 'block' : 'none';
         btn.textContent  = hidden ? 'Hide embedded' : 'Show embedded';
       });
+    })();
+
+    // KPI preview math
+    (function(){
+      const SITE = 15000; // ~15k/mo site visitors
+      const inb = document.getElementById('inb');
+      const agr = document.getElementById('agr');
+      const gro = document.getElementById('gro');
+      const kpi = document.getElementById('kpis');
+      const note= document.getElementById('note');
+
+      function pct(n){ return (Math.round(n*1000)/10)+'%'; }
+
+      function render(){
+        const inbound = parseFloat(inb.value) / 100;
+        const agree   = parseFloat(agr.value) / 100;
+        const growth  = parseFloat(gro.value) / 100;
+        const base    = Math.round(SITE * inbound * agree);
+        const after   = Math.round(base * (1 + growth));
+        kpi.innerHTML = `
+          <span class="pill"><strong>${base.toLocaleString()}</strong> agreements — now</span>
+          <span class="pill"><strong>${after.toLocaleString()}</strong> agreements — after growth</span>
+          <span class="pill">Inbound: <strong>${pct(inbound)}</strong></span>
+          <span class="pill">Agreement: <strong>${pct(agree)}</strong></span>
+          <span class="pill">Growth: <strong>${Math.round(growth*100)}%</strong></span>
+        `;
+        note.textContent = "Preview only — detailed unit economics remain on the sensitivity page.";
+      }
+      [inb,agr,gro].forEach(x=>x.addEventListener('input', render));
+      render();
     })();
   </script>
 </body>
