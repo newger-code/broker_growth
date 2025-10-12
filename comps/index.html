@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Comps & Evidence</title>
   <style>
-    :root { --fg:#0a0a0a; --muted:#68707a; --border:#e6e8eb; }
+    :root { --fg:#0a0a0a; --muted:#68707a; --border:#e6e8eb; --accent:#0ea5e9; --bg:#fff; }
     * { box-sizing:border-box }
-    body { margin:0; font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--fg); background:#fff; }
+    body { margin:0; font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--fg); background:var(--bg); }
     .wrap { width:min(1100px,92%); margin:auto; padding:24px 0 60px; }
     header { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border); }
     .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:12px; text-decoration:none; color:inherit; background:#fff; }
@@ -17,49 +17,149 @@
     @media (min-width: 900px){ .grid{ grid-template-columns:1fr 1fr; } }
     .card { border:1px solid var(--border); border-radius:16px; padding:16px; background:#fff; }
     .card h3 { margin:0 0 6px; font-size:18px; }
-    .cap { color:var(--muted); font-size:12px; margin-top:6px; }
-    img { max-width:100%; border-radius:12px; border:1px solid var(--border); background:#fff; }
-    ul { margin:6px 0 0 18px; color:var(--muted) }
+    .cap { color:var(--muted); font-size:12px; margin-top:8px; }
+    .img { position:relative; border:1px solid var(--border); border-radius:12px; background:linear-gradient(135deg,#fafafa,#f4f6f8); min-height:180px; display:flex; align-items:center; justify-content:center; }
+    .img img { width:100%; height:auto; display:block; border-radius:12px; }
+    .placeholder { color:#9aa1a9; font-size:12px; text-align:center; padding:24px; }
+    .filetag { display:inline-block; margin-top:6px; font-size:11px; color:#9aa1a9; }
+    .row { display:grid; gap:12px; grid-template-columns:1fr 1fr; }
+    @media (max-width: 700px){ .row{ grid-template-columns:1fr; } }
+    .diagram { border:1px solid var(--border); border-radius:12px; background:#fff; }
+    .chart { border:1px solid var(--border); border-radius:12px; background:#fff; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <a class="btn" href="../drivers/index.html">← Back to Drivers</a>
-      <a class="btn" href="../sensitivity/index.html">Open sensitivity</a>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <a class="btn" href="../sensitivity/index.html">Open sensitivity</a>
+      </div>
     </header>
 
     <h1>Comps & Evidence</h1>
-    <div class="sub">Third-party receipts supporting a capital-light marketplace + brokerage (not an iBuyer). Replace placeholders with your screenshots.</div>
+    <div class="sub">Third-party receipts + one internal diagram. Replace placeholders by uploading images into <code>/brand/</code> with the exact filenames shown.</div>
 
     <div class="grid">
+      <!-- 1) Opendoor 10-Q -->
       <section class="card">
         <h3>Opendoor 10-Q (Q2’25) — key callouts</h3>
-        <p class="sub">Net loss, YoY purchases down — used as contrast to our no-inventory model.</p>
-        <img src="../brand/opendoor_10q_sample.png" alt="10-Q table (placeholder)">
-        <div class="cap">Source: Opendoor Technologies, Form 10-Q (quarter ended June 30, 2025). Add capture date under your image.</div>
+
+        <!-- Inline bar chart: Purchases YoY (4,771 → 1,757) -->
+        <svg class="chart" viewBox="0 0 720 220" role="img" aria-label="Opendoor homes purchased YoY">
+          <defs>
+            <linearGradient id="b1" x1="0" x2="0" y1="1" y2="0">
+              <stop offset="0%" stop-color="#0ea5e9" stop-opacity=".18"/>
+              <stop offset="100%" stop-color="#0ea5e9" stop-opacity=".38"/>
+            </linearGradient>
+            <linearGradient id="b2" x1="0" x2="0" y1="1" y2="0">
+              <stop offset="0%" stop-color="#94a3b8" stop-opacity=".18"/>
+              <stop offset="100%" stop-color="#94a3b8" stop-opacity=".32"/>
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="704" height="204" rx="12" fill="#fff" stroke="#e6e8eb"/>
+          <!-- axes labels -->
+          <g fill="#68707a" font-size="12" font-family="system-ui,-apple-system,Segoe UI,Roboto">
+            <text x="70"  y="30">Q2’24</text>
+            <text x="420" y="30">Q2’25</text>
+            <text x="712" y="28" text-anchor="end">Homes purchased (YoY)</text>
+          </g>
+          <!-- bars -->
+          <!-- scale: max 4,771; bar area height ≈ 150 -->
+          <g>
+            <!-- Q2'24: 4,771 -->
+            <rect x="60" y="60" width="220" height="150" rx="10" fill="url(#b2)"/>
+            <text x="170" y="90" text-anchor="middle" fill="#0a0a0a" font-weight="700" font-size="16">4,771</text>
+
+            <!-- Q2'25: 1,757 (≈ 36.8% of 4,771 → height ~ 55) -->
+            <rect x="410" y="155" width="220" height="55" rx="10" fill="url(#b1)"/>
+            <text x="520" y="145" text-anchor="middle" fill="#0a0a0a" font-weight="700" font-size="16">1,757</text>
+          </g>
+          <!-- annotation -->
+          <g fill="#0ea5e9" font-size="12" font-family="system-ui,-apple-system,Segoe UI,Roboto">
+            <text x="520" y="200" text-anchor="middle">−63% YoY</text>
+          </g>
+        </svg>
+
+        <div class="img" style="margin-top:12px">
+          <img src="../brand/opendoor_10q_2025q2_table.png" alt="OPEN 10-Q (table crop)" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>No image yet. Upload <b>/brand/opendoor_10q_2025q2_table.png</b><br/>Suggested crop: Summary table with GAAP net loss & homes purchased YoY.</div>';">
+        </div>
+        <div class="cap">Source: Opendoor Technologies, Form 10-Q (quarter ended Jun 30, 2025). <em>Caption example:</em> “GAAP net loss $(29)M; homes purchased 1,757 (−63% YoY).” Add capture date.</div>
+        <div class="filetag">Expected file: <code>/brand/opendoor_10q_2025q2_table.png</code></div>
       </section>
 
+      <!-- 2) Easy Street Agreement -->
       <section class="card">
-        <h3>Easy Street Buyer Participation Agreement</h3>
-        <p class="sub">Excerpts: buyer brokerage retention; buyer-paid up to 3% if no co-op; 12-month non-solicit.</p>
-        <img src="../brand/easystreet_agreement_sample.png" alt="Agreement excerpt (placeholder)">
-        <div class="cap">From Easy Street Offers Buyer Participation Agreement (Sections 2–4). Insert your annotated screenshot.</div>
+        <h3>Easy Street Buyer Participation Agreement — excerpts</h3>
+        <div class="row">
+          <div class="img">
+            <img src="../brand/easystreet_agreement_section2.png" alt="Agreement section 2" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/easystreet_agreement_section2.png</b><br/>Focus: buyer retained as broker for submitted offer.</div>';">
+          </div>
+          <div class="img">
+            <img src="../brand/easystreet_agreement_section3.png" alt="Agreement section 3" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/easystreet_agreement_section3.png</b><br/>Focus: buyer-paid up to 3% if no co-op; collected at closing.</div>';">
+          </div>
+        </div>
+        <div class="cap">Label images with highlights: §2 (retention as broker), §3 (up to 3% buyer-paid), §4 (12-month non-solicit).</div>
+        <div class="filetag">Expected: <code>/brand/easystreet_agreement_section2.png</code>, <code>/brand/easystreet_agreement_section3.png</code></div>
       </section>
 
+      <!-- 3) Investor analogs -->
       <section class="card">
-        <h3>Investor-brokerage analogs</h3>
-        <ul>
-          <li>New Western / NetWorth Realty — licensed investor agents; wholesaler supply.</li>
-          <li>InvestorLift — dispo tooling; wholesalers as suppliers.</li>
-        </ul>
-        <div class="cap">Label self-reported metrics clearly. Our differentiation: MLS UX + hybrid W-2 agents + tech.</div>
+        <h3>Investor-brokerage analogs (reference screenshots)</h3>
+        <div class="row">
+          <div class="img">
+            <img src="../brand/newwestern_marketplace.png" alt="New Western marketplace" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/newwestern_marketplace.png</b><br/>Homepage or investor stats (e.g., 250k+ investors).</div>';">
+          </div>
+          <div class="img">
+            <img src="../brand/networth_brokerage.png" alt="NetWorth brokerage" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/networth_brokerage.png</b><br/>Coverage map or “$1B+ closed”.</div>';">
+          </div>
+        </div>
+        <div class="cap">Context screenshots only. Mark self-reported figures clearly.</div>
+        <div class="filetag">Expected: <code>/brand/newwestern_marketplace.png</code>, <code>/brand/networth_brokerage.png</code></div>
       </section>
 
+      <!-- 4) Barron's -->
       <section class="card">
-        <h3>Barron’s context</h3>
-        <p class="sub">Short Barron’s quote (with date) on iBuyer profitability pressure — reinforces “we are not an iBuyer.”</p>
-        <div class="cap">Keep our copy minimal and objective; attribute and date every excerpt.</div>
+        <h3>Barron’s context (iBuyers)</h3>
+        <div class="img">
+          <img src="../brand/barrons_open_coverage.png" alt="Barron's coverage" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/barrons_open_coverage.png</b><br/>Headline snippet with date; keep quote short.</div>';">
+        </div>
+        <div class="cap">Short quote on OPEN profitability/volatility (with date). Keep text neutral; attribute and date.</div>
+        <div class="filetag">Expected: <code>/brand/barrons_open_coverage.png</code></div>
+      </section>
+
+      <!-- 5) Internal diagram -->
+      <section class="card">
+        <h3>Our model — Marketplace → Brokerage</h3>
+        <svg class="diagram" viewBox="0 0 760 220" role="img" aria-label="Marketplace to Brokerage diagram">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0%" stop-color="#0ea5e9" stop-opacity=".10"/>
+              <stop offset="100%" stop-color="#0ea5e9" stop-opacity=".02"/>
+            </linearGradient>
+          </defs>
+          <rect x="10" y="10" width="740" height="200" rx="14" fill="url(#g1)" stroke="#e6e8eb"/>
+          <g font-family="system-ui, -apple-system, Segoe UI, Roboto" font-size="12" fill="#0a0a0a">
+            <rect x="40" y="60" width="160" height="100" rx="12" fill="#fff" stroke="#e6e8eb"/>
+            <text x="120" y="98" text-anchor="middle" font-weight="700">Marketplace</text>
+            <text x="120" y="118" text-anchor="middle" fill="#68707a">Wholesaler intake + MLS</text>
+
+            <rect x="300" y="60" width="160" height="100" rx="12" fill="#fff" stroke="#e6e8eb"/>
+            <text x="380" y="93" text-anchor="middle" font-weight="700">Routing</text>
+            <text x="380" y="113" text-anchor="middle" fill="#68707a">Sell to RB / List / Buy</text>
+
+            <rect x="560" y="60" width="160" height="100" rx="12" fill="#fff" stroke="#e6e8eb"/>
+            <text x="640" y="90" text-anchor="middle" font-weight="700">Brokerage</text>
+            <text x="640" y="110" text-anchor="middle" fill="#68707a">Buyer-rep + List-some</text>
+          </g>
+          <g stroke="#0ea5e9" stroke-width="2" fill="none">
+            <path d="M200 110 H300" /><path d="M460 110 H560" />
+          </g>
+          <g fill="#0ea5e9">
+            <polygon points="300,110 294,114 294,106"/><polygon points="560,110 554,114 554,106"/>
+          </g>
+        </svg>
+        <div class="cap">Capital-light flow: intake → routing → brokerage (buyer-rep first; list-some when we pass on purchase).</div>
       </section>
     </div>
   </div>
