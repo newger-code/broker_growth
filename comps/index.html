@@ -5,53 +5,53 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Comps & Evidence</title>
   <style>
-    :root { --fg:#0a0a0a; --muted:#667085; --border:#e5e7eb; --accent:#0ea5e9; --bg:#fff; --block:#eef3f8; }
+    :root { --fg:#0a0a0a; --muted:#667085; --border:#e5e7eb; --accent:#0ea5e9; --bg:#fff; --block:#e9eef5; }
     * { box-sizing:border-box }
     body { margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--fg); background:var(--bg); }
-    .wrap { width:min(1100px,92%); margin:auto; padding:22px 0 56px; }
+    .wrap { width:min(1100px,92%); margin:auto; padding:20px 0 56px; }
     header { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
     .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:12px; text-decoration:none; color:inherit; background:#fff; }
-    h1 { font-size:clamp(28px,4vw,36px); margin:14px 0 8px; font-weight:750; letter-spacing:.1px; }
-    .sub { color:var(--muted); margin-bottom:14px; }
+    h1 { font-size:clamp(28px,4vw,36px); margin:12px 0 6px; font-weight:750; letter-spacing:.1px; }
+    .sub { color:var(--muted); margin-bottom:12px; }
 
-    /* Blocks: darker tint + small white gutters between */
-    .block { background:var(--block); border:1px solid #d7dce3; border-radius:16px; padding:14px; margin:8px 0; }
+    /* Blocks (darker tint) + tiny white gutter between */
+    .block { background:var(--block); border:1px solid #d0d7e2; border-radius:16px; padding:12px; margin:8px 0; }
     .block + .block { margin-top:12px; }
-    .block h2 { margin:2px 0 6px; font-size:17px; letter-spacing:.2px; font-weight:800; }
-
-    /* Card grid inside a block */
-    .cards { display:grid; gap:14px; grid-template-columns:1fr; }
-    @media (min-width: 960px){
-      .cards.two-up { grid-template-columns:1fr 1fr; }
-    }
+    .block h2 { margin:2px 0 6px; font-size:18px; letter-spacing:.2px; font-weight:800; }
 
     /* Cards */
-    .card { border:1px solid var(--border); border-radius:14px; padding:14px; background:#fff; box-shadow:0 6px 18px rgba(10,10,10,.04); }
-    .card h3 { margin:0 0 8px; font-size:18px; font-weight:750; }
-    .cap { color:var(--muted); font-size:13px; margin-top:8px; }
+    .cards { display:grid; gap:12px; }
+    .cards.two { grid-template-columns:1fr; }
+    .cards.four { grid-template-columns:1fr; }
+    @media (min-width: 960px){
+      .cards.two  { grid-template-columns:1fr 1fr; }
+      .cards.four { grid-template-columns:1fr 1fr; }
+    }
+    .card { border:1px solid var(--border); border-radius:14px; padding:12px; background:#fff; box-shadow:0 6px 16px rgba(10,10,10,.04); min-height:180px; display:flex; flex-direction:column; }
+    .card h3 { margin:0 0 8px; font-size:17px; font-weight:750; }
 
-    /* Image frames (no “upload” text if empty) */
-    .img { position:relative; border:1px solid var(--border); border-radius:12px; background:#fff; min-height:200px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .cap { color:var(--muted); font-size:13px; margin-top:8px; }
+    .img { position:relative; border:1px solid var(--border); border-radius:12px; background:#fff; min-height:190px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
     .img img { width:100%; height:auto; display:block; }
 
     /* Charts */
-    .chart, .diagram { border:1px solid var(--border); border-radius:12px; background:#fff; }
+    .chart { border:1px solid var(--border); border-radius:12px; background:#fff; width:100%; height:auto; }
+    .chart.slim { min-height:160px; }
 
-    /* Easy Street §3 highlight — tweak these if needed */
+    /* Easy Street §3 highlight — lower half of §3 */
     .hi-box {
-      /* full §3 block */
       --hi-x: 4%;   /* left  */
-      --hi-y: 58%;  /* top   */
+      --hi-y: 66%;  /* top (shifted down to lower half) */
       --hi-w: 92%;  /* width */
-      --hi-h: 15%;  /* height*/
+      --hi-h: 10%;  /* height */
       position:absolute; left:var(--hi-x); top:var(--hi-y);
       width:var(--hi-w); height:var(--hi-h);
       border:2px dashed #ec4899; border-radius:10px;
-      box-shadow: 0 0 0 2000px rgba(236,72,153,.06) inset;
+      box-shadow: 0 0 0 2000px rgba(236,72,153,.05) inset;
       pointer-events:none;
     }
     .hi-note {
-      position:absolute; left:calc(var(--hi-x) + 8px); top:calc(var(--hi-y) - 24px);
+      position:absolute; left:calc(var(--hi-x) + 8px); top:calc(var(--hi-y) - 22px);
       background:#ec4899; color:#fff; font-size:12px; padding:4px 8px; border-radius:8px;
       box-shadow:0 4px 10px rgba(236,72,153,.25); pointer-events:none;
     }
@@ -69,127 +69,124 @@
     </header>
 
     <h1>Comps & Evidence</h1>
-    <div class="sub">Blocks are grouped by source for fast scanning. Charts are inline (no external libs).</div>
+    <div class="sub">Grouped by source. Charts are inline for speed and consistency.</div>
 
-    <!-- OPENDOOR: three items in one block -->
+    <!-- OPENDOOR — symmetric 2×2 grid -->
     <section class="block">
       <h2>Opendoor (10-Q Q2’25)</h2>
-
-      <!-- top row: 2-up -->
-      <div class="cards two-up">
-        <!-- Homes purchased YoY -->
+      <div class="cards four">
+        <!-- 1. Homes purchased YoY -->
         <section class="card">
           <h3>Homes Purchased (YoY)</h3>
-          <svg class="chart" viewBox="0 0 760 200" role="img" aria-label="Homes purchased YoY">
+          <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Homes purchased YoY">
             <defs>
-              <linearGradient id="bar24" x1="0" x2="0" y1="1" y2="0">
+              <linearGradient id="p24" x1="0" x2="0" y1="1" y2="0">
                 <stop offset="0%" stop-color="#94a3b8" stop-opacity=".18"/>
                 <stop offset="100%" stop-color="#94a3b8" stop-opacity=".34"/>
               </linearGradient>
-              <linearGradient id="bar25" x1="0" x2="0" y1="1" y2="0">
+              <linearGradient id="p25" x1="0" x2="0" y1="1" y2="0">
                 <stop offset="0%" stop-color="#0ea5e9" stop-opacity=".18"/>
                 <stop offset="100%" stop-color="#0ea5e9" stop-opacity=".38"/>
               </linearGradient>
             </defs>
-            <rect x="8" y="8" width="744" height="184" rx="12" fill="#fff" stroke="#e5e7eb"/>
+            <rect x="8" y="8" width="704" height="164" rx="12" fill="#fff" stroke="#e5e7eb"/>
             <g fill="#68707a" font-size="12" font-family="system-ui,-apple-system,Segoe UI,Roboto">
-              <text x="120" y="32" text-anchor="middle">Q2’24</text>
-              <text x="360" y="32" text-anchor="middle">Q2’25</text>
-              <text x="736" y="32" text-anchor="end">Homes purchased (YoY)</text>
+              <text x="120" y="30" text-anchor="middle">Q2’24</text>
+              <text x="360" y="30" text-anchor="middle">Q2’25</text>
+              <text x="700" y="30" text-anchor="end">Homes purchased</text>
             </g>
-            <!-- 4,771 → 1,757 (−63%) -->
-            <rect x="60"  y="50" width="120" height="150" rx="10" fill="url(#bar24)"/>
-            <rect x="300" y="50" width="120" height="55"  rx="10" fill="url(#bar25)"/>
-            <g fill="#0a0a0a" font-weight="700" font-size="16" font-family="system-ui,-apple-system,Segoe UI,Roboto">
-              <text x="120" y="75" text-anchor="middle">4,771</text>
-              <text x="360" y="75" text-anchor="middle">1,757</text>
+            <!-- 4,771 → 1,757 -->
+            <rect x="60"  y="48" width="120" height="120" rx="10" fill="url(#p24)"/>
+            <rect x="300" y="48" width="120" height="44"  rx="10" fill="url(#p25)"/>
+            <g fill="#0a0a0a" font-weight="700" font-size="15" font-family="system-ui,-apple-system,Segoe UI,Roboto">
+              <text x="120" y="70" text-anchor="middle">4,771</text>
+              <text x="360" y="70" text-anchor="middle">1,757</text>
             </g>
             <g fill="#0ea5e9" font-size="12" font-family="system-ui,-apple-system,Segoe UI,Roboto">
-              <text x="520" y="160" text-anchor="middle">−63% YoY</text>
+              <text x="520" y="142" text-anchor="middle">−63% YoY</text>
             </g>
           </svg>
-          <!-- optional 10Q table: no placeholder text if missing -->
-          <div class="img" style="margin-top:10px">
-            <img src="../brand/opendoor_10q_2025q2_table.png" alt="10-Q table crop">
-          </div>
-          <div class="cap">Source: Opendoor Technologies, Form 10-Q (quarter ended Jun 30, 2025). Add capture date.</div>
         </section>
 
-        <!-- ≥120 days on market -->
+        <!-- 2. ≥120 day share -->
         <section class="card">
           <h3>Inventory on-market ≥120 days</h3>
-          <svg class="chart" viewBox="0 0 760 160" role="img" aria-label="Inventory 120+ days on market">
-            <rect x="8" y="8" width="744" height="144" rx="12" fill="#fff" stroke="#e5e7eb"/>
+          <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Inventory 120+ days">
+            <rect x="8" y="8" width="704" height="164" rx="12" fill="#fff" stroke="#e5e7eb"/>
             <g font-family="system-ui,-apple-system,Segoe UI,Roboto" font-size="12">
-              <text x="120" y="40" text-anchor="middle" fill="#68707a">Q2’24</text>
-              <rect x="40" y="60" width="160" height="40" rx="8" fill="#e5e7eb"/>
-              <rect x="40" y="60" width="22.4" height="40" rx="8" fill="#0ea5e9" opacity=".28"/>
-              <text x="120" y="86" text-anchor="middle" fill="#0a0a0a" font-weight="700">14%</text>
+              <text x="120" y="30" text-anchor="middle" fill="#68707a">Q2’24</text>
+              <rect x="40" y="56" width="160" height="36" rx="8" fill="#e5e7eb"/>
+              <rect x="40" y="56" width="22.4" height="36" rx="8" fill="#0ea5e9" opacity=".30"/>
+              <text x="120" y="80" text-anchor="middle" fill="#0a0a0a" font-weight="700">14%</text>
 
-              <text x="360" y="40" text-anchor="middle" fill="#68707a">Q2’25</text>
-              <rect x="280" y="60" width="160" height="40" rx="8" fill="#e5e7eb"/>
-              <rect x="280" y="60" width="57.6" height="40" rx="8" fill="#0ea5e9" opacity=".35"/>
-              <text x="360" y="86" text-anchor="middle" fill="#0a0a0a" font-weight="700">36%</text>
+              <text x="360" y="30" text-anchor="middle" fill="#68707a">Q2’25</text>
+              <rect x="280" y="56" width="160" height="36" rx="8" fill="#e5e7eb"/>
+              <rect x="280" y="56" width="57.6" height="36" rx="8" fill="#0ea5e9" opacity=".36"/>
+              <text x="360" y="80" text-anchor="middle" fill="#0a0a0a" font-weight="700">36%</text>
 
-              <text x="720" y="86" text-anchor="end" fill="#68707a">Higher aging underscores carry risk</text>
+              <text x="696" y="80" text-anchor="end" fill="#68707a">Higher aging → carry risk (we have none)</text>
             </g>
           </svg>
-          <div class="cap">We are capital-light (no inventory carry), so this risk doesn’t hit our model.</div>
         </section>
-      </div>
 
-      <!-- bottom row: full-width affiliate vs hybrid -->
-      <div class="cards">
+        <!-- 3. Affiliate vs Hybrid mini-chart -->
         <section class="card">
           <h3>Affiliate model — attrition & income</h3>
-          <svg class="chart" viewBox="0 0 760 200" role="img" aria-label="Affiliate attrition and income">
-            <rect x="8" y="8" width="744" height="184" rx="12" fill="#fff" stroke="#e5e7eb"/>
+          <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Affiliate vs Hybrid">
+            <rect x="8" y="8" width="704" height="164" rx="12" fill="#fff" stroke="#e5e7eb"/>
             <g font-family="system-ui,-apple-system,Segoe UI,Roboto" font-size="12" fill="#68707a">
               <text x="24" y="40">Attrition (YoY)</text>
-              <text x="24" y="120">Avg gross income</text>
+              <text x="24" y="110">Avg gross income</text>
             </g>
             <!-- Attrition -->
             <g>
-              <rect x="220" y="28" width="200" height="12" rx="6" fill="#e5e7eb"/>
-              <rect x="220" y="28" width="94"  height="12" rx="6" fill="#ef4444" opacity=".70"/>
-              <text x="326" y="25" text-anchor="middle" font-size="12" fill="#0a0a0a">Affiliate ~47%</text>
+              <rect x="220" y="30" width="200" height="10" rx="5" fill="#e5e7eb"/>
+              <rect x="220" y="30" width="94"  height="10" rx="5" fill="#ef4444" opacity=".72"/>
+              <text x="326" y="26" text-anchor="middle" font-size="12" fill="#0a0a0a">Affiliate ~47%</text>
 
-              <rect x="440" y="28" width="200" height="12" rx="6" fill="#e5e7eb"/>
-              <rect x="440" y="28" width="42"  height="12" rx="6" fill="#10b981" opacity=".70"/>
-              <text x="540" y="25" text-anchor="middle" font-size="12" fill="#0a0a0a">Hybrid ≤20%</text>
+              <rect x="440" y="30" width="200" height="10" rx="5" fill="#e5e7eb"/>
+              <rect x="440" y="30" width="42"  height="10" rx="5" fill="#10b981" opacity=".72"/>
+              <text x="540" y="26" text-anchor="middle" font-size="12" fill="#0a0a0a">Hybrid ≤20%</text>
             </g>
             <!-- Income -->
             <g>
-              <rect x="220" y="108" width="200" height="12" rx="6" fill="#e5e7eb"/>
-              <rect x="220" y="108" width="90"  height="12" rx="6" fill="#94a3b8" opacity=".75"/>
-              <text x="316" y="105" text-anchor="middle" font-size="12" fill="#0a0a0a">~$50K</text>
+              <rect x="220" y="100" width="200" height="10" rx="5" fill="#e5e7eb"/>
+              <rect x="220" y="100" width="90"  height="10" rx="5" fill="#94a3b8" opacity=".78"/>
+              <text x="316" y="96" text-anchor="middle" font-size="12" fill="#0a0a0a">~$50K</text>
 
-              <rect x="440" y="108" width="200" height="12" rx="6" fill="#e5e7eb"/>
-              <rect x="440" y="108" width="135" height="12" rx="6" fill="#0ea5e9" opacity=".75"/>
-              <text x="508" y="105" text-anchor="middle" font-size="12" fill="#0a0a0a">>$75K</text>
+              <rect x="440" y="100" width="200" height="10" rx="5" fill="#e5e7eb"/>
+              <rect x="440" y="100" width="135" height="10" rx="5" fill="#0ea5e9" opacity=".78"/>
+              <text x="508" y="96" text-anchor="middle" font-size="12" fill="#0a0a0a">>$75K</text>
             </g>
           </svg>
-          <div class="cap">Illustrative indices: affiliate programs typically churn higher and earn lower vs Hybrid W-2 (greater control, training adherence, and agreement-capture discipline).</div>
+          <div class="cap">Illustrative indices: affiliate programs typically churn higher and earn lower vs Hybrid W-2 (greater control, training adherence, agreement-capture discipline).</div>
+        </section>
+
+        <!-- 4. Reserved panel -->
+        <section class="card">
+          <h3>Reserved — next metric</h3>
+          <div class="img" style="min-height:160px; background:linear-gradient(180deg,#fafafa,#f5f7fa)">
+            <!-- leave empty for now -->
+          </div>
+          <div class="cap">Slot for another OpenDoor comparison (e.g., inventory balance or under-contract pipeline).</div>
         </section>
       </div>
     </section>
 
-    <!-- EASY STREET: page 1 only with full §3 highlight -->
+    <!-- EASY STREET — lower half of §3 highlighted -->
     <section class="block">
       <h2>Easy Street — Buyer Participation Agreement</h2>
       <section class="card">
         <h3>§3: Compensation and Buyer’s Credit (up to 3%)</h3>
         <div class="img">
-          <img src="../brand/easystreet_agreement_p1.png"
-               alt="Easy Street Buyer Participation Agreement (Page 1)">
-          <!-- full-§3 highlight; tweak numbers here if you need tiny nudges -->
-          <div class="hi-box" style="--hi-x:4%; --hi-y:60%; --hi-w:92%; --hi-h:13%;"></div>
+          <img src="../brand/easystreet_agreement_p1.png" alt="Easy Street Buyer Participation Agreement (Page 1)">
+          <!-- same size box, shifted down to emphasize the latter half of §3 -->
+          <div class="hi-box" style="--hi-x:4%; --hi-y:66%; --hi-w:92%; --hi-h:10%;"></div>
           <div class="hi-note">§3 — Buyer may pay up to 3% if no co-op</div>
         </div>
         <div class="cap">PNG preferred for crisp text. Adjust highlight by changing the inline <code>--hi-*</code> values above.</div>
       </section>
     </section>
-
   </div>
 </body>
 </html>
