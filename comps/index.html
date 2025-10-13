@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Comps & Evidence</title>
   <style>
-    :root { --fg:#0a0a0a; --muted:#68707a; --border:#e5e7eb; --accent:#0ea5e9; --bg:#fff; --block:#f1f4f8; }
+    :root { --fg:#0a0a0a; --muted:#68707a; --border:#e5e7eb; --accent:#0ea5e9; --bg:#fff; --block:#eef3f8; }
     * { box-sizing:border-box }
     body { margin:0; font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--fg); background:var(--bg); }
     .wrap { width:min(1100px,92%); margin:auto; padding:24px 0 60px; }
@@ -13,43 +13,39 @@
     .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:12px; text-decoration:none; color:inherit; background:#fff; }
     h1 { font-size:clamp(26px,4vw,36px); margin:14px 0 8px; font-weight:750; }
     .sub { color:var(--muted); margin-bottom:14px; }
-    .grid { display:grid; gap:16px; grid-template-columns:1fr; }
-    @media (min-width: 1000px){ .grid{ grid-template-columns:1fr 1fr; } }
 
-    /* Section blocks: darker tint behind each logical group */
-    .block { background:var(--block); border:1px solid #d7dce3; border-radius:16px; padding:14px; }
+    /* Blocks: darker tint + small white gutters between */
+    .block { background:var(--block); border:1px solid #d7dce3; border-radius:16px; padding:14px; margin:6px 0; }
+    .block + .block { margin-top:10px; } /* subtle vertical gap */
     .block h2 { margin:2px 0 6px; font-size:16px; letter-spacing:.2px; font-weight:700; }
-    .block .cards { display:grid; gap:14px; grid-template-columns:1fr; }
-    @media (min-width: 900px){ .block .cards{ grid-template-columns:1fr 1fr; } }
+    .cards { display:grid; gap:14px; grid-template-columns:1fr; }
+    @media (min-width: 900px){ .cards{ grid-template-columns:1fr 1fr; } }
 
     .card { border:1px solid var(--border); border-radius:16px; padding:16px; background:#fff; box-shadow:0 6px 20px rgba(10,10,10,.04); }
     .card h3 { margin:0 0 6px; font-size:18px; }
     .cap { color:var(--muted); font-size:12px; margin-top:8px; }
-    .img { position:relative; border:1px solid var(--border); border-radius:12px; background:linear-gradient(135deg,#fafafa,#f4f6f8); min-height:220px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+
+    .img { position:relative; border:1px solid var(--border); border-radius:12px; background:#fff; min-height:220px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
     .img img { width:100%; height:auto; display:block; }
     .placeholder { color:#9aa1a9; font-size:12px; text-align:center; padding:24px; }
-    .filetag { display:inline-block; margin-top:6px; font-size:11px; color:#9aa1a9; }
+    .chart { border:1px solid var(--border); border-radius:12px; background:#fff; }
 
-    /* Charts */
-    .chart, .diagram { border:1px solid var(--border); border-radius:12px; background:#fff; }
-
-    /* EASY STREET §3 highlight (adjust quickly via CSS vars below) */
+    /* Easy Street §3 highlight — tweak these if needed */
     .hi-box {
-      --hi-x: 8%;   /* left offset (%) */
-      --hi-y: 47%;  /* top offset  (%) */
-      --hi-w: 84%;  /* width  (%)     */
-      --hi-h: 17%;  /* height (%)     */
+      --hi-x: 5%;   /* left  */
+      --hi-y: 53%;  /* top   */
+      --hi-w: 90%;  /* width */
+      --hi-h: 16%;  /* height*/
       position:absolute; left:var(--hi-x); top:var(--hi-y);
       width:var(--hi-w); height:var(--hi-h);
       border:2px dashed #ec4899; border-radius:10px;
-      box-shadow: 0 0 0 2000px rgba(236,72,153,.08) inset;
+      box-shadow: 0 0 0 2000px rgba(236,72,153,.06) inset;
       pointer-events:none;
     }
     .hi-note {
-      position:absolute; left:calc(var(--hi-x) + 6px); top:calc(var(--hi-y) - 22px);
+      position:absolute; left:calc(var(--hi-x) + 8px); top:calc(var(--hi-y) - 24px);
       background:#ec4899; color:#fff; font-size:12px; padding:4px 8px; border-radius:8px;
-      box-shadow:0 4px 10px rgba(236,72,153,.25);
-      pointer-events:none;
+      box-shadow:0 4px 10px rgba(236,72,153,.25); pointer-events:none;
     }
   </style>
 </head>
@@ -61,13 +57,13 @@
     </header>
 
     <h1>Comps & Evidence</h1>
-    <div class="sub">Third-party receipts + internal diagrams. Upload screenshots into <code>/brand/</code> using the exact filenames shown.</div>
+    <div class="sub">Upload screenshots into <code>/brand/</code> using the exact filenames shown. Blocks are grouped by source for clarity.</div>
 
-    <!-- OPENDOOR BLOCK: both charts live together -->
+    <!-- OPENDOOR (single block with two panels) -->
     <section class="block">
       <h2>Opendoor (10-Q Q2’25)</h2>
       <div class="cards">
-        <!-- Homes purchased YoY -->
+        <!-- Left: Homes purchased YoY -->
         <section class="card">
           <h3>Homes Purchased (YoY)</h3>
           <svg class="chart" viewBox="0 0 760 200" role="img" aria-label="Homes purchased YoY">
@@ -87,7 +83,6 @@
               <text x="360" y="32" text-anchor="middle">Q2’25</text>
               <text x="736" y="32" text-anchor="end">Homes purchased (YoY)</text>
             </g>
-            <!-- scale: max→150px bar height -->
             <rect x="60"  y="50" width="120" height="150" rx="10" fill="url(#bar24)"/>
             <rect x="300" y="50" width="120" height="55"  rx="10" fill="url(#bar25)"/>
             <g fill="#0a0a0a" font-weight="700" font-size="16" font-family="system-ui,-apple-system,Segoe UI,Roboto">
@@ -98,75 +93,86 @@
               <text x="520" y="160" text-anchor="middle">−63% YoY</text>
             </g>
           </svg>
-
           <div class="img" style="margin-top:12px">
-            <img src="../brand/opendoor_10q_2025q2_table.png" alt="10-Q table crop" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/opendoor_10q_2025q2_table.png</b> (table with purchases YoY).</div>';">
+            <img src="../brand/opendoor_10q_2025q2_table.png" alt="10-Q table crop" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/opendoor_10q_2025q2_table.png</b> (purchases YoY table).</div>';">
           </div>
           <div class="cap">Source: Opendoor Technologies, Form 10-Q (quarter ended Jun 30, 2025). Add capture date.</div>
         </section>
 
-        <!-- ≥120 days on market -->
+        <!-- Right: Affiliate model mini-chart -->
         <section class="card">
-          <h3>Inventory on-market ≥120 days</h3>
-          <svg class="chart" viewBox="0 0 760 160" role="img" aria-label="Inventory 120+ days on market">
-            <rect x="8" y="8" width="744" height="144" rx="12" fill="#fff" stroke="#e5e7eb"/>
-            <g font-family="system-ui,-apple-system,Segoe UI,Roboto" font-size="12">
-              <text x="120" y="40" text-anchor="middle" fill="#68707a">Q2’24</text>
-              <rect x="40" y="60" width="160" height="40" rx="8" fill="#e5e7eb"/>
-              <!-- 14% overlay -->
-              <rect x="40" y="60" width="22.4" height="40" rx="8" fill="#0ea5e9" opacity=".28"/>
-              <text x="120" y="86" text-anchor="middle" fill="#0a0a0a" font-weight="700">14%</text>
+          <h3>Affiliate model — attrition & income</h3>
+          <!-- Illustrative indices (0–100) to visualize the point cleanly -->
+          <svg class="chart" viewBox="0 0 760 200" role="img" aria-label="Affiliate attrition and income">
+            <rect x="8" y="8" width="744" height="184" rx="12" fill="#fff" stroke="#e5e7eb"/>
+            <g font-family="system-ui,-apple-system,Segoe UI,Roboto" font-size="12" fill="#68707a">
+              <text x="24" y="40">Attrition (YoY)</text>
+              <text x="24" y="120">Avg gross income</text>
+            </g>
+            <!-- Attrition bars -->
+            <g>
+              <!-- Affiliate ~47% -->
+              <rect x="220" y="28" width="200" height="12" rx="6" fill="#e5e7eb"/>
+              <rect x="220" y="28" width="94"  height="12" rx="6" fill="#ef4444" opacity=".70"/>
+              <text x="326" y="25" text-anchor="middle" font-size="12" fill="#0a0a0a">Affiliate ~47%</text>
 
-              <text x="360" y="40" text-anchor="middle" fill="#68707a">Q2’25</text>
-              <rect x="280" y="60" width="160" height="40" rx="8" fill="#e5e7eb"/>
-              <!-- 36% overlay -->
-              <rect x="280" y="60" width="57.6" height="40" rx="8" fill="#0ea5e9" opacity=".35"/>
-              <text x="360" y="86" text-anchor="middle" fill="#0a0a0a" font-weight="700">36%</text>
+              <!-- Hybrid W-2 lower (~20%) -->
+              <rect x="440" y="28" width="200" height="12" rx="6" fill="#e5e7eb"/>
+              <rect x="440" y="28" width="42"  height="12" rx="6" fill="#10b981" opacity=".70"/>
+              <text x="540" y="25" text-anchor="middle" font-size="12" fill="#0a0a0a">Hybrid ≤20%</text>
+            </g>
 
-              <text x="720" y="86" text-anchor="end" fill="#68707a">Higher aging underscores carry risk</text>
+            <!-- Income bars -->
+            <g>
+              <!-- Affiliate <$50K -->
+              <rect x="220" y="108" width="200" height="12" rx="6" fill="#e5e7eb"/>
+              <rect x="220" y="108" width="90"  height="12" rx="6" fill="#94a3b8" opacity=".75"/>
+              <text x="316" y="105" text-anchor="middle" font-size="12" fill="#0a0a0a">~$50K</text>
+
+              <!-- Hybrid >$75K -->
+              <rect x="440" y="108" width="200" height="12" rx="6" fill="#e5e7eb"/>
+              <rect x="440" y="108" width="135" height="12" rx="6" fill="#0ea5e9" opacity=".75"/>
+              <text x="508" y="105" text-anchor="middle" font-size="12" fill="#0a0a0a">>$75K</text>
             </g>
           </svg>
-          <div class="cap">We are capital-light (no inventory carry), so this risk doesn’t hit our model.</div>
+          <div class="cap">Illustrative indices based on industry patterns: affiliate programs tend to churn higher and earn lower on average vs. Hybrid W-2 (greater control, training adherence, and agreement-capture discipline).</div>
         </section>
       </div>
     </section>
 
-    <!-- EASY STREET BLOCK: page 1 only with §3 callout -->
+    <!-- EASY STREET: page 1 only, sleek §3 callout -->
     <section class="block">
-      <h2>Easy Street — Buyer Participation Agreement </h2>
+      <h2>Easy Street — Buyer Participation Agreement</h2>
       <section class="card">
-        <h3>Excerpts (focus on §3: Compensation and Buyer’s Credit)</h3>
-        <div class="img" id="es-img">
-          <img src="../brand/easystreet_agreement_p1.png" alt="Easy Street Buyer Participation Agreement (Page 1)"
+        <h3>§3: Compensation and Buyer’s Credit (up to 3%)</h3>
+        <div class="img">
+          <img src="../brand/easystreet_agreement_p1.png"
+               alt="Easy Street Buyer Participation Agreement (Page 1)"
                onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/easystreet_agreement_p1.png</b> (first page).</div>';">
-          <!-- highlight box (tweak the CSS vars at top if you need to nudge it) -->
           <div class="hi-box"></div>
-          <div class="hi-note">§3 — Buyer may pay up to 3% if no co-op</div>
+          <div class="hi-note">§3 highlights buyer-paid up to 3% if no co-op</div>
         </div>
-        <div class="cap">Use the callout to draw attention to §3. If you need finer placement, adjust the CSS variables on <code>.hi-box</code> / <code>.hi-note</code> (see &lt;style&gt;).</div>
-        <div class="filetag">Expected: <code>/brand/easystreet_agreement_p1.png</code></div>
+        <div class="cap">Adjust the highlight with CSS vars on <code>.hi-box</code> (left/top/width/height). PNG preferred for crisp text.</div>
       </section>
     </section>
 
-    <!-- ANALOGS + optional -->
+    <!-- ANALOGS -->
     <section class="block">
       <h2>Investor-brokerage analogs</h2>
       <div class="cards">
         <section class="card">
-          <h3>Reference screenshots</h3>
+          <h3>New Western (reference)</h3>
           <div class="img">
             <img src="../brand/newwestern_marketplace.png" alt="New Western"
                  onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/newwestern_marketplace.png</b></div>';">
           </div>
-          <div class="cap">Marketplace stats or homepage (label self-reported metrics clearly).</div>
         </section>
         <section class="card">
-          <h3>Reference screenshots</h3>
+          <h3>NetWorth Realty (reference)</h3>
           <div class="img">
             <img src="../brand/networth_brokerage.png" alt="NetWorth"
                  onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/networth_brokerage.png</b></div>';">
           </div>
-          <div class="cap">Coverage map or “$1B+ closed”.</div>
         </section>
       </div>
     </section>
