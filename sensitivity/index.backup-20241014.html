@@ -50,32 +50,28 @@
 
     function App(){
       // Funnel inputs
-      const [intakes,setIntakes]=useState(48000);
-      const [assessments,setAssessments]=useState(5000);
-      const [offerRate,setOfferRate]=useState(0.5);
-      const [acceptRate,setAcceptRate]=useState(0.25);
-      const [closeRate,setCloseRate]=useState(0.35);
+      const [intakes,setIntakes]=useState(6800);
+      const [assessments,setAssessments]=useState(2100);
+      const [offerRate,setOfferRate]=useState(0.6);
+      const [acceptRate,setAcceptRate]=useState(0.6);
+      const [closeRate,setCloseRate]=useState(0.9);
 
       // Mix / economics
       const [offMarketShare,setOffMarketShare]=useState(0.9);
       const [offMarketCapture,setOffMarketCapture]=useState(0.8);
-      const [offMarketFee,setOffMarketFee]=useState(7000);
+      const [offMarketFee,setOffMarketFee]=useState(500);
       const [mlsAvgPrice,setMlsAvgPrice]=useState(150000);
       const [mlsCommissionRate,setMlsCommissionRate]=useState(0.022);
       const [titleCaptureRate,setTitleCaptureRate]=useState(0.3);
       const [titleProfitPerDeal,setTitleProfitPerDeal]=useState(400);
-      const [thirdPartyUnits,setThirdPartyUnits]=useState(100);
-      const [thirdPartyFee,setThirdPartyFee]=useState(250);
 
       // Infra
       const [activeMarkets,setActiveMarkets]=useState([...marketsAll.slice(0,8)]);
       const [infraPerMarketPerMonth,setInfraPerMarketPerMonth]=useState(2500);
 
       // **NEW** Agent cost surfaced
-      const [agentsPerMarket,setAgentsPerMarket]=useState(0.8);
-      const [agentBaseAnnual,setAgentBaseAnnual]=useState(18000);
-      const [agentSplitRate,setAgentSplitRate]=useState(0.5);
-      const [agentLeakageCloseRate,setAgentLeakageCloseRate]=useState(0.03);
+      const [agentCostPerHirePerMonth,setAgentCostPerHirePerMonth]=useState(2000); // hybrid W-2 base/benefits blended
+      const [agentsPerMarket,setAgentsPerMarket]=useState(2);
 
       // Growth overlay
       const [growthPct,setGrowthPct]=useState(0.25);
@@ -96,60 +92,31 @@
         const mlsCommission  = mlsAnnual*mlsAvgPrice*mlsCommissionRate;
         const titleDeals     = (offMktAnnual+mlsAnnual)*titleCaptureRate;
         const titleProfit    = titleDeals*titleProfitPerDeal;
-        const thirdPartyRevenue = thirdPartyUnits*thirdPartyFee;
 
-        // Infra + Agent modeling
+        // Infra + Agent cost
         const infra          = infraPerMarketPerMonth*activeMarkets.length*12;
         const agentSeats     = agentsPerMarket*activeMarkets.length;
-        const agentBenefitsPerSeat = agentBaseAnnual*0.15 + 5000;
-        const agentBaseCost  = agentSeats*agentBaseAnnual;
-        const agentBenefitsCost = agentSeats*agentBenefitsPerSeat;
-        const agentFixedCost = agentBaseCost + agentBenefitsCost;
-        const leakage        = Math.max(0,funnel.accepted - funnel.closed);
-        const agentRecoveredDeals = leakage*agentLeakageCloseRate;
-        const coreGross      = offMarketFees + mlsCommission + titleProfit + thirdPartyRevenue;
-        const avgRevenuePerDeal = annualClosed>0 ? coreGross/annualClosed : 0;
-        const agentRecoveredRevenue = agentRecoveredDeals*avgRevenuePerDeal;
-        const agentSplitPayout = agentRecoveredRevenue*agentSplitRate;
-        const agentRevenueToCompany = Math.max(0, agentRecoveredRevenue - agentSplitPayout);
-        const agentCost      = agentFixedCost + agentSplitPayout;
+        const agentCost      = agentCostPerHirePerMonth*agentSeats*12;
 
-        const gross          = coreGross + agentRevenueToCompany;
+        const gross          = offMarketFees + mlsCommission + titleProfit;
         const net            = gross - infra - agentCost;
 
         return {
           annualClosed, offMktAnnual, mlsAnnual,
-          offMarketFees, mlsCommission, titleProfit, thirdPartyRevenue,
+          offMarketFees, mlsCommission, titleProfit,
           infra, agentCost, gross, net,
-          agent: {
-            seats: agentSeats,
-            leakage,
-            recoveredDeals: agentRecoveredDeals,
-            avgRevenuePerDeal,
-            recoveredRevenue: agentRecoveredRevenue,
-            splitPayout: agentSplitPayout,
-            revenueToCompany: agentRevenueToCompany,
-            baseCost: agentBaseCost,
-            benefitsCost: agentBenefitsCost,
-            fixedCost: agentFixedCost
-          },
           rounded:{
             offMarketFees: roundToNearestTenK(offMarketFees),
             mlsCommission: roundToNearestTenK(mlsCommission),
             titleProfit:   roundToNearestTenK(titleProfit),
-            thirdPartyRevenue: roundToNearestTenK(thirdPartyRevenue),
             gross:         roundToNearestTenK(gross),
-            net:           roundToNearestTenK(net),
-            agentRecoveredRevenue: roundToNearestTenK(agentRecoveredRevenue),
-            agentRevenueToCompany: roundToNearestTenK(agentRevenueToCompany),
-            agentCost: roundToNearestTenK(agentCost)
+            net:           roundToNearestTenK(net)
           }
         };
       },[
         funnel.closed, offMarketShare, offMarketCapture, offMarketFee,
         mlsAvgPrice, mlsCommissionRate, titleCaptureRate, titleProfitPerDeal,
-        infraPerMarketPerMonth, activeMarkets.length, agentsPerMarket, agentBaseAnnual,
-        agentSplitRate, agentLeakageCloseRate, thirdPartyUnits, thirdPartyFee
+        infraPerMarketPerMonth, activeMarkets.length, agentCostPerHirePerMonth, agentsPerMarket
       ]);
 
       const assessmentsPct = useMemo(()=> !intakes?0:Math.round((assessments/intakes)*100), [assessments,intakes]);
@@ -189,13 +156,13 @@
                 <h2 className="text-lg font-semibold">Acquisitions Funnel (12-month)</h2>
                 <div className="mt-4 grid gap-4">
                   <label className="text-sm">Intakes: <span className="font-medium">{intakes.toLocaleString()}</span></label>
-                  <input type="range" min={0} max={150000} step={500} value={intakes} onChange={e=>setIntakes(parseInt(e.target.value))}/>
+                  <input type="range" min={2000} max={12000} step={100} value={intakes} onChange={e=>setIntakes(parseInt(e.target.value))}/>
                   <label className="text-sm">Assessments: <span className="font-medium">{assessments.toLocaleString()} ({assessmentsPct}%)</span></label>
-                  <input type="range" min={0} max={20000} step={50} value={assessments} onChange={e=>setAssessments(parseInt(e.target.value))}/>
+                  <input type="range" min={500} max={intakes} step={50} value={assessments} onChange={e=>setAssessments(parseInt(e.target.value))}/>
                   <div className="grid grid-cols-3 gap-3 text-sm">
-                    <div><div>Offer: <span className="font-medium">{Math.round(offerRate*100)}%</span></div><input type="range" min={0} max={0.9} step={0.01} value={offerRate} onChange={e=>setOfferRate(parseFloat(e.target.value))}/></div>
-                    <div><div>Accept: <span className="font-medium">{Math.round(acceptRate*100)}%</span></div><input type="range" min={0} max={0.9} step={0.01} value={acceptRate} onChange={e=>setAcceptRate(parseFloat(e.target.value))}/></div>
-                    <div><div>Close: <span className="font-medium">{Math.round(closeRate*100)}%</span></div><input type="range" min={0} max={0.9} step={0.01} value={closeRate} onChange={e=>setCloseRate(parseFloat(e.target.value))}/></div>
+                    <div><div>Offer: <span className="font-medium">{Math.round(offerRate*100)}%</span></div><input type="range" min={0.2} max={0.95} step={0.01} value={offerRate} onChange={e=>setOfferRate(parseFloat(e.target.value))}/></div>
+                    <div><div>Accept: <span className="font-medium">{Math.round(acceptRate*100)}%</span></div><input type="range" min={0.2} max={0.95} step={0.01} value={acceptRate} onChange={e=>setAcceptRate(parseFloat(e.target.value))}/></div>
+                    <div><div>Close: <span className="font-medium">{Math.round(closeRate*100)}%</span></div><input type="range" min={0.5} max={1} step={0.01} value={closeRate} onChange={e=>setCloseRate(parseFloat(e.target.value))}/></div>
                   </div>
                 </div>
               </div>
@@ -212,26 +179,13 @@
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div><div>Off-Mkt Capture: <span className="font-medium">{Math.round(offMarketCapture*100)}%</span></div><input type="range" min={0.4} max={1} step={0.01} value={offMarketCapture} onChange={e=>setOffMarketCapture(parseFloat(e.target.value))}/></div>
-                    <div><div>Off-Mkt Fee: <span className="font-medium">{formatUSD(offMarketFee)}</span></div><input type="range" min={0} max={20000} step={500} value={offMarketFee} onChange={e=>setOffMarketFee(parseInt(e.target.value))}/></div>
+                    <div><div>Off-Mkt Fee: <span className="font-medium">{formatUSD(offMarketFee)}</span></div><input type="range" min={200} max={1000} step={25} value={offMarketFee} onChange={e=>setOffMarketFee(parseInt(e.target.value))}/></div>
                     <div><div>Title Capture: <span className="font-medium">{Math.round(titleCaptureRate*100)}%</span></div><input type="range" min={0} max={0.8} step={0.01} value={titleCaptureRate} onChange={e=>setTitleCaptureRate(parseFloat(e.target.value))}/></div>
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div><div>MLS Avg Price: <span className="font-medium">{formatUSD(mlsAvgPrice)}</span></div><input type="range" min={100000} max={300000} step={5000} value={mlsAvgPrice} onChange={e=>setMlsAvgPrice(parseInt(e.target.value))}/></div>
                     <div><div>MLS Commission: <span className="font-medium">{(mlsCommissionRate*100).toFixed(1)}%</span></div><input type="range" min={0.01} max={0.04} step={0.001} value={mlsCommissionRate} onChange={e=>setMlsCommissionRate(parseFloat(e.target.value))}/></div>
                     <div><div>Title Profit/Deal: <span className="font-medium">{formatUSD(titleProfitPerDeal)}</span></div><input type="range" min={200} max={800} step={25} value={titleProfitPerDeal} onChange={e=>setTitleProfitPerDeal(parseInt(e.target.value))}/></div>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-neutral-200">
-                    <div className="grid md:grid-cols-2 gap-3 text-sm">
-                      <div className="p-3 rounded-xl border border-neutral-200 bg-neutral-50/60">
-                        <div>Third-Party Units: <span className="font-medium">{thirdPartyUnits.toLocaleString()}</span></div>
-                        <input className="mt-2 w-full" type="range" min={0} max={10000} step={50} value={thirdPartyUnits} onChange={e=>setThirdPartyUnits(parseInt(e.target.value))}/>
-                      </div>
-                      <div className="p-3 rounded-xl border border-neutral-200 bg-neutral-50/60">
-                        <div>Third-Party Fee: <span className="font-medium">{formatUSD(thirdPartyFee)}</span></div>
-                        <input className="mt-2 w-full" type="range" min={0} max={1000} step={25} value={thirdPartyFee} onChange={e=>setThirdPartyFee(parseInt(e.target.value))}/>
-                        <div className="mt-2 text-xs text-neutral-500 border-t border-dashed border-neutral-300 pt-2">Platform SaaS close fee • Adds {formatUSD(economics.thirdPartyRevenue)} to gross</div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -246,40 +200,16 @@
                 <input className="mt-2 w-full" type="range" min={1000} max={5000} step={100} value={infraPerMarketPerMonth} onChange={e=>setInfraPerMarketPerMonth(parseInt(e.target.value))} />
               </div>
               <div className="p-6 bg-white rounded-2xl shadow-sm border">
-                <h3 className="text-sm font-semibold">Agent Model (Hybrid W-2)</h3>
-                <div className="mt-3 grid gap-4 text-sm">
-                  <div>
-                    <div>Agents / market: <span className="font-medium">{agentsPerMarket.toFixed(1)}</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={4} step={0.1} value={agentsPerMarket} onChange={e=>setAgentsPerMarket(parseFloat(e.target.value))} />
-                  </div>
-                  <div>
-                    <div>Agent base (annual): <span className="font-medium">{formatUSD(agentBaseAnnual)}</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={40000} step={1000} value={agentBaseAnnual} onChange={e=>setAgentBaseAnnual(parseInt(e.target.value))} />
-                    <div className="mt-1 text-xs text-neutral-500">Benefits add {formatUSD((agentBaseAnnual*0.15)+5000)} per agent</div>
-                  </div>
-                  <div>
-                    <div>Agent split: <span className="font-medium">{Math.round(agentSplitRate*100)}%</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={0.95} step={0.05} value={agentSplitRate} onChange={e=>setAgentSplitRate(parseFloat(e.target.value))} />
-                  </div>
-                  <div>
-                    <div>Close leakage (%): <span className="font-medium">{(agentLeakageCloseRate*100).toFixed(1)}%</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={0.1} step={0.005} value={agentLeakageCloseRate} onChange={e=>setAgentLeakageCloseRate(parseFloat(e.target.value))} />
-                    <div className="mt-1 text-xs text-neutral-500">Recovers {Math.round(economics.agent.recoveredDeals).toLocaleString()} deals from funnel leakage</div>
-                  </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-dashed border-neutral-200 text-xs text-neutral-600">
-                  <div>Seats: <span className="font-medium text-neutral-800">{economics.agent.seats.toFixed(1)}</span> • Fixed cost: <span className="font-medium text-neutral-800">{formatUSD(economics.agent.fixedCost)}</span></div>
-                  <div className="mt-1">Agent revenue to company: <span className="font-medium text-neutral-800">{formatUSD(economics.agent.revenueToCompany)}</span></div>
-                  <div className="mt-1">Agent cost (incl. split): <span className="font-medium text-neutral-800">{formatUSD(economics.agentCost)}</span></div>
-                </div>
+                <h3 className="text-sm font-semibold">Agent Cost (Hybrid W-2)</h3>
+                <div className="mt-3 text-sm">Agents / market: <span className="font-medium">{agentsPerMarket}</span></div>
+                <input className="mt-2 w-full" type="range" min={1} max={6} step={1} value={agentsPerMarket} onChange={e=>setAgentsPerMarket(parseInt(e.target.value))} />
+                <div className="mt-3 text-sm">Cost / agent / month: <span className="font-medium">{formatUSD(agentCostPerHirePerMonth)}</span></div>
+                <input className="mt-2 w-full" type="range" min={800} max={4000} step={50} value={agentCostPerHirePerMonth} onChange={e=>setAgentCostPerHirePerMonth(parseInt(e.target.value))} />
               </div>
               <div className="p-6 bg-emerald-600 text-white rounded-2xl shadow-sm text-center">
                 <div className="text-sm font-semibold">Net (Annual)</div>
                 <div className="text-3xl font-bold mt-1">{formatUSD(economics.rounded.net)}</div>
-                <div className="text-xs mt-1 opacity-90 leading-relaxed">
-                  <div>Gross: {formatUSD(economics.rounded.gross)} • Infra: {formatUSD(economics.infra)}</div>
-                  <div>Third-party: {formatUSD(economics.thirdPartyRevenue)} • Agent rev: {formatUSD(economics.agent.revenueToCompany)} • Agent cost: {formatUSD(economics.agentCost)}</div>
-                </div>
+                <div className="text-xs mt-1 opacity-90">Gross: {formatUSD(economics.rounded.gross)} • Infra: {formatUSD(economics.infra)} • Agents: {formatUSD(economics.agentCost)}</div>
               </div>
             </section>
 
