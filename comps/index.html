@@ -150,7 +150,14 @@
                alt="Easy Street Buyer Participation Agreement (Page 1)"
                onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/easystreet_agreement_p1.png</b> (first page).</div>';">
           <div class="hi-box"></div>
-          <div class="hi-note">§3 highlights buyer-paid up to 3% if no co-op</div>
+          <div class="hi-note">§3 — Buyer may pay up to 3% if no co-op</div>
+          .hi-note::after{
+            content:"";
+            position:absolute;
+            left:12px; top:100%;
+            border:6px solid transparent;
+            border-top-color:#ec4899; /* matches the pink label */
+          }
         </div>
         <div class="cap">Adjust the highlight with CSS vars on <code>.hi-box</code> (left/top/width/height). PNG preferred for crisp text.</div>
       </section>
