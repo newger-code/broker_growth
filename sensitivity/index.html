@@ -3,14 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>After the Merge — Sensitivity</title>
+  <title>Rebuilt × Picket — Financial Model</title>
   <meta name="robots" content="noindex" />
   <!-- No-build stack (CDNs) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>html,body{background:#fafafa}</style>
+  <style>
+    html,body{background:#fafafa;scroll-behavior:smooth}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .fade-in{animation:fadeIn 0.4s ease-out}
+    .gradient-card{background:linear-gradient(135deg,#10b981 0%,#059669 100%)}
+    .gradient-accent{background:linear-gradient(135deg,#0ea5e9 0%,#0284c7 100%)}
+  </style>
 </head>
 <body>
   <div id="root"></div>
@@ -78,6 +84,18 @@
       const [agentSplitRate,setAgentSplitRate]=useState(0.5);
       const [agentLeakageCloseRate,setAgentLeakageCloseRate]=useState(0.03);
 
+      // **DEAD LEAD MONETIZATION** (unique IP)
+      const [deadLeadsPerMonth,setDeadLeadsPerMonth]=useState(3500);
+      const [deadLeadConversionRate,setDeadLeadConversionRate]=useState(0.02);
+      const [avgRetailDealValue,setAvgRetailDealValue]=useState(200000);
+      const [referralFeeRate,setReferralFeeRate]=useState(0.30);
+
+      // **MARKETPLACE REVENUE**
+      const [thirdPartyWholesalers,setThirdPartyWholesalers]=useState(50);
+      const [avgDealsPerWholesaler,setAvgDealsPerWholesaler]=useState(2);
+      const [marketplaceFeeRate,setMarketplaceFeeRate]=useState(0.015);
+      const [avgWholesaleDealValue,setAvgWholesaleDealValue]=useState(25000);
+
       // Growth overlay
       const [growthPct,setGrowthPct]=useState(0.25);
 
@@ -116,13 +134,34 @@
         const agentSplitCost = agentSeats*agentSplitCostPerSeat;
         const agentCost      = agentFixedCost + agentSplitCost;
 
-        const gross          = offMarketFees + mlsCommission + titleProfit + thirdPartyRevenue + agentRevenueToCompany;
+        // Dead Lead Revenue (annual)
+        const deadLeadsAnnual = deadLeadsPerMonth * 12;
+        const deadLeadConversions = deadLeadsAnnual * deadLeadConversionRate;
+        const avgCommissionPerDeal = avgRetailDealValue * 0.03; // typical 3% commission
+        const deadLeadReferralRevenue = deadLeadConversions * avgCommissionPerDeal * referralFeeRate;
+
+        // Marketplace Revenue (annual)
+        const marketplaceDealsAnnual = thirdPartyWholesalers * avgDealsPerWholesaler * 12;
+        const marketplaceRevenue = marketplaceDealsAnnual * avgWholesaleDealValue * marketplaceFeeRate;
+
+        const gross          = offMarketFees + mlsCommission + titleProfit + thirdPartyRevenue + agentRevenueToCompany + deadLeadReferralRevenue + marketplaceRevenue;
         const net            = gross - infra - agentCost;
 
         return {
           annualClosed, offMktAnnual, mlsAnnual,
           offMarketFees, mlsCommission, titleProfit, thirdPartyRevenue,
           infra, agentCost, gross, net,
+          deadLead: {
+            annualLeads: deadLeadsAnnual,
+            conversions: deadLeadConversions,
+            revenue: deadLeadReferralRevenue,
+            conversionRate: deadLeadConversionRate
+          },
+          marketplace: {
+            wholesalers: thirdPartyWholesalers,
+            dealsAnnual: marketplaceDealsAnnual,
+            revenue: marketplaceRevenue
+          },
           agent: {
             seats: agentSeats,
             totalMarkets,
@@ -140,6 +179,8 @@
             mlsCommission: roundToNearestTenK(mlsCommission),
             titleProfit:   roundToNearestTenK(titleProfit),
             thirdPartyRevenue: roundToNearestTenK(thirdPartyRevenue),
+            deadLeadRevenue: roundToNearestTenK(deadLeadReferralRevenue),
+            marketplaceRevenue: roundToNearestTenK(marketplaceRevenue),
             gross:         roundToNearestTenK(gross),
             net:           roundToNearestTenK(net),
             agentRevenueToCompany: roundToNearestTenK(agentRevenueToCompany),
@@ -151,7 +192,9 @@
         mlsAvgPrice, mlsCommissionRate, titleCaptureRate, titleProfitPerDeal,
         infraPerMarketPerMonth, activeMarkets.length, additionalMarkets,
         agentsPerMarket, agentBaseAnnual, agentSplitRate, agentLeakageCloseRate,
-        thirdPartyUnits, thirdPartyFee
+        thirdPartyUnits, thirdPartyFee,
+        deadLeadsPerMonth, deadLeadConversionRate, avgRetailDealValue, referralFeeRate,
+        thirdPartyWholesalers, avgDealsPerWholesaler, marketplaceFeeRate, avgWholesaleDealValue
       ]);
 
       const assessmentsPct = useMemo(()=> !intakes?0:Math.round((assessments/intakes)*100), [assessments,intakes]);
@@ -162,6 +205,8 @@
           { key:"mls", label:"MLS", value:economics.mlsCommission, tone:"positive" },
           { key:"title", label:"Title", value:economics.titleProfit, tone:"positive" },
           { key:"thirdParty", label:"Third-Party", value:economics.thirdPartyRevenue, tone:"positive" },
+          { key:"deadLead", label:"Dead Leads", value:economics.deadLead.revenue, tone:"positive", highlight:true },
+          { key:"marketplace", label:"Marketplace", value:economics.marketplace.revenue, tone:"positive", highlight:true },
           { key:"agentRevenue", label:"Agent Revenue", value:economics.agent.revenueToCompany, tone:"positive" },
           { key:"infra", label:"Infrastructure", value:-economics.infra, tone:"negative" },
           { key:"agentCost", label:"Agent Cost", value:-economics.agentCost, tone:"negative" }
@@ -183,6 +228,8 @@
         economics.mlsCommission,
         economics.titleProfit,
         economics.thirdPartyRevenue,
+        economics.deadLead.revenue,
+        economics.marketplace.revenue,
         economics.agent.revenueToCompany,
         economics.infra,
         economics.agentCost
@@ -190,12 +237,50 @@
 
       return (
         <div className="min-h-screen bg-neutral-50 text-neutral-900">
-          <header className="sticky top-0 z-20 backdrop-blur bg-white/70 border-b border-neutral-200">
+          <header className="sticky top-0 z-20 backdrop-blur bg-white/90 border-b border-neutral-200 shadow-sm">
             <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
-              <h1 className="text-xl md:text-2xl font-semibold tracking-tight">After the Merge — Sensitivity</h1>
-              <a className="text-sm text-emerald-700 underline" href="../drivers/index.html">Back to Drivers</a>
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 to-sky-600 bg-clip-text text-transparent">Rebuilt × Picket</h1>
+                <span className="hidden sm:inline text-sm text-neutral-500">Financial Model</span>
+              </div>
+              <div className="flex gap-3">
+                <a className="text-sm text-sky-600 hover:text-sky-700 underline" href="../comps/index.html">Comps</a>
+                <a className="text-sm text-emerald-600 hover:text-emerald-700 underline" href="../drivers/index.html">Drivers</a>
+              </div>
             </div>
           </header>
+
+          {/* Hero Metrics Dashboard */}
+          <div className="mx-auto max-w-7xl px-4 py-8 fade-in">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-4 bg-white rounded-xl border border-neutral-200 shadow-sm">
+                <div className="text-xs uppercase tracking-wider text-neutral-500 mb-1">Annual Net</div>
+                <div className="text-2xl font-bold text-emerald-600">{formatUSD(economics.rounded.net)}</div>
+              </div>
+              <div className="p-4 bg-white rounded-xl border border-neutral-200 shadow-sm">
+                <div className="text-xs uppercase tracking-wider text-neutral-500 mb-1">Gross Revenue</div>
+                <div className="text-2xl font-bold text-neutral-900">{formatUSD(economics.rounded.gross)}</div>
+              </div>
+              <div className="p-4 bg-gradient-accent text-white rounded-xl shadow-md">
+                <div className="text-xs uppercase tracking-wider opacity-90 mb-1">Dead Lead Revenue</div>
+                <div className="text-2xl font-bold">{formatUSD(economics.rounded.deadLeadRevenue)}</div>
+                <div className="text-[10px] mt-1 opacity-80">{Math.round(economics.deadLead.conversions)} conversions/yr</div>
+              </div>
+              <div className="p-4 bg-gradient-accent text-white rounded-xl shadow-md">
+                <div className="text-xs uppercase tracking-wider opacity-90 mb-1">Marketplace Revenue</div>
+                <div className="text-2xl font-bold">{formatUSD(economics.rounded.marketplaceRevenue)}</div>
+                <div className="text-[10px] mt-1 opacity-80">{economics.marketplace.dealsAnnual.toLocaleString()} deals/yr</div>
+              </div>
+            </div>
+            <div className="mt-4 p-4 bg-sky-50 border border-sky-200 rounded-xl">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-sky-600 text-white flex items-center justify-center text-xs font-bold">i</div>
+                <div className="text-sm text-sky-900">
+                  <strong>Competitive Advantage:</strong> Dead Lead & Marketplace revenue streams are <strong>unique to Rebuilt</strong>. InvestorLift, New Western, and EasyStreetOffers do not monetize dead leads or offer open marketplace aggregation.
+                </div>
+              </div>
+            </div>
+          </div>
 
           <main className="mx-auto max-w-7xl px-4 pb-24">
             {/* Markets toggle */}
@@ -299,6 +384,85 @@
               </div>
             </section>
 
+            {/* DEAD LEAD MONETIZATION (Unique IP) */}
+            <section className="mt-8 p-6 bg-gradient-to-br from-sky-50 to-blue-50 border-2 border-sky-300 rounded-2xl shadow-md fade-in">
+              <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-sky-900">Dead Lead Monetization</h2>
+                  <p className="text-sm text-sky-700 mt-1">Unique competitive advantage — competitors ignore this revenue stream</p>
+                </div>
+                <div className="px-3 py-1 bg-sky-600 text-white text-xs font-bold uppercase tracking-wider rounded-full">Unique IP</div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm text-sky-900">Dead leads / month: <span className="font-bold">{deadLeadsPerMonth.toLocaleString()}</span></div>
+                    <input className="mt-2 w-full" type="range" min={1000} max={10000} step={100} value={deadLeadsPerMonth} onChange={e=>setDeadLeadsPerMonth(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-sky-600">{economics.deadLead.annualLeads.toLocaleString()} leads annually</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-sky-900">Conversion rate: <span className="font-bold">{(deadLeadConversionRate*100).toFixed(1)}%</span></div>
+                    <input className="mt-2 w-full" type="range" min={0.005} max={0.10} step={0.005} value={deadLeadConversionRate} onChange={e=>setDeadLeadConversionRate(parseFloat(e.target.value))} />
+                    <div className="mt-1 text-xs text-sky-600">{Math.round(economics.deadLead.conversions)} conversions / year</div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm text-sky-900">Avg retail deal value: <span className="font-bold">{formatUSD(avgRetailDealValue)}</span></div>
+                    <input className="mt-2 w-full" type="range" min={100000} max={400000} step={10000} value={avgRetailDealValue} onChange={e=>setAvgRetailDealValue(parseInt(e.target.value))} />
+                  </div>
+                  <div>
+                    <div className="text-sm text-sky-900">Referral fee rate: <span className="font-bold">{(referralFeeRate*100).toFixed(0)}%</span></div>
+                    <input className="mt-2 w-full" type="range" min={0.20} max={0.40} step={0.05} value={referralFeeRate} onChange={e=>setReferralFeeRate(parseFloat(e.target.value))} />
+                    <div className="mt-1 text-xs text-sky-600">Of 3% commission = {formatUSD(avgRetailDealValue * 0.03 * referralFeeRate)} per deal</div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-sky-300 bg-white/60 rounded-xl p-4">
+                <div className="text-sm font-bold text-sky-900">Annual Dead Lead Revenue: <span className="text-2xl text-sky-600">{formatUSD(economics.rounded.deadLeadRevenue)}</span></div>
+                <div className="text-xs text-sky-700 mt-2">InvestorLift admits 50% contract fallout. New Western & EasyStreetOffers have no solution. <strong>We capture this.</strong></div>
+              </div>
+            </section>
+
+            {/* MARKETPLACE REVENUE (Network Effects) */}
+            <section className="mt-8 p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-300 rounded-2xl shadow-md fade-in">
+              <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-emerald-900">Marketplace Revenue</h2>
+                  <p className="text-sm text-emerald-700 mt-1">Open aggregation — InvestorLift is closed, New Western/EasyStreet don't aggregate</p>
+                </div>
+                <div className="px-3 py-1 bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider rounded-full">Network Effects</div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm text-emerald-900">Third-party wholesalers: <span className="font-bold">{thirdPartyWholesalers.toLocaleString()}</span></div>
+                    <input className="mt-2 w-full" type="range" min={10} max={500} step={10} value={thirdPartyWholesalers} onChange={e=>setThirdPartyWholesalers(parseInt(e.target.value))} />
+                  </div>
+                  <div>
+                    <div className="text-sm text-emerald-900">Avg deals / wholesaler / month: <span className="font-bold">{avgDealsPerWholesaler.toFixed(1)}</span></div>
+                    <input className="mt-2 w-full" type="range" min={0.5} max={10} step={0.5} value={avgDealsPerWholesaler} onChange={e=>setAvgDealsPerWholesaler(parseFloat(e.target.value))} />
+                    <div className="mt-1 text-xs text-emerald-600">{economics.marketplace.dealsAnnual.toLocaleString()} marketplace deals / year</div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm text-emerald-900">Avg wholesale deal value: <span className="font-bold">{formatUSD(avgWholesaleDealValue)}</span></div>
+                    <input className="mt-2 w-full" type="range" min={10000} max={100000} step={5000} value={avgWholesaleDealValue} onChange={e=>setAvgWholesaleDealValue(parseInt(e.target.value))} />
+                  </div>
+                  <div>
+                    <div className="text-sm text-emerald-900">Platform fee rate: <span className="font-bold">{(marketplaceFeeRate*100).toFixed(2)}%</span></div>
+                    <input className="mt-2 w-full" type="range" min={0.005} max={0.03} step={0.005} value={marketplaceFeeRate} onChange={e=>setMarketplaceFeeRate(parseFloat(e.target.value))} />
+                    <div className="mt-1 text-xs text-emerald-600">{formatUSD(avgWholesaleDealValue * marketplaceFeeRate)} per deal</div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-emerald-300 bg-white/60 rounded-xl p-4">
+                <div className="text-sm font-bold text-emerald-900">Annual Marketplace Revenue: <span className="text-2xl text-emerald-600">{formatUSD(economics.rounded.marketplaceRevenue)}</span></div>
+                <div className="text-xs text-emerald-700 mt-2">Asset-light model. More wholesalers → more deals → more buyers → more wholesalers (network effects).</div>
+              </div>
+            </section>
+
             {/* Agent & Net */}
             <section className="mt-8 grid gap-6 md:grid-cols-2">
               <div className="p-6 bg-white rounded-2xl shadow-sm border">
@@ -347,13 +511,22 @@
                   <div className="mt-4 space-y-3">
                     {netSegments.map(segment=>{
                       const display = formatUSD(segment.magnitude);
-                      const barShade = segment.tone === "positive"
-                        ? `linear-gradient(90deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,${0.45 + segment.scale*0.4}) 100%)`
-                        : `linear-gradient(90deg, rgba(12,31,24,0.4) 0%, rgba(12,31,24,${0.7 + segment.scale*0.2}) 100%)`;
+                      let barShade;
+                      if (segment.highlight && segment.tone === "positive") {
+                        // Special golden glow for unique revenue streams
+                        barShade = `linear-gradient(90deg, rgba(251,191,36,0.95) 0%, rgba(245,158,11,${0.7 + segment.scale*0.3}) 100%)`;
+                      } else if (segment.tone === "positive") {
+                        barShade = `linear-gradient(90deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,${0.45 + segment.scale*0.4}) 100%)`;
+                      } else {
+                        barShade = `linear-gradient(90deg, rgba(12,31,24,0.4) 0%, rgba(12,31,24,${0.7 + segment.scale*0.2}) 100%)`;
+                      }
                       return (
                         <div key={segment.key}>
                           <div className="flex items-center justify-between text-xs font-semibold tracking-wide">
-                            <span>{segment.label}</span>
+                            <span className={segment.highlight ? "flex items-center gap-1" : ""}>
+                              {segment.label}
+                              {segment.highlight && <span className="text-[9px] px-1.5 py-0.5 bg-amber-400 text-amber-900 rounded-full font-extrabold">★</span>}
+                            </span>
                             <span>{segment.tone === "negative" ? "–" : ""}{display}</span>
                           </div>
                           <div className="mt-1 h-2 w-full rounded-full bg-white/25 overflow-hidden">
