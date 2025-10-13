@@ -61,107 +61,124 @@
 
     <!-- OPENDOOR (single block with two panels) -->
     <section class="block">
-      <h2>Opendoor (10-Q Q2’25)</h2>
-      <div class="cards">
-        <!-- Left: Homes purchased YoY -->
-        <section class="card">
-          <h3>Homes Purchased (YoY)</h3>
-          <svg class="chart" viewBox="0 0 760 200" role="img" aria-label="Homes purchased YoY">
-            <defs>
-              <linearGradient id="bar24" x1="0" x2="0" y1="1" y2="0">
-                <stop offset="0%" stop-color="#94a3b8" stop-opacity=".18"/>
-                <stop offset="100%" stop-color="#94a3b8" stop-opacity=".34"/>
-              </linearGradient>
-              <linearGradient id="bar25" x1="0" x2="0" y1="1" y2="0">
-                <stop offset="0%" stop-color="#0ea5e9" stop-opacity=".18"/>
-                <stop offset="100%" stop-color="#0ea5e9" stop-opacity=".38"/>
-              </linearGradient>
-            </defs>
-            <rect x="8" y="8" width="744" height="184" rx="12" fill="#fff" stroke="#e5e7eb"/>
-            <g fill="#68707a" font-size="12" font-family="system-ui,-apple-system,Segoe UI,Roboto">
-              <text x="120" y="32" text-anchor="middle">Q2’24</text>
-              <text x="360" y="32" text-anchor="middle">Q2’25</text>
-              <text x="736" y="32" text-anchor="end">Homes purchased (YoY)</text>
-            </g>
-            <rect x="60"  y="50" width="120" height="150" rx="10" fill="url(#bar24)"/>
-            <rect x="300" y="50" width="120" height="55"  rx="10" fill="url(#bar25)"/>
-            <g fill="#0a0a0a" font-weight="700" font-size="16" font-family="system-ui,-apple-system,Segoe UI,Roboto">
-              <text x="120" y="75" text-anchor="middle">4,771</text>
-              <text x="360" y="75" text-anchor="middle">1,757</text>
-            </g>
-            <g fill="#0ea5e9" font-size="12" font-family="system-ui,-apple-system,Segoe UI,Roboto">
-              <text x="520" y="160" text-anchor="middle">−63% YoY</text>
-            </g>
-          </svg>
-          <div class="img" style="margin-top:12px">
-            <img src="../brand/opendoor_10q_2025q2_table.png" alt="10-Q table crop" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/opendoor_10q_2025q2_table.png</b> (purchases YoY table).</div>';">
-          </div>
-          <div class="cap">Source: Opendoor Technologies, Form 10-Q (quarter ended Jun 30, 2025). Add capture date.</div>
-        </section>
-
-        <!-- Right: Affiliate model mini-chart -->
-        <section class="card">
-          <h3>Affiliate model — attrition & income</h3>
-          <!-- Illustrative indices (0–100) to visualize the point cleanly -->
-          <svg class="chart" viewBox="0 0 760 200" role="img" aria-label="Affiliate attrition and income">
-            <rect x="8" y="8" width="744" height="184" rx="12" fill="#fff" stroke="#e5e7eb"/>
-            <g font-family="system-ui,-apple-system,Segoe UI,Roboto" font-size="12" fill="#68707a">
-              <text x="24" y="40">Attrition (YoY)</text>
-              <text x="24" y="120">Avg gross income</text>
-            </g>
-            <!-- Attrition bars -->
-            <g>
-              <!-- Affiliate ~47% -->
-              <rect x="220" y="28" width="200" height="12" rx="6" fill="#e5e7eb"/>
-              <rect x="220" y="28" width="94"  height="12" rx="6" fill="#ef4444" opacity=".70"/>
-              <text x="326" y="25" text-anchor="middle" font-size="12" fill="#0a0a0a">Affiliate ~47%</text>
-
-              <!-- Hybrid W-2 lower (~20%) -->
-              <rect x="440" y="28" width="200" height="12" rx="6" fill="#e5e7eb"/>
-              <rect x="440" y="28" width="42"  height="12" rx="6" fill="#10b981" opacity=".70"/>
-              <text x="540" y="25" text-anchor="middle" font-size="12" fill="#0a0a0a">Hybrid ≤20%</text>
-            </g>
-
-            <!-- Income bars -->
-            <g>
-              <!-- Affiliate <$50K -->
-              <rect x="220" y="108" width="200" height="12" rx="6" fill="#e5e7eb"/>
-              <rect x="220" y="108" width="90"  height="12" rx="6" fill="#94a3b8" opacity=".75"/>
-              <text x="316" y="105" text-anchor="middle" font-size="12" fill="#0a0a0a">~$50K</text>
-
-              <!-- Hybrid >$75K -->
-              <rect x="440" y="108" width="200" height="12" rx="6" fill="#e5e7eb"/>
-              <rect x="440" y="108" width="135" height="12" rx="6" fill="#0ea5e9" opacity=".75"/>
-              <text x="508" y="105" text-anchor="middle" font-size="12" fill="#0a0a0a">>$75K</text>
-            </g>
-          </svg>
-          <div class="cap">Illustrative indices based on industry patterns: affiliate programs tend to churn higher and earn lower on average vs. Hybrid W-2 (greater control, training adherence, and agreement-capture discipline).</div>
-        </section>
+  <h2>Opendoor (10-Q Q2’25)</h2>
+  <div class="cards">
+    <!-- A) Homes purchased YoY -->
+    <section class="card">
+      <h3>Homes Purchased (YoY)</h3>
+      <svg class="chart" viewBox="0 0 760 200" role="img" aria-label="Homes purchased YoY">
+        <defs>
+          <linearGradient id="bar24" x1="0" x2="0" y1="1" y2="0">
+            <stop offset="0%" stop-color="#94a3b8" stop-opacity=".18"/>
+            <stop offset="100%" stop-color="#94a3b8" stop-opacity=".34"/>
+          </linearGradient>
+          <linearGradient id="bar25" x1="0" x2="0" y1="1" y2="0">
+            <stop offset="0%" stop-color="#0ea5e9" stop-opacity=".18"/>
+            <stop offset="100%" stop-color="#0ea5e9" stop-opacity=".38"/>
+          </linearGradient>
+        </defs>
+        <rect x="8" y="8" width="744" height="184" rx="12" fill="#fff" stroke="#e5e7eb"/>
+        <g fill="#68707a" font-size="12" font-family="system-ui,-apple-system,Segoe UI,Roboto">
+          <text x="120" y="32" text-anchor="middle">Q2’24</text>
+          <text x="360" y="32" text-anchor="middle">Q2’25</text>
+          <text x="736" y="32" text-anchor="end">Homes purchased (YoY)</text>
+        </g>
+        <rect x="60"  y="50" width="120" height="150" rx="10" fill="url(#bar24)"/>
+        <rect x="300" y="50" width="120" height="55"  rx="10" fill="url(#bar25)"/>
+        <g fill="#0a0a0a" font-weight="700" font-size="16" font-family="system-ui,-apple-system,Segoe UI,Roboto">
+          <text x="120" y="75" text-anchor="middle">4,771</text>
+          <text x="360" y="75" text-anchor="middle">1,757</text>
+        </g>
+        <g fill="#0ea5e9" font-size="12" font-family="system-ui,-apple-system,Segoe UI,Roboto">
+          <text x="520" y="160" text-anchor="middle">−63% YoY</text>
+        </g>
+      </svg>
+      <div class="img" style="margin-top:12px">
+        <img src="../brand/opendoor_10q_2025q2_table.png" alt="10-Q table crop"
+             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/opendoor_10q_2025q2_table.png</b> (purchases YoY table).</div>';">
       </div>
+      <div class="cap">Source: Opendoor Technologies, Form 10-Q (quarter ended Jun 30, 2025). Add capture date.</div>
     </section>
+
+    <!-- B) Inventory on-market ≥120 days -->
+    <section class="card">
+      <h3>Inventory on-market ≥120 days</h3>
+      <svg class="chart" viewBox="0 0 760 160" role="img" aria-label="Inventory 120+ days on market">
+        <rect x="8" y="8" width="744" height="144" rx="12" fill="#fff" stroke="#e5e7eb"/>
+        <g font-family="system-ui,-apple-system,Segoe UI,Roboto" font-size="12">
+          <text x="120" y="40" text-anchor="middle" fill="#68707a">Q2’24</text>
+          <rect x="40" y="60" width="160" height="40" rx="8" fill="#e5e7eb"/>
+          <!-- 14% overlay -->
+          <rect x="40" y="60" width="22.4" height="40" rx="8" fill="#0ea5e9" opacity=".28"/>
+          <text x="120" y="86" text-anchor="middle" fill="#0a0a0a" font-weight="700">14%</text>
+
+          <text x="360" y="40" text-anchor="middle" fill="#68707a">Q2’25</text>
+          <rect x="280" y="60" width="160" height="40" rx="8" fill="#e5e7eb"/>
+          <!-- 36% overlay -->
+          <rect x="280" y="60" width="57.6" height="40" rx="8" fill="#0ea5e9" opacity=".35"/>
+          <text x="360" y="86" text-anchor="middle" fill="#0a0a0a" font-weight="700">36%</text>
+
+          <text x="720" y="86" text-anchor="end" fill="#68707a">Higher aging underscores carry risk</text>
+        </g>
+      </svg>
+      <div class="cap">We are capital-light (no inventory carry), so this risk doesn’t hit our model.</div>
+    </section>
+
+    <!-- C) Affiliate model — attrition & income -->
+    <section class="card">
+      <h3>Affiliate model — attrition & income</h3>
+      <svg class="chart" viewBox="0 0 760 200" role="img" aria-label="Affiliate attrition and income">
+        <rect x="8" y="8" width="744" height="184" rx="12" fill="#fff" stroke="#e5e7eb"/>
+        <g font-family="system-ui,-apple-system,Segoe UI,Roboto" font-size="12" fill="#68707a">
+          <text x="24" y="40">Attrition (YoY)</text>
+          <text x="24" y="120">Avg gross income</text>
+        </g>
+        <!-- Attrition -->
+        <g>
+          <!-- Affiliate ~47% -->
+          <rect x="220" y="28" width="200" height="12" rx="6" fill="#e5e7eb"/>
+          <rect x="220" y="28" width="94"  height="12" rx="6" fill="#ef4444" opacity=".70"/>
+          <text x="326" y="25" text-anchor="middle" font-size="12" fill="#0a0a0a">Affiliate ~47%</text>
+          <!-- Hybrid ≤20% -->
+          <rect x="440" y="28" width="200" height="12" rx="6" fill="#e5e7eb"/>
+          <rect x="440" y="28" width="42"  height="12" rx="6" fill="#10b981" opacity=".70"/>
+          <text x="540" y="25" text-anchor="middle" font-size="12" fill="#0a0a0a">Hybrid ≤20%</text>
+        </g>
+        <!-- Income -->
+        <g>
+          <!-- Affiliate ~$50K -->
+          <rect x="220" y="108" width="200" height="12" rx="6" fill="#e5e7eb"/>
+          <rect x="220" y="108" width="90"  height="12" rx="6" fill="#94a3b8" opacity=".75"/>
+          <text x="316" y="105" text-anchor="middle" font-size="12" fill="#0a0a0a">~$50K</text>
+          <!-- Hybrid >$75K -->
+          <rect x="440" y="108" width="200" height="12" rx="6" fill="#e5e7eb"/>
+          <rect x="440" y="108" width="135" height="12" rx="6" fill="#0ea5e9" opacity=".75"/>
+          <text x="508" y="105" text-anchor="middle" font-size="12" fill="#0a0a0a">>$75K</text>
+        </g>
+      </svg>
+      <div class="cap">Illustrative indices: affiliate programs typically churn higher and earn lower vs Hybrid W-2 (greater control, training adherence, and agreement-capture discipline).</div>
+    </section>
+  </div>
+</section>
+
 
     <!-- EASY STREET: page 1 only, sleek §3 callout -->
-    <section class="block">
-      <h2>Easy Street — Buyer Participation Agreement</h2>
-      <section class="card">
-        <h3>§3: Compensation and Buyer’s Credit (up to 3%)</h3>
-        <div class="img">
-          <img src="../brand/easystreet_agreement_p1.png"
-               alt="Easy Street Buyer Participation Agreement (Page 1)"
-               onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/easystreet_agreement_p1.png</b> (first page).</div>';">
-          <div class="hi-box"></div>
-          <div class="hi-note">§3 — Buyer may pay up to 3% if no co-op</div>
-          .hi-note::after{
-            content:"";
-            position:absolute;
-            left:12px; top:100%;
-            border:6px solid transparent;
-            border-top-color:#ec4899; /* matches the pink label */
-          }
-        </div>
-        <div class="cap">Adjust the highlight with CSS vars on <code>.hi-box</code> (left/top/width/height). PNG preferred for crisp text.</div>
-      </section>
+  <section class="block">
+    <h2>Easy Street — Buyer Participation Agreement</h2>
+    <section class="card">
+      <h3>§3: Compensation and Buyer’s Credit (up to 3%)</h3>
+      <div class="img">
+        <img src="../brand/easystreet_agreement_p1.png"
+             alt="Easy Street Buyer Participation Agreement (Page 1)"
+             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>Upload <b>/brand/easystreet_agreement_p1.png</b> (first page).</div>';">
+        <!-- Highlight box for §3 — tweak inline vars if needed -->
+        <div class="hi-box" style="--hi-x:5%; --hi-y:62%; --hi-w:90%; --hi-h:10%;"></div>
+        <div class="hi-note">§3 — Buyer may pay up to 3% if no co-op</div>
+      </div>
+      <div class="cap">PNG preferred for crisp text. Nudge placement by editing the inline <code>style</code> variables on the <code>.hi-box</code>.</div>
     </section>
+  </section>
+
 
     <!-- ANALOGS -->
     <section class="block">
