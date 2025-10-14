@@ -98,7 +98,14 @@
       const [saasBaseFee,setSaasBaseFee]=useState(10); // $10/mo base
       const [saasEnvelopes,setSaasEnvelopes]=useState(200); // monthly envelopes
       const [saasEnvelopeFee,setSaasEnvelopeFee]=useState(2); // $2/envelope
-      const [titleSaasCaptureRate,setTitleSaasCaptureRate]=useState(0.20); // 20% on platform deals
+      const [titleSaasProfitPerDeal,setTitleSaasProfitPerDeal]=useState(400); // Title profit per deal
+      const [titleSaasTransactionRate,setTitleSaasTransactionRate]=useState(0.20); // 20% transaction capture on platform deals
+
+      // Rehab AI and ARV AI pricing
+      const [rehabAIUsesPerMonth,setRehabAIUsesPerMonth]=useState(50); // Paid uses/mo (beyond 5 free)
+      const [rehabAIFeePerUse,setRehabAIFeePerUse]=useState(2); // $2-$10
+      const [arvAIUsesPerMonth,setArvAIUsesPerMonth]=useState(50); // Paid uses/mo (beyond 5 free)
+      const [arvAIFeePerUse,setArvAIFeePerUse]=useState(2); // $2-$10
 
       // **LEAD SALES** (De-emphasized, warm leads to agents)
       const [leadSalesUnits,setLeadSalesUnits]=useState(0); // Default 0
@@ -162,14 +169,18 @@
         const saasMRR = (saasActiveUsers * saasBaseFee) + (saasEnvelopes * saasEnvelopeFee);
         const saasARR = saasMRR * 12;
 
+        // Rehab AI and ARV AI revenue (paid uses beyond 5 free per user)
+        const rehabAIRevenue = rehabAIUsesPerMonth * rehabAIFeePerUse * 12;
+        const arvAIRevenue = arvAIUsesPerMonth * arvAIFeePerUse * 12;
+
         // Title SaaS (20% capture on marketplace + agent dead lead deals)
         const platformDealsAnnual = marketplaceDealsAnnual + deadLeadConversions;
-        const titleSaasProfit = platformDealsAnnual * titleSaasCaptureRate * titleProfitPerDeal;
+        const titleSaasProfit = platformDealsAnnual * titleSaasTransactionRate * titleSaasProfitPerDeal;
 
         // Lead Sales (de-emphasized, default 0)
         const leadSalesRevenue = leadSalesUnits * leadSalesPrice * 12;
 
-        const gross = offMarketFees + mlsCommission + titleDirectProfit + agentRevenueToCompany + marketplaceRevenue + saasARR + titleSaasProfit + leadSalesRevenue;
+        const gross = offMarketFees + mlsCommission + titleDirectProfit + agentRevenueToCompany + marketplaceRevenue + saasARR + rehabAIRevenue + arvAIRevenue + titleSaasProfit + leadSalesRevenue;
         const net   = gross - infra - agentCost;
 
         return {
@@ -192,9 +203,11 @@
             activeUsers: saasActiveUsers,
             mrr: saasMRR,
             arr: saasARR,
+            rehabAIRevenue,
+            arvAIRevenue,
             titleSaasProfit,
             leadSalesRevenue,
-            totalSaasRevenue: saasARR + titleSaasProfit + leadSalesRevenue
+            totalSaasRevenue: saasARR + rehabAIRevenue + arvAIRevenue + titleSaasProfit + leadSalesRevenue
           },
           agent: {
             seats: agentSeats,
@@ -213,7 +226,7 @@
             mlsCommission: roundToNearestTenK(mlsCommission),
             titleDirectProfit: roundToNearestTenK(titleDirectProfit),
             marketplaceRevenue: roundToNearestTenK(marketplaceRevenue),
-            platformSaasTotal: roundToNearestTenK(saasARR + titleSaasProfit + leadSalesRevenue),
+            platformSaasTotal: roundToNearestTenK(saasARR + rehabAIRevenue + arvAIRevenue + titleSaasProfit + leadSalesRevenue),
             gross: roundToNearestTenK(gross),
             net: roundToNearestTenK(net),
             agentRevenueToCompany: roundToNearestTenK(agentRevenueToCompany),
@@ -228,7 +241,8 @@
         agentsPerMarket, agentBaseAnnual, agentSplitRate, agentLeakageCloseRate,
         deadLeadConversionRate, avgRetailDealValue,
         thirdPartyWholesalers, avgDealsPerWholesaler, marketplaceFeeRate, marketplaceMinFee, avgWholesaleDealValue,
-        saasActiveUsers, saasBaseFee, saasEnvelopes, saasEnvelopeFee, titleSaasCaptureRate,
+        saasActiveUsers, saasBaseFee, saasEnvelopes, saasEnvelopeFee, titleSaasProfitPerDeal, titleSaasTransactionRate,
+        rehabAIUsesPerMonth, rehabAIFeePerUse, arvAIUsesPerMonth, arvAIFeePerUse,
         leadSalesUnits, leadSalesPrice
       ]);
 
@@ -286,20 +300,20 @@
           {/* Hero Metrics Dashboard */}
           <div className="mx-auto max-w-7xl px-4 py-8 fade-in">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 bg-white rounded-xl border border-neutral-200 shadow-sm">
-                <div className="text-xs uppercase tracking-wider text-neutral-500 mb-1">Annual Net</div>
+              <div className="p-4 bg-white rounded-xl border border-neutral-200 shadow-sm" title="Gross Revenue − Infrastructure − Agent Cost">
+                <div className="text-xs uppercase tracking-wider text-neutral-500 mb-1">Annual Net (before Corporate Overhead)</div>
                 <div className="text-2xl font-bold text-emerald-600">{formatUSD(economics.rounded.net)}</div>
               </div>
-              <div className="p-4 bg-white rounded-xl border border-neutral-200 shadow-sm">
+              <div className="p-4 bg-white rounded-xl border border-neutral-200 shadow-sm" title="Off-Market + MLS + Title Direct + Agent Revenue + Marketplace + Platform SaaS">
                 <div className="text-xs uppercase tracking-wider text-neutral-500 mb-1">Gross Revenue</div>
                 <div className="text-2xl font-bold text-neutral-900">{formatUSD(economics.rounded.gross)}</div>
               </div>
-              <div className="p-4 bg-gradient-accent text-white rounded-xl shadow-md">
+              <div className="p-4 bg-gradient-accent text-white rounded-xl shadow-md" title="(Assessments/year − Accepted/year) ÷ 12">
                 <div className="text-xs uppercase tracking-wider opacity-90 mb-1">Dead Leads</div>
                 <div className="text-2xl font-bold">{economics.deadLead.monthly.toLocaleString()}/mo</div>
                 <div className="text-[10px] mt-1 opacity-80">{Math.round(economics.deadLead.conversions)} conversions/yr via agents</div>
               </div>
-              <div className="p-4 bg-gradient-accent text-white rounded-xl shadow-md">
+              <div className="p-4 bg-gradient-accent text-white rounded-xl shadow-md" title="Marketplace Revenue + Platform SaaS (Signing + Rehab AI + ARV AI + Title SaaS + Lead Sales)">
                 <div className="text-xs uppercase tracking-wider opacity-90 mb-1">Marketplace + SaaS</div>
                 <div className="text-2xl font-bold">{formatUSD(economics.rounded.marketplaceRevenue + economics.rounded.platformSaasTotal)}</div>
                 <div className="text-[10px] mt-1 opacity-80">{economics.marketplace.dealsAnnual.toLocaleString()} deals/yr + {economics.platformSaaS.activeUsers} users</div>
@@ -309,7 +323,8 @@
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-sky-600 text-white flex items-center justify-center text-xs font-bold">i</div>
                 <div className="text-sm text-sky-900">
-                  <strong>Competitive Advantage:</strong> Dead leads handled by Agent Hybrid model (50/50 split). Marketplace + Platform SaaS revenue streams are <strong>unique to Rebuilt</strong>. InvestorLift, New Western, and EasyStreetOffers do not offer open marketplace aggregation or integrated platform tools.
+                  <strong>Competitive Advantage:</strong> Dead leads handled by Agent Hybrid model (50/50 split). Marketplace + Platform SaaS revenue streams are <strong>unique to Rebuilt</strong>.<br/>
+                  InvestorLift, New Western, and EasyStreetOffers do not offer open marketplace aggregation or integrated platform tools.
                 </div>
               </div>
             </div>
@@ -360,9 +375,9 @@
                 <div className="p-6 bg-white rounded-2xl shadow-sm border border-neutral-200">
                   <h2 className="text-lg font-semibold">Acquisitions Funnel (12-month)</h2>
                   <div className="mt-4 grid gap-4">
-                    <label className="text-sm">Intakes: <span className="font-medium">{intakes.toLocaleString()}</span></label>
+                    <label className="text-sm">Intakes (annual): <span className="font-medium">{intakes.toLocaleString()}/year</span></label>
                     <input type="range" min={0} max={150000} step={500} value={intakes} onChange={e=>setIntakes(parseInt(e.target.value))}/>
-                    <label className="text-sm">Assessments: <span className="font-medium">{assessments.toLocaleString()} ({assessmentsPct}%)</span></label>
+                    <label className="text-sm">Assessments (annual): <span className="font-medium">{assessments.toLocaleString()}/year ({assessmentsPct}%)</span></label>
                     <input type="range" min={0} max={20000} step={50} value={assessments} onChange={e=>setAssessments(parseInt(e.target.value))}/>
                     <div className="grid grid-cols-3 gap-3 text-sm">
                       <div><div>Offer: <span className="font-medium">{Math.round(offerRate*100)}%</span></div><input type="range" min={0} max={0.9} step={0.01} value={offerRate} onChange={e=>setOfferRate(parseFloat(e.target.value))}/></div>
@@ -414,31 +429,53 @@
                 </div>
                 <div className="px-3 py-1 bg-sky-600 text-white text-xs font-bold uppercase tracking-wider rounded-full">Unique IP</div>
               </div>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+              <div className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
                   <div className="p-4 bg-white/80 rounded-xl border border-sky-200">
                     <div className="text-xs text-sky-700 uppercase tracking-wider mb-1">Dead Leads Formula</div>
-                    <div className="text-lg font-bold text-sky-900">{assessments.toLocaleString()} Assessments</div>
-                    <div className="text-sm text-sky-700">− {funnel.accepted.toLocaleString()} Accepted</div>
-                    <div className="mt-2 pt-2 border-t border-sky-200 text-2xl font-bold text-sky-600">= {economics.deadLead.monthly.toLocaleString()} /month</div>
-                    <div className="mt-1 text-xs text-sky-600">{economics.deadLead.annualLeads.toLocaleString()} leads annually</div>
+                    <div className="text-sm text-sky-700 mb-2">(Assessments /year − Accepted /year) ÷ 12 = Dead Leads /mo</div>
+                    <div className="text-lg font-bold text-sky-900">{assessments.toLocaleString()} Assessments /year</div>
+                    <div className="text-sm text-sky-700">− {funnel.accepted.toLocaleString()} Accepted /year</div>
+                    <div className="text-sm text-sky-700">= {economics.deadLead.annualLeads.toLocaleString()} dead leads /year</div>
+                    <div className="mt-2 pt-2 border-t border-sky-300 text-2xl font-bold text-sky-600">= {economics.deadLead.monthly.toLocaleString()} /month</div>
+                    <div className="mt-1 text-xs text-sky-600">({economics.deadLead.annualLeads.toLocaleString()} ÷ 12 months)</div>
                   </div>
-                  <div>
-                    <div className="text-sm text-sky-900">Conversion rate: <span className="font-bold">{(deadLeadConversionRate*100).toFixed(1)}%</span></div>
-                    <input className="mt-2 w-full" type="range" min={0.005} max={0.10} step={0.005} value={deadLeadConversionRate} onChange={e=>setDeadLeadConversionRate(parseFloat(e.target.value))} />
-                    <div className="mt-1 text-xs text-sky-600">{Math.round(economics.deadLead.conversions)} conversions / year via Agent Hybrid</div>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="text-sm text-sky-900">Conversion rate: <span className="font-bold">{(deadLeadConversionRate*100).toFixed(1)}%</span></div>
+                      <input className="mt-2 w-full" type="range" min={0.005} max={0.10} step={0.005} value={deadLeadConversionRate} onChange={e=>setDeadLeadConversionRate(parseFloat(e.target.value))} />
+                      <div className="mt-1 text-xs text-sky-600">{Math.round(economics.deadLead.conversions)} conversions / year via Agent Hybrid</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-sky-900">Avg retail deal value: <span className="font-bold">{formatUSD(avgRetailDealValue)}</span></div>
+                      <input className="mt-2 w-full" type="range" min={80000} max={250000} step={10000} value={avgRetailDealValue} onChange={e=>setAvgRetailDealValue(parseInt(e.target.value))} />
+                      <div className="mt-1 text-xs text-sky-600">Used in Agent Hybrid revenue calculations</div>
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-sm text-sky-900">Avg retail deal value: <span className="font-bold">{formatUSD(avgRetailDealValue)}</span></div>
-                    <input className="mt-2 w-full" type="range" min={80000} max={250000} step={10000} value={avgRetailDealValue} onChange={e=>setAvgRetailDealValue(parseInt(e.target.value))} />
-                    <div className="mt-1 text-xs text-sky-600">Used in Agent Hybrid revenue calculations</div>
+                <div className="p-4 bg-amber-50 rounded-xl border border-amber-300">
+                  <div className="text-xs font-bold text-amber-900 mb-3">📊 Agent Hybrid Economics</div>
+                  <div className="text-xs text-amber-800 leading-relaxed mb-3">
+                    Dead leads are converted by agents earning <strong>50/50 commission split</strong> (company revenue already in Agent Revenue above). More reliable than referral fees, with better retention.
                   </div>
-                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-300">
-                    <div className="text-xs font-bold text-amber-900 mb-2">📊 Agent Hybrid Economics</div>
-                    <div className="text-xs text-amber-800 leading-relaxed">
-                      Dead leads are converted by agents earning <strong>50/50 commission split</strong> (company revenue already in Agent Revenue above). More reliable than referral fees, with better retention.
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <div className="text-amber-900">Agents / market: <span className="font-bold">{agentsPerMarket.toFixed(1)}</span></div>
+                      <input className="mt-2 w-full" type="range" min={0} max={4} step={0.1} value={agentsPerMarket} onChange={e=>setAgentsPerMarket(parseFloat(e.target.value))} />
+                    </div>
+                    <div>
+                      <div className="text-amber-900">Agent base (annual): <span className="font-bold">{formatUSD(agentBaseAnnual)}</span></div>
+                      <input className="mt-2 w-full" type="range" min={0} max={40000} step={1000} value={agentBaseAnnual} onChange={e=>setAgentBaseAnnual(parseInt(e.target.value))} />
+                      <div className="mt-1 text-xs text-amber-700">Benefits add {formatUSD((agentBaseAnnual*0.15)+5000)} per agent</div>
+                    </div>
+                    <div>
+                      <div className="text-amber-900">Agent split: <span className="font-bold">{Math.round(agentSplitRate*100)}%</span></div>
+                      <input className="mt-2 w-full" type="range" min={0} max={0.95} step={0.05} value={agentSplitRate} onChange={e=>setAgentSplitRate(parseFloat(e.target.value))} />
+                    </div>
+                    <div>
+                      <div className="text-amber-900">Close leakage (%): <span className="font-bold">{(agentLeakageCloseRate*100).toFixed(1)}%</span></div>
+                      <input className="mt-2 w-full" type="range" min={0} max={0.1} step={0.005} value={agentLeakageCloseRate} onChange={e=>setAgentLeakageCloseRate(parseFloat(e.target.value))} />
+                      <div className="mt-1 text-xs text-amber-700">Revenue per seat (company share): {formatUSD(economics.agent.revenuePerSeat)}</div>
                     </div>
                   </div>
                 </div>
@@ -528,10 +565,48 @@
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-purple-300">
+                <h3 className="text-sm font-bold text-purple-900 mb-3">AI Tools Pricing (5 free each/month, then paid)</h3>
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div className="p-3 bg-white/70 rounded-xl">
+                    <div className="text-xs text-purple-700 uppercase tracking-wider mb-2">Rehab AI Budgeteer</div>
+                    <div>
+                      <div className="text-sm text-purple-900">Paid uses/mo: <span className="font-bold">{rehabAIUsesPerMonth}</span></div>
+                      <input className="mt-1 w-full" type="range" min={0} max={500} step={10} value={rehabAIUsesPerMonth} onChange={e=>setRehabAIUsesPerMonth(parseInt(e.target.value))} />
+                    </div>
+                    <div className="mt-2">
+                      <div className="text-sm text-purple-900">Fee/use: <span className="font-bold">{formatUSD(rehabAIFeePerUse)}</span></div>
+                      <input className="mt-1 w-full" type="range" min={1} max={10} step={1} value={rehabAIFeePerUse} onChange={e=>setRehabAIFeePerUse(parseInt(e.target.value))} />
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-purple-200 text-xs text-purple-700">Annual: <span className="font-bold text-purple-900">{formatUSD(economics.platformSaaS.rehabAIRevenue)}</span></div>
+                  </div>
+                  <div className="p-3 bg-white/70 rounded-xl">
+                    <div className="text-xs text-purple-700 uppercase tracking-wider mb-2">ARV AI Valuations</div>
+                    <div>
+                      <div className="text-sm text-purple-900">Paid uses/mo: <span className="font-bold">{arvAIUsesPerMonth}</span></div>
+                      <input className="mt-1 w-full" type="range" min={0} max={500} step={10} value={arvAIUsesPerMonth} onChange={e=>setArvAIUsesPerMonth(parseInt(e.target.value))} />
+                    </div>
+                    <div className="mt-2">
+                      <div className="text-sm text-purple-900">Fee/use: <span className="font-bold">{formatUSD(arvAIFeePerUse)}</span></div>
+                      <input className="mt-1 w-full" type="range" min={1} max={10} step={1} value={arvAIFeePerUse} onChange={e=>setArvAIFeePerUse(parseInt(e.target.value))} />
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-purple-200 text-xs text-purple-700">Annual: <span className="font-bold text-purple-900">{formatUSD(economics.platformSaaS.arvAIRevenue)}</span></div>
+                  </div>
+                </div>
+                <div className="text-xs text-purple-600 mb-4">Note: $10/mo users OR 5+ txns/year users get 50/mo free uses (no extra charge). Free tier: 5 uses/mo each tool.</div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-purple-300">
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="p-3 bg-white/70 rounded-xl">
-                    <div className="text-xs text-purple-700 uppercase tracking-wider mb-1">Title SaaS (20% platform)</div>
-                    <div className="text-lg font-bold text-purple-900">{formatUSD(economics.platformSaaS.titleSaasProfit)}</div>
+                    <div className="text-xs text-purple-700 uppercase tracking-wider mb-2">Title SaaS (Platform)</div>
+                    <div>
+                      <div className="text-sm text-purple-900">Profit/deal: <span className="font-bold">{formatUSD(titleSaasProfitPerDeal)}</span></div>
+                      <input className="mt-1 w-full" type="range" min={200} max={800} step={25} value={titleSaasProfitPerDeal} onChange={e=>setTitleSaasProfitPerDeal(parseInt(e.target.value))} />
+                    </div>
+                    <div className="mt-2">
+                      <div className="text-sm text-purple-900">Transaction %: <span className="font-bold">{Math.round(titleSaasTransactionRate*100)}%</span></div>
+                      <input className="mt-1 w-full" type="range" min={0.05} max={0.50} step={0.05} value={titleSaasTransactionRate} onChange={e=>setTitleSaasTransactionRate(parseFloat(e.target.value))} />
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-purple-200 text-lg font-bold text-purple-900">{formatUSD(economics.platformSaaS.titleSaasProfit)}</div>
                   </div>
                   <div className="p-3 bg-white/70 rounded-xl">
                     <div className="text-xs text-purple-700 uppercase tracking-wider mb-1">Lead Sales (de-emphasized)</div>
@@ -554,53 +629,24 @@
               </div>
             </section>
 
-            {/* Agent & Net */}
-            <section className="mt-8 grid gap-6 md:grid-cols-2">
-              <div className="p-6 bg-white rounded-2xl shadow-sm border">
-                <h3 className="text-sm font-semibold">Agent Model (Hybrid W-2)</h3>
-                <div className="mt-3 grid gap-4 text-sm">
-                  <div>
-                    <div>Agents / market: <span className="font-medium">{agentsPerMarket.toFixed(1)}</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={4} step={0.1} value={agentsPerMarket} onChange={e=>setAgentsPerMarket(parseFloat(e.target.value))} />
-                  </div>
-                  <div>
-                    <div>Agent base (annual): <span className="font-medium">{formatUSD(agentBaseAnnual)}</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={40000} step={1000} value={agentBaseAnnual} onChange={e=>setAgentBaseAnnual(parseInt(e.target.value))} />
-                    <div className="mt-1 text-xs text-neutral-500">Benefits add {formatUSD((agentBaseAnnual*0.15)+5000)} per agent</div>
-                  </div>
-                  <div>
-                    <div>Agent split: <span className="font-medium">{Math.round(agentSplitRate*100)}%</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={0.95} step={0.05} value={agentSplitRate} onChange={e=>setAgentSplitRate(parseFloat(e.target.value))} />
-                  </div>
-                  <div>
-                    <div>Close leakage (%): <span className="font-medium">{(agentLeakageCloseRate*100).toFixed(1)}%</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={0.1} step={0.005} value={agentLeakageCloseRate} onChange={e=>setAgentLeakageCloseRate(parseFloat(e.target.value))} />
-                    <div className="mt-1 text-xs text-neutral-500">Revenue per seat (company share): {formatUSD(economics.agent.revenuePerSeat)}</div>
-                  </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-dashed border-neutral-200 text-xs text-neutral-600">
-                  <div>Total seats: <span className="font-medium text-neutral-800">{economics.agent.seats.toFixed(1)}</span> • Fixed cost: <span className="font-medium text-neutral-800">{formatUSD(economics.agent.fixedCost)}</span></div>
-                  <div className="mt-1">Variable split cost: <span className="font-medium text-neutral-800">{formatUSD(economics.agent.splitCost)}</span></div>
-                  <div className="mt-1">Agent revenue to company: <span className="font-medium text-neutral-800">{formatUSD(economics.agent.revenueToCompany)}</span></div>
-                  <div className="mt-1">Total agent cost: <span className="font-medium text-neutral-800">{formatUSD(economics.agentCost)}</span></div>
-                </div>
-              </div>
+            {/* Net Summary */}
+            <section className="mt-8 grid gap-6 md:grid-cols-1">
               <div className="p-6 bg-emerald-600 text-white rounded-2xl shadow-sm">
                 <div className="flex flex-wrap items-end justify-between gap-6">
-                  <div>
-                    <div className="uppercase text-xs tracking-[0.35em] opacity-80">Net (Annual)</div>
+                  <div title="Gross − Infrastructure − Agent Cost">
+                    <div className="uppercase text-xs tracking-[0.35em] opacity-80">Net (before Corp Overhead)</div>
                     <div className="mt-2 text-4xl font-bold tracking-tight">{formatUSD(economics.rounded.net)}</div>
                   </div>
                   <div className="text-xs text-right opacity-80 leading-relaxed">
-                    <div>Gross: {formatUSD(economics.rounded.gross)}</div>
-                    <div>Infra cost: {formatUSD(economics.infra)}</div>
-                    <div>Agent cost: {formatUSD(economics.agentCost)}</div>
+                    <div title="Sum of all revenue streams below">Gross: {formatUSD(economics.rounded.gross)}</div>
+                    <div title="Markets × $2,500/mo × 12">Infra cost: {formatUSD(economics.infra)}</div>
+                    <div title="Fixed + Variable commission splits">Agent cost: {formatUSD(economics.agentCost)}</div>
                   </div>
                 </div>
                 <div className="mt-5 border-t border-white/40 pt-4">
                   <div className="text-[10px] uppercase tracking-[0.3em] opacity-80">Contribution mix</div>
                   <div className="mt-4 space-y-3">
-                    {netSegments.map(segment=>{
+                    {netSegments.map((segment, idx)=>{
                       const display = formatUSD(segment.magnitude);
                       let barShade;
                       if (segment.highlight && segment.tone === "positive") {
@@ -611,23 +657,28 @@
                       } else {
                         barShade = `linear-gradient(90deg, rgba(12,31,24,0.4) 0%, rgba(12,31,24,${0.7 + segment.scale*0.2}) 100%)`;
                       }
+                      // Add divider before first expense item
+                      const showDivider = idx > 0 && segment.tone === "negative" && netSegments[idx-1].tone === "positive";
                       return (
-                        <div key={segment.key}>
-                          <div className="flex items-center justify-between text-xs font-semibold tracking-wide">
-                            <span className={segment.highlight ? "flex items-center gap-1" : ""}>
-                              {segment.label}
-                              {segment.highlight && <span className="text-[9px] px-1.5 py-0.5 bg-amber-400 text-amber-900 rounded-full font-extrabold">★</span>}
-                            </span>
-                            <span>{segment.tone === "negative" ? "–" : ""}{display}</span>
+                        <React.Fragment key={segment.key}>
+                          {showDivider && <div className="my-2 border-t border-white/30 pt-1"></div>}
+                          <div>
+                            <div className="flex items-center justify-between text-xs font-semibold tracking-wide">
+                              <span className={segment.highlight ? "flex items-center gap-1" : ""}>
+                                {segment.label}
+                                {segment.highlight && <span className="text-[9px] px-1.5 py-0.5 bg-amber-400 text-amber-900 rounded-full font-extrabold">★</span>}
+                              </span>
+                              <span>{segment.tone === "negative" ? "–" : ""}{display}</span>
+                            </div>
+                            <div className="mt-1 h-2 w-full rounded-full bg-white/25 overflow-hidden">
+                              <div
+                                className="h-full transition-all duration-300 ease-out"
+                                style={{ width: `${segment.widthPct}%`, background: barShade }}
+                                aria-hidden="true"
+                              />
+                            </div>
                           </div>
-                          <div className="mt-1 h-2 w-full rounded-full bg-white/25 overflow-hidden">
-                            <div
-                              className="h-full transition-all duration-300 ease-out"
-                              style={{ width: `${segment.widthPct}%`, background: barShade }}
-                              aria-hidden="true"
-                            />
-                          </div>
-                        </div>
+                        </React.Fragment>
                       );
                     })}
                   </div>
@@ -647,6 +698,43 @@
               </div>
               <div className="mt-4">
                 <NowVsGrowth baseline={Math.round(15000 * 0.01 * 0.35)} growthPct={growthPct} />
+              </div>
+            </section>
+
+            {/* Real Estate Investment Facts */}
+            <section className="mt-10 p-6 bg-gradient-to-br from-neutral-50 to-neutral-100 rounded-2xl border border-neutral-200">
+              <h3 className="text-lg font-bold text-neutral-800 mb-4">Real Estate Investment Insights</h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="p-4 bg-white rounded-xl border border-neutral-200">
+                  <div className="text-3xl font-bold text-emerald-600 mb-2">47%</div>
+                  <div className="text-sm text-neutral-700">New Western agent annual churn rate — middle-tier agents need better support and retention models</div>
+                </div>
+                <div className="p-4 bg-white rounded-xl border border-neutral-200">
+                  <div className="text-3xl font-bold text-sky-600 mb-2">50%</div>
+                  <div className="text-sm text-neutral-700">InvestorLift contract fallout rate — dead leads represent massive untapped opportunity for retail exits</div>
+                </div>
+                <div className="p-4 bg-white rounded-xl border border-neutral-200">
+                  <div className="text-3xl font-bold text-amber-600 mb-2">3-5%</div>
+                  <div className="text-sm text-neutral-700">Typical wholesale close rate from assessments — multiple exit strategies maximize property monetization</div>
+                </div>
+                <div className="p-4 bg-white rounded-xl border border-neutral-200">
+                  <div className="text-3xl font-bold text-purple-600 mb-2">$400</div>
+                  <div className="text-sm text-neutral-700">Average title profit per transaction — ancillary services compound revenue without marginal acquisition cost</div>
+                </div>
+                <div className="p-4 bg-white rounded-xl border border-neutral-200">
+                  <div className="text-3xl font-bold text-rose-600 mb-2">14%</div>
+                  <div className="text-sm text-neutral-700">Properties purchased sight-unseen by investors — AI-powered valuations reduce friction and accelerate decisions</div>
+                </div>
+                <div className="p-4 bg-white rounded-xl border border-neutral-200">
+                  <div className="text-3xl font-bold text-teal-600 mb-2">$30K</div>
+                  <div className="text-sm text-neutral-700">Average wholesale deal value — low transaction sizes favor platform fee models over commission structures</div>
+                </div>
+              </div>
+              <div className="mt-6 p-4 bg-sky-50 border border-sky-200 rounded-xl">
+                <div className="text-xs font-bold text-sky-900 mb-2">💡 Strategic Insight</div>
+                <div className="text-sm text-sky-800 leading-relaxed">
+                  The off-market real estate industry suffers from <strong>single-exit thinking</strong>. By building multiple monetization pathways (wholesale, retail, marketplace aggregation, platform tools), Rebuilt captures value competitors leave on the table while improving outcomes for buyers, sellers, and agents.
+                </div>
               </div>
             </section>
 
