@@ -247,13 +247,36 @@
           <div class="cap">Illustrative indices: affiliate programs typically churn higher and earn lower vs Hybrid W-2 (greater control, training adherence, agreement-capture discipline).</div>
         </section>
 
-        <!-- 4. Reserved panel -->
+        <!-- 4. Homes Under Contract -->
         <section class="card">
-          <h3>Reserved — next metric</h3>
-          <div class="img" style="min-height:160px; background:linear-gradient(180deg,#fafafa,#f5f7fa)">
-            <!-- leave empty for now -->
-          </div>
-          <div class="cap">Slot for another OpenDoor comparison (e.g., inventory balance or under-contract pipeline).</div>
+          <h3>Homes Under Contract for Purchase</h3>
+          <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Homes under contract YoY">
+            <defs>
+              <linearGradient id="gradRed" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#ef4444" stop-opacity="0.3"/>
+              </linearGradient>
+            </defs>
+            <!-- Q2 2024: ~1,800 homes -->
+            <rect x="120" y="20" width="180" height="140" fill="url(#gradRed)" rx="4"/>
+            <text x="210" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#dc2626">~1,800</text>
+            <text x="210" y="75" text-anchor="middle" font-size="12" fill="#666">Q2 2024</text>
+
+            <!-- Q2 2025: 393 homes (78% decline) -->
+            <rect x="420" y="20" width="180" height="31" fill="url(#gradRed)" rx="4"/>
+            <text x="510" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#dc2626">393</text>
+            <text x="510" y="75" text-anchor="middle" font-size="12" fill="#666">Q2 2025</text>
+
+            <!-- Decline arrow and label -->
+            <text x="360" y="45" text-anchor="middle" font-size="16" font-weight="700" fill="#dc2626">-78%</text>
+            <path d="M 330 35 L 380 35" stroke="#dc2626" stroke-width="2" marker-end="url(#arrowRed)"/>
+            <defs>
+              <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill="#dc2626" />
+              </marker>
+            </defs>
+          </svg>
+          <div class="cap"><strong>iBuyer retreat:</strong> Opendoor slashed home acquisitions by 78% YoY as capital-intensive model struggles. Meanwhile, <strong>MLS inventory at record highs</strong> — Rebuilt's marketplace aggregation model fills the void without inventory risk.</div>
         </section>
       </div>
     </section>
