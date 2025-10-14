@@ -327,7 +327,7 @@
           </header>
 
           {/* Hero Metrics Dashboard */}
-          <div className="mx-auto max-w-7xl px-4 py-8 fade-in">
+          <div className="sticky top-[73px] z-10 mx-auto max-w-7xl px-4 py-4 fade-in bg-neutral-900/95 backdrop-blur">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-4 dark-card rounded-xl border shadow-lg pulsing" title="Gross Revenue − Infrastructure − Agent Cost">
                 <div className="text-xs uppercase tracking-wider text-neutral-400 mb-1">Adjusted Annual Net</div>
@@ -688,6 +688,34 @@
                       }
                       // Add divider before first expense item
                       const showDivider = idx > 0 && segment.tone === "negative" && netSegments[idx-1].tone === "positive";
+                      // Generate formula for tooltip
+                      let formula = '';
+                      switch(segment.key) {
+                        case 'offMarket':
+                          formula = `${economics.offMktAnnual} deals × ${Math.round(offMarketCapture*100)}% capture × $${offMarketFee.toLocaleString()}`;
+                          break;
+                        case 'mls':
+                          formula = `${economics.mlsAnnual} deals × $${mlsAvgPrice.toLocaleString()} × ${(mlsCommissionRate*100).toFixed(1)}%`;
+                          break;
+                        case 'titleDirect':
+                          formula = `${economics.offMktAnnual} off-mkt × ${Math.round(titleDirectCaptureRate*100)}% × $${titleProfitPerDeal}`;
+                          break;
+                        case 'agentRevenue':
+                          formula = `${economics.agent.seats.toFixed(1)} agents × $${economics.agent.revenuePerSeat.toLocaleString()}/seat`;
+                          break;
+                        case 'marketplace':
+                          formula = `${thirdPartyWholesalers} wholesalers × ${avgDealsPerWholesaler} deals/mo × 12 × $${economics.marketplace.feePerDeal.toLocaleString()}`;
+                          break;
+                        case 'platformSaaS':
+                          formula = `Base: $${(saasActiveUsers*saasBaseFee*12).toLocaleString()} + Envelopes + AI Tools + Title SaaS`;
+                          break;
+                        case 'infra':
+                          formula = `${economics.agent.totalMarkets} markets × $${infraPerMarketPerMonth.toLocaleString()}/mo × 12`;
+                          break;
+                        case 'agentCost':
+                          formula = `${economics.agent.seats.toFixed(1)} agents × ($${agentBaseAnnual.toLocaleString()} + benefits + splits)`;
+                          break;
+                      }
                       return (
                         <React.Fragment key={segment.key}>
                           {showDivider && <div className="my-3 border-t border-neutral-600 pt-2"></div>}
@@ -707,8 +735,9 @@
                               />
                             </div>
                             <div className="tooltip-enhanced">
-                              {segment.label}: ${segment.magnitude.toLocaleString()}<br/>
-                              {((segment.magnitude / Math.abs(economics.rounded.gross)) * 100).toFixed(1)}% of Gross Revenue
+                              <strong>{segment.label}: {display}</strong><br/>
+                              {formula}<br/>
+                              <span className="text-neutral-400 text-[10px]">{((segment.magnitude / Math.abs(economics.rounded.gross)) * 100).toFixed(1)}% of Gross</span>
                             </div>
                           </div>
                         </React.Fragment>
