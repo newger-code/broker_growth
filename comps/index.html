@@ -165,86 +165,96 @@
           <h3>Homes Purchased (YoY)</h3>
           <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Homes purchased YoY">
             <defs>
-              <linearGradient id="p24" x1="0" x2="0" y1="1" y2="0">
-                <stop offset="0%" stop-color="#94a3b8" stop-opacity=".18"/>
-                <stop offset="100%" stop-color="#94a3b8" stop-opacity=".34"/>
+              <linearGradient id="gradGray" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.3"/>
               </linearGradient>
-              <linearGradient id="p25" x1="0" x2="0" y1="1" y2="0">
-                <stop offset="0%" stop-color="#0ea5e9" stop-opacity=".18"/>
-                <stop offset="100%" stop-color="#0ea5e9" stop-opacity=".38"/>
+              <linearGradient id="gradBlue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.3"/>
               </linearGradient>
             </defs>
-            <rect x="8" y="8" width="704" height="164" rx="12" fill="#fff" stroke="#e5e7eb"/>
-            <g fill="#68707a" font-size="12" font-family="system-ui,-apple-system,Segoe UI,Roboto">
-              <text x="120" y="30" text-anchor="middle">Q2’24</text>
-              <text x="360" y="30" text-anchor="middle">Q2’25</text>
-              <text x="700" y="30" text-anchor="end">Homes purchased</text>
-            </g>
-            <!-- 4,771 → 1,757 -->
-            <rect x="60"  y="48" width="120" height="120" rx="10" fill="url(#p24)"/>
-            <rect x="300" y="48" width="120" height="44"  rx="10" fill="url(#p25)"/>
-            <g fill="#0a0a0a" font-weight="700" font-size="15" font-family="system-ui,-apple-system,Segoe UI,Roboto">
-              <text x="120" y="70" text-anchor="middle">4,771</text>
-              <text x="360" y="70" text-anchor="middle">1,757</text>
-            </g>
-            <g fill="#0ea5e9" font-size="12" font-family="system-ui,-apple-system,Segoe UI,Roboto">
-              <text x="520" y="142" text-anchor="middle">−63% YoY</text>
-            </g>
+            <!-- Q2 2024: 4,771 homes -->
+            <rect x="120" y="20" width="180" height="140" fill="url(#gradGray)" rx="4"/>
+            <text x="210" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#475569">4,771</text>
+            <text x="210" y="75" text-anchor="middle" font-size="12" fill="#666">Q2 2024</text>
+
+            <!-- Q2 2025: 1,757 homes (63% decline) -->
+            <rect x="420" y="20" width="180" height="51" fill="url(#gradBlue)" rx="4"/>
+            <text x="510" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#0c4a6e">1,757</text>
+            <text x="510" y="75" text-anchor="middle" font-size="12" fill="#666">Q2 2025</text>
+
+            <!-- Decline arrow and label -->
+            <text x="360" y="45" text-anchor="middle" font-size="18" font-weight="700" fill="#dc2626">-63%</text>
           </svg>
+          <div class="cap"><strong>Massive pullback:</strong> Opendoor cut acquisitions by 63% YoY as iBuyer model proves capital-intensive and risky. Rebuilt needs zero inventory risk.</div>
         </section>
 
         <!-- 2. ≥120 day share -->
         <section class="card">
           <h3>Inventory on-market ≥120 days</h3>
           <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Inventory 120+ days">
-            <rect x="8" y="8" width="704" height="164" rx="12" fill="#fff" stroke="#e5e7eb"/>
-            <g font-family="system-ui,-apple-system,Segoe UI,Roboto" font-size="12">
-              <text x="120" y="30" text-anchor="middle" fill="#68707a">Q2’24</text>
-              <rect x="40" y="56" width="160" height="36" rx="8" fill="#e5e7eb"/>
-              <rect x="40" y="56" width="22.4" height="36" rx="8" fill="#0ea5e9" opacity=".30"/>
-              <text x="120" y="80" text-anchor="middle" fill="#0a0a0a" font-weight="700">14%</text>
+            <defs>
+              <linearGradient id="gradAmber" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.3"/>
+              </linearGradient>
+            </defs>
+            <!-- Q2 2024: 14% -->
+            <rect x="60" y="50" width="220" height="80" rx="8" fill="#e5e7eb"/>
+            <rect x="60" y="50" width="31" height="80" rx="8" fill="url(#gradAmber)"/>
+            <text x="170" y="100" text-anchor="middle" font-size="32" font-weight="800" fill="#92400e">14%</text>
+            <text x="170" y="120" text-anchor="middle" font-size="12" fill="#666">Q2 2024</text>
 
-              <text x="360" y="30" text-anchor="middle" fill="#68707a">Q2’25</text>
-              <rect x="280" y="56" width="160" height="36" rx="8" fill="#e5e7eb"/>
-              <rect x="280" y="56" width="57.6" height="36" rx="8" fill="#0ea5e9" opacity=".36"/>
-              <text x="360" y="80" text-anchor="middle" fill="#0a0a0a" font-weight="700">36%</text>
+            <!-- Q2 2025: 36% -->
+            <rect x="360" y="50" width="220" height="80" rx="8" fill="#e5e7eb"/>
+            <rect x="360" y="50" width="79" height="80" rx="8" fill="url(#gradAmber)"/>
+            <text x="470" y="100" text-anchor="middle" font-size="32" font-weight="800" fill="#92400e">36%</text>
+            <text x="470" y="120" text-anchor="middle" font-size="12" fill="#666">Q2 2025</text>
 
-              <text x="696" y="80" text-anchor="end" fill="#68707a">Higher aging → carry risk (we have none)</text>
-            </g>
+            <!-- Label -->
+            <text x="360" y="155" text-anchor="middle" font-size="14" fill="#78350f" font-weight="600">+157% increase → holding costs pile up</text>
           </svg>
+          <div class="cap"><strong>Inventory aging crisis:</strong> Over 1/3 of homes now sitting 120+ days (up from 14%). Every month = holding costs. Rebuilt carries zero inventory.</div>
         </section>
 
         <!-- 3. Affiliate vs Hybrid mini-chart -->
         <section class="card">
-          <h3>Affiliate model — attrition & income</h3>
+          <h3>Agent Model Comparison</h3>
           <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Affiliate vs Hybrid">
-            <rect x="8" y="8" width="704" height="164" rx="12" fill="#fff" stroke="#e5e7eb"/>
-            <g font-family="system-ui,-apple-system,Segoe UI,Roboto" font-size="12" fill="#68707a">
-              <text x="24" y="40">Attrition (YoY)</text>
-              <text x="24" y="110">Avg gross income</text>
-            </g>
-            <!-- Attrition -->
-            <g>
-              <rect x="220" y="30" width="200" height="10" rx="5" fill="#e5e7eb"/>
-              <rect x="220" y="30" width="94"  height="10" rx="5" fill="#ef4444" opacity=".72"/>
-              <text x="326" y="26" text-anchor="middle" font-size="12" fill="#0a0a0a">Affiliate ~47%</text>
+            <defs>
+              <linearGradient id="gradRed2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#ef4444" stop-opacity="0.3"/>
+              </linearGradient>
+              <linearGradient id="gradGreen" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0.3"/>
+              </linearGradient>
+            </defs>
+            <!-- Labels -->
+            <text x="40" y="50" font-size="14" font-weight="600" fill="#666">Annual Attrition</text>
+            <text x="40" y="130" font-size="14" font-weight="600" fill="#666">Avg Income</text>
 
-              <rect x="440" y="30" width="200" height="10" rx="5" fill="#e5e7eb"/>
-              <rect x="440" y="30" width="42"  height="10" rx="5" fill="#10b981" opacity=".72"/>
-              <text x="540" y="26" text-anchor="middle" font-size="12" fill="#0a0a0a">Hybrid ≤20%</text>
-            </g>
-            <!-- Income -->
-            <g>
-              <rect x="220" y="100" width="200" height="10" rx="5" fill="#e5e7eb"/>
-              <rect x="220" y="100" width="90"  height="10" rx="5" fill="#94a3b8" opacity=".78"/>
-              <text x="316" y="96" text-anchor="middle" font-size="12" fill="#0a0a0a">~$50K</text>
+            <!-- Attrition: Affiliate 47% -->
+            <rect x="200" y="30" width="180" height="60" rx="8" fill="url(#gradRed2)"/>
+            <text x="290" y="65" text-anchor="middle" font-size="28" font-weight="800" fill="#991b1b">47%</text>
+            <text x="290" y="85" text-anchor="middle" font-size="11" fill="#666">Affiliate</text>
 
-              <rect x="440" y="100" width="200" height="10" rx="5" fill="#e5e7eb"/>
-              <rect x="440" y="100" width="135" height="10" rx="5" fill="#0ea5e9" opacity=".78"/>
-              <text x="508" y="96" text-anchor="middle" font-size="12" fill="#0a0a0a">>$75K</text>
-            </g>
+            <!-- Attrition: Hybrid ≤20% -->
+            <rect x="420" y="30" width="180" height="60" rx="8" fill="url(#gradGreen)"/>
+            <text x="510" y="65" text-anchor="middle" font-size="28" font-weight="800" fill="#065f46">≤20%</text>
+            <text x="510" y="85" text-anchor="middle" font-size="11" fill="#666">Hybrid W-2</text>
+
+            <!-- Income: Affiliate ~$50K -->
+            <rect x="200" y="110" width="140" height="50" rx="8" fill="#cbd5e1"/>
+            <text x="270" y="142" text-anchor="middle" font-size="22" font-weight="700" fill="#475569">~$50K</text>
+
+            <!-- Income: Hybrid >$75K -->
+            <rect x="420" y="110" width="180" height="50" rx="8" fill="#0ea5e9" opacity="0.7"/>
+            <text x="510" y="142" text-anchor="middle" font-size="22" font-weight="700" fill="#0c4a6e">$75K+</text>
           </svg>
-          <div class="cap">Illustrative indices: affiliate programs typically churn higher and earn lower vs Hybrid W-2 (greater control, training adherence, agreement-capture discipline).</div>
+          <div class="cap"><strong>Rebuilt's Hybrid W-2 advantage:</strong> Company-provided leads + training + better income retention = lower churn vs affiliate chaos. Better for agents, better for business.</div>
         </section>
 
         <!-- 4. Homes Under Contract -->
@@ -276,7 +286,7 @@
               </marker>
             </defs>
           </svg>
-          <div class="cap"><strong>iBuyer retreat:</strong> Opendoor slashed home acquisitions by 78% YoY as capital-intensive model struggles. Meanwhile, <strong>MLS inventory at record highs</strong> — Rebuilt's marketplace aggregation model fills the void without inventory risk.</div>
+          <div class="cap"><strong>iBuyer retreat:</strong> Opendoor slashed home acquisitions by 78% YoY as capital-intensive model struggles (Debt-to-Equity: 220%, per 10-Q dated Q2'25). Meanwhile, <strong>MLS inventory at record highs</strong> — Rebuilt's marketplace aggregation model fills the void without inventory risk.</div>
         </section>
       </div>
     </section>
