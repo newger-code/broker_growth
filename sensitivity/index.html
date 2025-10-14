@@ -68,10 +68,8 @@
       const [offMarketFee,setOffMarketFee]=useState(7000);
       const [mlsAvgPrice,setMlsAvgPrice]=useState(150000);
       const [mlsCommissionRate,setMlsCommissionRate]=useState(0.022);
-      const [titleCaptureRate,setTitleCaptureRate]=useState(0.3);
+      const [titleDirectCaptureRate,setTitleDirectCaptureRate]=useState(0.90); // Rebuilt off-market only
       const [titleProfitPerDeal,setTitleProfitPerDeal]=useState(400);
-      const [thirdPartyUnits,setThirdPartyUnits]=useState(100);
-      const [thirdPartyFee,setThirdPartyFee]=useState(250);
 
       // Infra
       const [activeMarkets,setActiveMarkets]=useState([...marketsAll.slice(0,8)]);
@@ -84,17 +82,27 @@
       const [agentSplitRate,setAgentSplitRate]=useState(0.5);
       const [agentLeakageCloseRate,setAgentLeakageCloseRate]=useState(0.03);
 
-      // **DEAD LEAD MONETIZATION** (unique IP)
-      const [deadLeadsPerMonth,setDeadLeadsPerMonth]=useState(3500);
+      // **DEAD LEAD MONETIZATION** (unique IP) - handled by Agent Hybrid
       const [deadLeadConversionRate,setDeadLeadConversionRate]=useState(0.02);
-      const [avgRetailDealValue,setAvgRetailDealValue]=useState(200000);
-      const [referralFeeRate,setReferralFeeRate]=useState(0.30);
+      const [avgRetailDealValue,setAvgRetailDealValue]=useState(120000); // More realistic
 
-      // **MARKETPLACE REVENUE**
+      // **MARKETPLACE REVENUE** (Invoice + Honor System enforcement)
       const [thirdPartyWholesalers,setThirdPartyWholesalers]=useState(50);
-      const [avgDealsPerWholesaler,setAvgDealsPerWholesaler]=useState(2);
-      const [marketplaceFeeRate,setMarketplaceFeeRate]=useState(0.015);
-      const [avgWholesaleDealValue,setAvgWholesaleDealValue]=useState(25000);
+      const [avgDealsPerWholesaler,setAvgDealsPerWholesaler]=useState(1.5); // Updated default
+      const [marketplaceFeeRate,setMarketplaceFeeRate]=useState(0.005); // 0.5% base
+      const [marketplaceMinFee,setMarketplaceMinFee]=useState(150); // $150 minimum
+      const [avgWholesaleDealValue,setAvgWholesaleDealValue]=useState(30000); // Updated default
+
+      // **PLATFORM SAAS** (Signing Tool + Rehab AI + ARV AI)
+      const [saasActiveUsers,setSaasActiveUsers]=useState(100);
+      const [saasBaseFee,setSaasBaseFee]=useState(10); // $10/mo base
+      const [saasEnvelopes,setSaasEnvelopes]=useState(200); // monthly envelopes
+      const [saasEnvelopeFee,setSaasEnvelopeFee]=useState(2); // $2/envelope
+      const [titleSaasCaptureRate,setTitleSaasCaptureRate]=useState(0.20); // 20% on platform deals
+
+      // **LEAD SALES** (De-emphasized, warm leads to agents)
+      const [leadSalesUnits,setLeadSalesUnits]=useState(0); // Default 0
+      const [leadSalesPrice,setLeadSalesPrice]=useState(50); // $50/lead
 
       // Growth overlay
       const [growthPct,setGrowthPct]=useState(0.25);
@@ -113,9 +121,10 @@
         const capturedOffMkt = offMktAnnual*offMarketCapture;
         const offMarketFees  = capturedOffMkt*offMarketFee;
         const mlsCommission  = mlsAnnual*mlsAvgPrice*mlsCommissionRate;
-        const titleDeals     = (offMktAnnual+mlsAnnual)*titleCaptureRate;
-        const titleProfit    = titleDeals*titleProfitPerDeal;
-        const thirdPartyRevenue = thirdPartyUnits*thirdPartyFee;
+
+        // Title Direct (Rebuilt off-market only, 90% capture)
+        const titleDirectDeals = offMktAnnual * titleDirectCaptureRate;
+        const titleDirectProfit = titleDirectDeals * titleProfitPerDeal;
 
         const totalMarkets   = activeMarkets.length + additionalMarkets;
 
@@ -127,40 +136,65 @@
         const agentBenefitsCost = agentSeats*agentBenefitsPerSeat;
         const agentFixedCost = agentBaseCost + agentBenefitsCost;
 
-        const agentRevenuePerSeat = Math.max(0,(1 - agentSplitRate)*agentLeakageCloseRate*mlsAvgPrice);
-        const agentSplitCostPerSeat = Math.max(0,agentSplitRate*agentLeakageCloseRate*mlsAvgPrice);
+        const agentRevenuePerSeat = Math.max(0,(1 - agentSplitRate)*agentLeakageCloseRate*avgRetailDealValue);
+        const agentSplitCostPerSeat = Math.max(0,agentSplitRate*agentLeakageCloseRate*avgRetailDealValue);
 
         const agentRevenueToCompany = agentSeats*agentRevenuePerSeat;
         const agentSplitCost = agentSeats*agentSplitCostPerSeat;
         const agentCost      = agentFixedCost + agentSplitCost;
 
-        // Dead Lead Revenue (annual)
-        const deadLeadsAnnual = deadLeadsPerMonth * 12;
+        // Dead Leads = Assessments - Accepted (relationship built but not under contract)
+        const deadLeadsMonthly = Math.max(0, assessments - funnel.accepted);
+        const deadLeadsAnnual = deadLeadsMonthly * 12;
         const deadLeadConversions = deadLeadsAnnual * deadLeadConversionRate;
-        const avgCommissionPerDeal = avgRetailDealValue * 0.03; // typical 3% commission
-        const deadLeadReferralRevenue = deadLeadConversions * avgCommissionPerDeal * referralFeeRate;
+        // Dead leads handled by Agent Hybrid (50/50 split already in agentRevenueToCompany)
+        // This is just for display/tracking purposes
 
-        // Marketplace Revenue (annual)
+        // Marketplace Revenue ($150 min OR x%, whichever greater)
         const marketplaceDealsAnnual = thirdPartyWholesalers * avgDealsPerWholesaler * 12;
-        const marketplaceRevenue = marketplaceDealsAnnual * avgWholesaleDealValue * marketplaceFeeRate;
+        const marketplaceFeePerDeal = Math.max(
+          avgWholesaleDealValue * marketplaceFeeRate,
+          marketplaceMinFee
+        );
+        const marketplaceRevenue = marketplaceDealsAnnual * marketplaceFeePerDeal;
 
-        const gross          = offMarketFees + mlsCommission + titleProfit + thirdPartyRevenue + agentRevenueToCompany + deadLeadReferralRevenue + marketplaceRevenue;
-        const net            = gross - infra - agentCost;
+        // Platform SaaS (Signing + Rehab AI + ARV AI)
+        const saasMRR = (saasActiveUsers * saasBaseFee) + (saasEnvelopes * saasEnvelopeFee);
+        const saasARR = saasMRR * 12;
+
+        // Title SaaS (20% capture on marketplace + agent dead lead deals)
+        const platformDealsAnnual = marketplaceDealsAnnual + deadLeadConversions;
+        const titleSaasProfit = platformDealsAnnual * titleSaasCaptureRate * titleProfitPerDeal;
+
+        // Lead Sales (de-emphasized, default 0)
+        const leadSalesRevenue = leadSalesUnits * leadSalesPrice * 12;
+
+        const gross = offMarketFees + mlsCommission + titleDirectProfit + agentRevenueToCompany + marketplaceRevenue + saasARR + titleSaasProfit + leadSalesRevenue;
+        const net   = gross - infra - agentCost;
 
         return {
           annualClosed, offMktAnnual, mlsAnnual,
-          offMarketFees, mlsCommission, titleProfit, thirdPartyRevenue,
+          offMarketFees, mlsCommission, titleDirectProfit,
           infra, agentCost, gross, net,
           deadLead: {
+            monthly: deadLeadsMonthly,
             annualLeads: deadLeadsAnnual,
             conversions: deadLeadConversions,
-            revenue: deadLeadReferralRevenue,
             conversionRate: deadLeadConversionRate
           },
           marketplace: {
             wholesalers: thirdPartyWholesalers,
             dealsAnnual: marketplaceDealsAnnual,
+            feePerDeal: marketplaceFeePerDeal,
             revenue: marketplaceRevenue
+          },
+          platformSaaS: {
+            activeUsers: saasActiveUsers,
+            mrr: saasMRR,
+            arr: saasARR,
+            titleSaasProfit,
+            leadSalesRevenue,
+            totalSaasRevenue: saasARR + titleSaasProfit + leadSalesRevenue
           },
           agent: {
             seats: agentSeats,
@@ -177,24 +211,25 @@
           rounded:{
             offMarketFees: roundToNearestTenK(offMarketFees),
             mlsCommission: roundToNearestTenK(mlsCommission),
-            titleProfit:   roundToNearestTenK(titleProfit),
-            thirdPartyRevenue: roundToNearestTenK(thirdPartyRevenue),
-            deadLeadRevenue: roundToNearestTenK(deadLeadReferralRevenue),
+            titleDirectProfit: roundToNearestTenK(titleDirectProfit),
             marketplaceRevenue: roundToNearestTenK(marketplaceRevenue),
-            gross:         roundToNearestTenK(gross),
-            net:           roundToNearestTenK(net),
+            platformSaasTotal: roundToNearestTenK(saasARR + titleSaasProfit + leadSalesRevenue),
+            gross: roundToNearestTenK(gross),
+            net: roundToNearestTenK(net),
             agentRevenueToCompany: roundToNearestTenK(agentRevenueToCompany),
             agentCost: roundToNearestTenK(agentCost)
           }
         };
       },[
-        funnel.closed, offMarketShare, offMarketCapture, offMarketFee,
-        mlsAvgPrice, mlsCommissionRate, titleCaptureRate, titleProfitPerDeal,
+        funnel.closed, funnel.accepted, assessments,
+        offMarketShare, offMarketCapture, offMarketFee,
+        mlsAvgPrice, mlsCommissionRate, titleDirectCaptureRate, titleProfitPerDeal,
         infraPerMarketPerMonth, activeMarkets.length, additionalMarkets,
         agentsPerMarket, agentBaseAnnual, agentSplitRate, agentLeakageCloseRate,
-        thirdPartyUnits, thirdPartyFee,
-        deadLeadsPerMonth, deadLeadConversionRate, avgRetailDealValue, referralFeeRate,
-        thirdPartyWholesalers, avgDealsPerWholesaler, marketplaceFeeRate, avgWholesaleDealValue
+        deadLeadConversionRate, avgRetailDealValue,
+        thirdPartyWholesalers, avgDealsPerWholesaler, marketplaceFeeRate, marketplaceMinFee, avgWholesaleDealValue,
+        saasActiveUsers, saasBaseFee, saasEnvelopes, saasEnvelopeFee, titleSaasCaptureRate,
+        leadSalesUnits, leadSalesPrice
       ]);
 
       const assessmentsPct = useMemo(()=> !intakes?0:Math.round((assessments/intakes)*100), [assessments,intakes]);
@@ -203,11 +238,10 @@
         const segments = [
           { key:"offMarket", label:"Off-Market", value:economics.offMarketFees, tone:"positive" },
           { key:"mls", label:"MLS", value:economics.mlsCommission, tone:"positive" },
-          { key:"title", label:"Title", value:economics.titleProfit, tone:"positive" },
-          { key:"thirdParty", label:"Third-Party", value:economics.thirdPartyRevenue, tone:"positive" },
-          { key:"deadLead", label:"Dead Leads", value:economics.deadLead.revenue, tone:"positive", highlight:true },
-          { key:"marketplace", label:"Marketplace", value:economics.marketplace.revenue, tone:"positive", highlight:true },
+          { key:"titleDirect", label:"Title Direct", value:economics.titleDirectProfit, tone:"positive" },
           { key:"agentRevenue", label:"Agent Revenue", value:economics.agent.revenueToCompany, tone:"positive" },
+          { key:"marketplace", label:"Marketplace", value:economics.marketplace.revenue, tone:"positive", highlight:true },
+          { key:"platformSaaS", label:"Platform SaaS", value:economics.platformSaaS.totalSaasRevenue, tone:"positive", highlight:true },
           { key:"infra", label:"Infrastructure", value:-economics.infra, tone:"negative" },
           { key:"agentCost", label:"Agent Cost", value:-economics.agentCost, tone:"negative" }
         ];
@@ -226,11 +260,10 @@
       },[
         economics.offMarketFees,
         economics.mlsCommission,
-        economics.titleProfit,
-        economics.thirdPartyRevenue,
-        economics.deadLead.revenue,
-        economics.marketplace.revenue,
+        economics.titleDirectProfit,
         economics.agent.revenueToCompany,
+        economics.marketplace.revenue,
+        economics.platformSaaS.totalSaasRevenue,
         economics.infra,
         economics.agentCost
       ]);
@@ -262,21 +295,21 @@
                 <div className="text-2xl font-bold text-neutral-900">{formatUSD(economics.rounded.gross)}</div>
               </div>
               <div className="p-4 bg-gradient-accent text-white rounded-xl shadow-md">
-                <div className="text-xs uppercase tracking-wider opacity-90 mb-1">Dead Lead Revenue</div>
-                <div className="text-2xl font-bold">{formatUSD(economics.rounded.deadLeadRevenue)}</div>
-                <div className="text-[10px] mt-1 opacity-80">{Math.round(economics.deadLead.conversions)} conversions/yr</div>
+                <div className="text-xs uppercase tracking-wider opacity-90 mb-1">Dead Leads</div>
+                <div className="text-2xl font-bold">{economics.deadLead.monthly.toLocaleString()}/mo</div>
+                <div className="text-[10px] mt-1 opacity-80">{Math.round(economics.deadLead.conversions)} conversions/yr via agents</div>
               </div>
               <div className="p-4 bg-gradient-accent text-white rounded-xl shadow-md">
-                <div className="text-xs uppercase tracking-wider opacity-90 mb-1">Marketplace Revenue</div>
-                <div className="text-2xl font-bold">{formatUSD(economics.rounded.marketplaceRevenue)}</div>
-                <div className="text-[10px] mt-1 opacity-80">{economics.marketplace.dealsAnnual.toLocaleString()} deals/yr</div>
+                <div className="text-xs uppercase tracking-wider opacity-90 mb-1">Marketplace + SaaS</div>
+                <div className="text-2xl font-bold">{formatUSD(economics.rounded.marketplaceRevenue + economics.rounded.platformSaasTotal)}</div>
+                <div className="text-[10px] mt-1 opacity-80">{economics.marketplace.dealsAnnual.toLocaleString()} deals/yr + {economics.platformSaaS.activeUsers} users</div>
               </div>
             </div>
             <div className="mt-4 p-4 bg-sky-50 border border-sky-200 rounded-xl">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-sky-600 text-white flex items-center justify-center text-xs font-bold">i</div>
                 <div className="text-sm text-sky-900">
-                  <strong>Competitive Advantage:</strong> Dead Lead & Marketplace revenue streams are <strong>unique to Rebuilt</strong>. InvestorLift, New Western, and EasyStreetOffers do not monetize dead leads or offer open marketplace aggregation.
+                  <strong>Competitive Advantage:</strong> Dead leads handled by Agent Hybrid model (50/50 split). Marketplace + Platform SaaS revenue streams are <strong>unique to Rebuilt</strong>. InvestorLift, New Western, and EasyStreetOffers do not offer open marketplace aggregation or integrated platform tools.
                 </div>
               </div>
             </div>
@@ -361,66 +394,57 @@
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div><div>Off-Mkt Capture: <span className="font-medium">{Math.round(offMarketCapture*100)}%</span></div><input type="range" min={0.4} max={1} step={0.01} value={offMarketCapture} onChange={e=>setOffMarketCapture(parseFloat(e.target.value))}/></div>
                     <div><div>Off-Mkt Fee: <span className="font-medium">{formatUSD(offMarketFee)}</span></div><input type="range" min={0} max={20000} step={500} value={offMarketFee} onChange={e=>setOffMarketFee(parseInt(e.target.value))}/></div>
-                    <div><div>Title Capture: <span className="font-medium">{Math.round(titleCaptureRate*100)}%</span></div><input type="range" min={0} max={0.8} step={0.01} value={titleCaptureRate} onChange={e=>setTitleCaptureRate(parseFloat(e.target.value))}/></div>
+                    <div><div>Title Direct Capture: <span className="font-medium">{Math.round(titleDirectCaptureRate*100)}%</span></div><input type="range" min={0.5} max={1} step={0.01} value={titleDirectCaptureRate} onChange={e=>setTitleDirectCaptureRate(parseFloat(e.target.value))}/><div className="mt-1 text-xs text-neutral-500">Rebuilt off-market only (National Title Service)</div></div>
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div><div>MLS Avg Price: <span className="font-medium">{formatUSD(mlsAvgPrice)}</span></div><input type="range" min={100000} max={300000} step={5000} value={mlsAvgPrice} onChange={e=>setMlsAvgPrice(parseInt(e.target.value))}/></div>
                     <div><div>MLS Commission: <span className="font-medium">{(mlsCommissionRate*100).toFixed(1)}%</span></div><input type="range" min={0.01} max={0.04} step={0.001} value={mlsCommissionRate} onChange={e=>setMlsCommissionRate(parseFloat(e.target.value))}/></div>
                     <div><div>Title Profit/Deal: <span className="font-medium">{formatUSD(titleProfitPerDeal)}</span></div><input type="range" min={200} max={800} step={25} value={titleProfitPerDeal} onChange={e=>setTitleProfitPerDeal(parseInt(e.target.value))}/></div>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-neutral-200">
-                    <div className="grid md:grid-cols-2 gap-3 text-sm">
-                      <div className="p-3 rounded-xl border border-neutral-200 bg-neutral-50/60">
-                        <div>Third-Party Units: <span className="font-medium">{thirdPartyUnits.toLocaleString()}</span></div>
-                        <input className="mt-2 w-full" type="range" min={0} max={10000} step={50} value={thirdPartyUnits} onChange={e=>setThirdPartyUnits(parseInt(e.target.value))}/>
-                      </div>
-                      <div className="p-3 rounded-xl border border-neutral-200 bg-neutral-50/60">
-                        <div>Third-Party Fee: <span className="font-medium">{formatUSD(thirdPartyFee)}</span></div>
-                        <input className="mt-2 w-full" type="range" min={0} max={1000} step={25} value={thirdPartyFee} onChange={e=>setThirdPartyFee(parseInt(e.target.value))}/>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </section>
 
-            {/* DEAD LEAD MONETIZATION (Unique IP) */}
+            {/* DEAD LEAD TRACKING (Handled by Agent Hybrid) */}
             <section className="mt-8 p-6 bg-gradient-to-br from-sky-50 to-blue-50 border-2 border-sky-300 rounded-2xl shadow-md fade-in">
               <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
                 <div>
-                  <h2 className="text-lg font-bold text-sky-900">Dead Lead Monetization</h2>
-                  <p className="text-sm text-sky-700 mt-1">Unique competitive advantage — competitors ignore this revenue stream</p>
+                  <h2 className="text-lg font-bold text-sky-900">Dead Lead Tracking</h2>
+                  <p className="text-sm text-sky-700 mt-1">Assessments - Accepted = Dead Leads (handled by Agent Hybrid model)</p>
                 </div>
                 <div className="px-3 py-1 bg-sky-600 text-white text-xs font-bold uppercase tracking-wider rounded-full">Unique IP</div>
               </div>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <div>
-                    <div className="text-sm text-sky-900">Dead leads / month: <span className="font-bold">{deadLeadsPerMonth.toLocaleString()}</span></div>
-                    <input className="mt-2 w-full" type="range" min={1000} max={10000} step={100} value={deadLeadsPerMonth} onChange={e=>setDeadLeadsPerMonth(parseInt(e.target.value))} />
+                  <div className="p-4 bg-white/80 rounded-xl border border-sky-200">
+                    <div className="text-xs text-sky-700 uppercase tracking-wider mb-1">Dead Leads Formula</div>
+                    <div className="text-lg font-bold text-sky-900">{assessments.toLocaleString()} Assessments</div>
+                    <div className="text-sm text-sky-700">− {funnel.accepted.toLocaleString()} Accepted</div>
+                    <div className="mt-2 pt-2 border-t border-sky-200 text-2xl font-bold text-sky-600">= {economics.deadLead.monthly.toLocaleString()} /month</div>
                     <div className="mt-1 text-xs text-sky-600">{economics.deadLead.annualLeads.toLocaleString()} leads annually</div>
                   </div>
                   <div>
                     <div className="text-sm text-sky-900">Conversion rate: <span className="font-bold">{(deadLeadConversionRate*100).toFixed(1)}%</span></div>
                     <input className="mt-2 w-full" type="range" min={0.005} max={0.10} step={0.005} value={deadLeadConversionRate} onChange={e=>setDeadLeadConversionRate(parseFloat(e.target.value))} />
-                    <div className="mt-1 text-xs text-sky-600">{Math.round(economics.deadLead.conversions)} conversions / year</div>
+                    <div className="mt-1 text-xs text-sky-600">{Math.round(economics.deadLead.conversions)} conversions / year via Agent Hybrid</div>
                   </div>
                 </div>
                 <div className="space-y-4">
                   <div>
                     <div className="text-sm text-sky-900">Avg retail deal value: <span className="font-bold">{formatUSD(avgRetailDealValue)}</span></div>
-                    <input className="mt-2 w-full" type="range" min={100000} max={400000} step={10000} value={avgRetailDealValue} onChange={e=>setAvgRetailDealValue(parseInt(e.target.value))} />
+                    <input className="mt-2 w-full" type="range" min={80000} max={250000} step={10000} value={avgRetailDealValue} onChange={e=>setAvgRetailDealValue(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-sky-600">Used in Agent Hybrid revenue calculations</div>
                   </div>
-                  <div>
-                    <div className="text-sm text-sky-900">Referral fee rate: <span className="font-bold">{(referralFeeRate*100).toFixed(0)}%</span></div>
-                    <input className="mt-2 w-full" type="range" min={0.20} max={0.40} step={0.05} value={referralFeeRate} onChange={e=>setReferralFeeRate(parseFloat(e.target.value))} />
-                    <div className="mt-1 text-xs text-sky-600">Of 3% commission = {formatUSD(avgRetailDealValue * 0.03 * referralFeeRate)} per deal</div>
+                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-300">
+                    <div className="text-xs font-bold text-amber-900 mb-2">📊 Agent Hybrid Economics</div>
+                    <div className="text-xs text-amber-800 leading-relaxed">
+                      Dead leads are converted by agents earning <strong>50/50 commission split</strong> (company revenue already in Agent Revenue above). More reliable than referral fees, with better retention.
+                    </div>
                   </div>
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-sky-300 bg-white/60 rounded-xl p-4">
-                <div className="text-sm font-bold text-sky-900">Annual Dead Lead Revenue: <span className="text-2xl text-sky-600">{formatUSD(economics.rounded.deadLeadRevenue)}</span></div>
-                <div className="text-xs text-sky-700 mt-2">InvestorLift admits 50% contract fallout. New Western & EasyStreetOffers have no solution. <strong>We capture this.</strong></div>
+                <div className="text-xs text-sky-700 mt-2"><strong>Competitive Advantage:</strong> InvestorLift admits 50% contract fallout. New Western & EasyStreetOffers have no solution. <strong>We capture this with our Agent Hybrid model.</strong></div>
               </div>
             </section>
 
@@ -452,14 +476,81 @@
                   </div>
                   <div>
                     <div className="text-sm text-emerald-900">Platform fee rate: <span className="font-bold">{(marketplaceFeeRate*100).toFixed(2)}%</span></div>
-                    <input className="mt-2 w-full" type="range" min={0.005} max={0.03} step={0.005} value={marketplaceFeeRate} onChange={e=>setMarketplaceFeeRate(parseFloat(e.target.value))} />
-                    <div className="mt-1 text-xs text-emerald-600">{formatUSD(avgWholesaleDealValue * marketplaceFeeRate)} per deal</div>
+                    <input className="mt-2 w-full" type="range" min={0.0025} max={0.0075} step={0.0025} value={marketplaceFeeRate} onChange={e=>setMarketplaceFeeRate(parseFloat(e.target.value))} />
+                    <div className="mt-1 text-xs text-emerald-600">Range: 0.25% - 0.75% (base 0.5%)</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-emerald-900">Minimum fee: <span className="font-bold">{formatUSD(marketplaceMinFee)}</span></div>
+                    <input className="mt-2 w-full" type="range" min={100} max={300} step={25} value={marketplaceMinFee} onChange={e=>setMarketplaceMinFee(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-emerald-600">Actual fee: {formatUSD(economics.marketplace.feePerDeal)} (higher of % or min)</div>
                   </div>
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-emerald-300 bg-white/60 rounded-xl p-4">
                 <div className="text-sm font-bold text-emerald-900">Annual Marketplace Revenue: <span className="text-2xl text-emerald-600">{formatUSD(economics.rounded.marketplaceRevenue)}</span></div>
-                <div className="text-xs text-emerald-700 mt-2">Asset-light model. More wholesalers → more deals → more buyers → more wholesalers (network effects).</div>
+                <div className="text-xs text-emerald-700 mt-2">Asset-light model. More wholesalers → more deals → more buyers → more wholesalers (network effects). <strong>Enforcement:</strong> Invoice + honor system (Signing Tool integration optional for tracking).</div>
+              </div>
+            </section>
+
+            {/* PLATFORM SAAS (Signing + Rehab AI + ARV AI) */}
+            <section className="mt-8 p-6 bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-300 rounded-2xl shadow-md fade-in">
+              <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-purple-900">Platform SaaS</h2>
+                  <p className="text-sm text-purple-700 mt-1">Signing Tool + Rehab AI Budgeteer + ARV AI Valuations</p>
+                </div>
+                <div className="px-3 py-1 bg-purple-600 text-white text-xs font-bold uppercase tracking-wider rounded-full">Recurring Revenue</div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm text-purple-900">Active users: <span className="font-bold">{saasActiveUsers.toLocaleString()}</span></div>
+                    <input className="mt-2 w-full" type="range" min={0} max={1000} step={10} value={saasActiveUsers} onChange={e=>setSaasActiveUsers(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-purple-600">Free for first 2 months, then $10/mo base</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-purple-900">Base fee / month: <span className="font-bold">{formatUSD(saasBaseFee)}</span></div>
+                    <input className="mt-2 w-full" type="range" min={5} max={20} step={1} value={saasBaseFee} onChange={e=>setSaasBaseFee(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-purple-600">MRR from base: {formatUSD(saasActiveUsers * saasBaseFee)}</div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm text-purple-900">Envelopes / month: <span className="font-bold">{saasEnvelopes.toLocaleString()}</span></div>
+                    <input className="mt-2 w-full" type="range" min={0} max={2000} step={50} value={saasEnvelopes} onChange={e=>setSaasEnvelopes(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-purple-600">Optional signing service at $2/envelope</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-purple-900">Envelope fee: <span className="font-bold">{formatUSD(saasEnvelopeFee)}</span></div>
+                    <input className="mt-2 w-full" type="range" min={1} max={5} step={0.5} value={saasEnvelopeFee} onChange={e=>setSaasEnvelopeFee(parseFloat(e.target.value))} />
+                    <div className="mt-1 text-xs text-purple-600">Free if >5 txns/year, MRR: {formatUSD(saasEnvelopes * saasEnvelopeFee)}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-purple-300">
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="p-3 bg-white/70 rounded-xl">
+                    <div className="text-xs text-purple-700 uppercase tracking-wider mb-1">Title SaaS (20% platform)</div>
+                    <div className="text-lg font-bold text-purple-900">{formatUSD(economics.platformSaaS.titleSaasProfit)}</div>
+                  </div>
+                  <div className="p-3 bg-white/70 rounded-xl">
+                    <div className="text-xs text-purple-700 uppercase tracking-wider mb-1">Lead Sales (de-emphasized)</div>
+                    <div className="text-sm text-purple-900 mb-1">Units: <span className="font-bold">{leadSalesUnits}</span> @ {formatUSD(leadSalesPrice)}</div>
+                    <div className="flex gap-2">
+                      <input className="w-20 px-2 py-1 border border-purple-300 rounded text-xs" type="number" min={0} max={500} value={leadSalesUnits} onChange={e=>setLeadSalesUnits(parseInt(e.target.value)||0)} />
+                      <input className="w-20 px-2 py-1 border border-purple-300 rounded text-xs" type="number" min={0} max={100} value={leadSalesPrice} onChange={e=>setLeadSalesPrice(parseInt(e.target.value)||0)} />
+                    </div>
+                    <div className="text-xs text-purple-600 mt-1">Annual: {formatUSD(economics.platformSaaS.leadSalesRevenue)}</div>
+                  </div>
+                  <div className="p-3 bg-purple-100 rounded-xl">
+                    <div className="text-xs text-purple-700 uppercase tracking-wider mb-1">Total Platform SaaS</div>
+                    <div className="text-2xl font-bold text-purple-600">{formatUSD(economics.rounded.platformSaasTotal)}</div>
+                    <div className="text-xs text-purple-700 mt-1">MRR: {formatUSD(economics.platformSaaS.mrr)}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-purple-300 bg-white/60 rounded-xl p-4">
+                <div className="text-xs text-purple-700"><strong>Note:</strong> Signing Tool not yet live. Title SaaS captures 20% of marketplace + agent deals (lower than Rebuilt direct 90%). Lead Sales sells "warm" leads to RE agents (not a focus).</div>
               </div>
             </section>
 
