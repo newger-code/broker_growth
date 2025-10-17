@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rebuilt × Picket — Financial Model</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      margin:0;
+      font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      color:#1a1a1a;
+      background:#fafafa;
+    }
+
+    /* Header */
+    .header {
+      background:#fff;
+      border-bottom:1px solid #e5e7eb;
+      padding:20px 0;
+      position:sticky;
+      top:0;
+      z-index:100;
+      box-shadow:0 1px 3px rgba(0,0,0,0.05);
+    }
+    .header-inner {
+      max-width:1200px;
+      margin:0 auto;
+      padding:0 24px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .logo {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+    }
+    .logo-text {
+      font-size:24px;
+      font-weight:800;
+      background:linear-gradient(135deg, #21A7E0 0%, #1F3540 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .logo-sub {
+      font-size:13px;
+      color:#6b7280;
+      font-weight:400;
+    }
+
+    .nav { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .nav-link {
+      padding:8px 16px;
+      text-decoration:none;
+      color:#4b5563;
+      border-radius:8px;
+      font-size:14px;
+      font-weight:500;
+      transition:all 0.2s;
+    }
+    .nav-link:hover { background:#f3f4f6; color:#1f3540; }
+    .nav-link.primary {
+      background:#21A7E0;
+      color:#fff;
+    }
+    .nav-link.primary:hover {
+      background:#1d8fbc;
+    }
+
+    /* Container */
+    .container { max-width:1200px; margin:0 auto; padding:0 24px 80px; }
+
+    /* Hero */
+    .hero {
+      background:linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
+      border-radius:20px;
+      padding:48px 40px;
+      margin:32px 0 48px;
+      border:1px solid #bfdbfe;
+    }
+    .hero h1 {
+      font-size:clamp(32px, 5vw, 48px);
+      line-height:1.1;
+      margin:0 0 16px;
+      font-weight:800;
+      color:#1F3540;
+    }
+    .hero-sub {
+      font-size:18px;
+      color:#4b5563;
+      max-width:720px;
+      margin-bottom:24px;
+    }
+    .hero-stats {
+      display:flex;
+      gap:32px;
+      flex-wrap:wrap;
+      margin-top:24px;
+      padding-top:24px;
+      border-top:1px solid #bfdbfe;
+    }
+    .stat-item {
+      flex:1;
+      min-width:200px;
+    }
+    .stat-label {
+      font-size:13px;
+      color:#6b7280;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      margin-bottom:4px;
+    }
+    .stat-value {
+      font-size:20px;
+      font-weight:700;
+      color:#1F3540;
+    }
+
+    /* Section */
+    .section { margin:48px 0; }
+    .section-title {
+      font-size:28px;
+      font-weight:700;
+      margin:0 0 24px;
+      color:#1F3540;
+    }
+    .section-desc {
+      font-size:16px;
+      color:#6b7280;
+      margin-bottom:32px;
+      max-width:720px;
+    }
+
+    /* Cards */
+    .card-grid {
+      display:grid;
+      gap:24px;
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .card {
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:24px;
+      box-shadow:0 4px 16px rgba(0,0,0,0.04);
+      transition:all 0.3s;
+    }
+    .card:hover {
+      transform:translateY(-4px);
+      box-shadow:0 12px 24px rgba(0,0,0,0.1);
+    }
+    .card-icon {
+      font-size:32px;
+      margin-bottom:16px;
+    }
+    .card-title {
+      font-size:18px;
+      font-weight:700;
+      margin-bottom:12px;
+      color:#1F3540;
+    }
+    .card-desc {
+      font-size:14px;
+      line-height:1.6;
+      color:#6b7280;
+    }
+    .card-meta {
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid #f3f4f6;
+      font-size:13px;
+      color:#9ca3af;
+    }
+
+    /* Feature cards (revenue streams) */
+    .feature-card {
+      background:#fff;
+      border:2px solid #e5e7eb;
+      border-radius:12px;
+      padding:20px;
+      margin-bottom:16px;
+      transition:all 0.2s;
+    }
+    .feature-card:hover {
+      border-color:#21A7E0;
+      box-shadow:0 4px 16px rgba(33,167,224,0.1);
+    }
+    .feature-icon {
+      width:40px;
+      height:40px;
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      margin-bottom:12px;
+    }
+    .feature-icon.red { background:#fee2e2; }
+    .feature-icon.green { background:#d1fae5; }
+    .feature-icon.blue { background:#dbeafe; }
+    .feature-icon.yellow { background:#fef3c7; }
+    .feature-title {
+      font-size:16px;
+      font-weight:700;
+      margin-bottom:8px;
+      color:#1F3540;
+    }
+    .feature-list {
+      list-style:none;
+      font-size:14px;
+      color:#6b7280;
+      line-height:1.8;
+    }
+    .feature-list li:before {
+      content:"→ ";
+      color:#21A7E0;
+      font-weight:700;
+      margin-right:8px;
+    }
+
+    /* CTA */
+    .cta-box {
+      background:linear-gradient(135deg, #1F3540 0%, #21A7E0 100%);
+      border-radius:20px;
+      padding:48px 40px;
+      text-align:center;
+      color:#fff;
+      margin:64px 0;
+    }
+    .cta-box h2 {
+      font-size:32px;
+      margin-bottom:16px;
+    }
+    .cta-box p {
+      font-size:18px;
+      margin-bottom:32px;
+      opacity:0.9;
+    }
+    .cta-button {
+      display:inline-block;
+      background:#fff;
+      color:#1F3540;
+      padding:16px 32px;
+      border-radius:12px;
+      text-decoration:none;
+      font-weight:700;
+      font-size:16px;
+      transition:all 0.2s;
+      box-shadow:0 4px 16px rgba(0,0,0,0.2);
+    }
+    .cta-button:hover {
+      transform:translateY(-2px);
+      box-shadow:0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    /* Transformation box */
+    .transform {
+      background:#fff;
+      border:2px solid #21A7E0;
+      border-radius:16px;
+      padding:32px;
+      margin:32px 0;
+    }
+    .transform-row {
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      gap:24px;
+      align-items:center;
+      margin:16px 0;
+    }
+    .transform-label {
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:#9ca3af;
+      margin-bottom:8px;
+    }
+    .transform-value {
+      font-size:18px;
+      font-weight:600;
+      color:#1F3540;
+    }
+    .transform-arrow {
+      font-size:24px;
+      color:#21A7E0;
+    }
+
+    @media (max-width: 768px) {
+      .transform-row {
+        grid-template-columns:1fr;
+        text-align:center;
+      }
+      .transform-arrow {
+        transform:rotate(90deg);
+      }
+      .hero-stats { flex-direction:column; gap:16px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div>
+          <div class="logo-text">REBUILT × PICKET</div>
+          <div class="logo-sub">Financial Model</div>
+        </div>
+      </a>
+      <nav class="nav">
+        <a href="sensitivity/index.html" class="nav-link primary">📊 Financial Model</a>
+        <a href="drivers/index.html" class="nav-link">🎯 Strategy</a>
+        <a href="comps/index.html" class="nav-link">📈 Market Intel</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Hero -->
+    <section class="hero">
+      <h1>Unlocking Hidden Revenue in Off-Market Real Estate</h1>
+      <p class="hero-sub">
+        From single revenue stream + high bounce rate → 11+ revenue streams + captured traffic
+      </p>
+
+      <div class="transform">
+        <div class="transform-row">
+          <div>
+            <div class="transform-label">Before</div>
+            <div class="transform-value">Single revenue stream</div>
+          </div>
+          <div class="transform-arrow">→</div>
+          <div>
+            <div class="transform-label">After</div>
+            <div class="transform-value">11+ revenue streams</div>
+          </div>
+        </div>
+        <div class="transform-row">
+          <div>
+            <div class="transform-label">Before</div>
+            <div class="transform-value">High bounce rate</div>
+          </div>
+          <div class="transform-arrow">→</div>
+          <div>
+            <div class="transform-label">After</div>
+            <div class="transform-value">Every visitor monetized</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-label">Markets</div>
+          <div class="stat-value">8 active</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Dead Leads/Year</div>
+          <div class="stat-value">3,750 monetized</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Revenue Streams</div>
+          <div class="stat-value">11+ sources</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Unique Advantages</div>
+          <div class="stat-value">3 vs competitors</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- New Revenue Streams -->
+    <section class="section">
+      <h2 class="section-title">💰 New Ancillary Revenue Streams</h2>
+      <p class="section-desc">Revenue that didn't exist before. Test YOUR assumptions with interactive sliders.</p>
+
+      <div class="feature-card">
+        <div class="feature-icon red">🔴</div>
+        <h3 class="feature-title">Dead Lead Monetization</h3>
+        <ul class="feature-list">
+          <li>3,750 leads/year previously lost</li>
+          <li>Now: Agent Hybrid model (50/50 split)</li>
+          <li>Competitor fallout rate: 50%</li>
+          <li>Interactive model: Test assumptions</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon green">🟢</div>
+        <h3 class="feature-title">Open Marketplace Aggregation</h3>
+        <ul class="feature-list">
+          <li>Third-party wholesalers on platform</li>
+          <li>Invoice + honor system enforcement</li>
+          <li>Platform fees: $150 min OR 0.25-1.0%</li>
+          <li>Competitors: Closed platforms only</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon blue">🔵</div>
+        <h3 class="feature-title">Platform SaaS Tools</h3>
+        <ul class="feature-list">
+          <li>Signing tool + Rehab AI + ARV AI</li>
+          <li>Title SaaS (capture on platform deals)</li>
+          <li>Free if >5 txns/year (retention)</li>
+          <li>Scales with user base</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon yellow">🟡</div>
+        <h3 class="feature-title">Agent Outside Business</h3>
+        <ul class="feature-list">
+          <li>Agents bring own deals</li>
+          <li>80/20 commission split</li>
+          <li>Scales with agent count</li>
+          <li>Low volume but real revenue</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Marketplace Transformation -->
+    <section class="section">
+      <h2 class="section-title">🎯 Bounce Rate → Monetization</h2>
+      <p class="section-desc">Improved website + offerings = traffic converts at multiple points</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">❌</div>
+          <h3 class="card-title">Before: High Bounce</h3>
+          <p class="card-desc">
+            Limited inventory<br/>
+            Single exit (wholesale only)<br/>
+            Lost traffic = lost revenue<br/>
+            No data capture
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">✅</div>
+          <h3 class="card-title">After: Multi-Path</h3>
+          <p class="card-desc">
+            Didn't like deal? → Marketplace<br/>
+            Not ready? → Dead lead nurture<br/>
+            Need tools? → Platform SaaS<br/>
+            Want to list? → Agent network
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Tools -->
+    <section class="section">
+      <h2 class="section-title">📊 Interactive Tools</h2>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">💹</div>
+          <h3 class="card-title">Financial Model</h3>
+          <p class="card-desc">
+            Test every assumption<br/>
+            Adjust sliders in real-time<br/>
+            See P&L impact immediately<br/>
+            Full transparency
+          </p>
+          <div class="card-meta">Interactive sensitivity analysis</div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">🎯</div>
+          <h3 class="card-title">Strategic Drivers</h3>
+          <p class="card-desc">
+            Why this works now<br/>
+            Multi-exit positioning<br/>
+            Competitive advantages<br/>
+            Market dynamics
+          </p>
+          <div class="card-meta">Strategic context & rationale</div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">📈</div>
+          <h3 class="card-title">Market Intel</h3>
+          <p class="card-desc">
+            Competitor tear-downs<br/>
+            Industry benchmarks<br/>
+            Supporting research<br/>
+            Evidence-based
+          </p>
+          <div class="card-meta">Competitive analysis & data</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Competitive Gaps -->
+    <section class="section">
+      <h2 class="section-title">⚡ Competitive Gaps We Exploit</h2>
+
+      <div style="background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:24px;">
+        <div style="display:grid; gap:20px;">
+          <div style="padding:16px; background:#fef2f2; border-radius:8px;">
+            <strong style="color:#1F3540;">InvestorLift:</strong> 50% contract fallout<br/>
+            <span style="color:#6b7280;">→ We capture: Dead lead monetization</span>
+          </div>
+          <div style="padding:16px; background:#f0fdf4; border-radius:8px;">
+            <strong style="color:#1F3540;">New Western:</strong> 47% agent churn<br/>
+            <span style="color:#6b7280;">→ We capture: Better agent economics</span>
+          </div>
+          <div style="padding:16px; background:#eff6ff; border-radius:8px;">
+            <strong style="color:#1F3540;">Industry:</strong> Single-exit thinking<br/>
+            <span style="color:#6b7280;">→ We capture: Multi-exit optionality</span>
+          </div>
+          <div style="padding:16px; background:#fef3c7; border-radius:8px;">
+            <strong style="color:#1F3540;">Traditional:</strong> High bounce = lost revenue<br/>
+            <span style="color:#6b7280;">→ We capture: Every visitor monetized</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-box">
+      <h2>🎯 Your Turn</h2>
+      <p>
+        We built the model. YOU test the assumptions.<br/>
+        Every slider is adjustable. Every formula is transparent.<br/>
+        See the impact in real-time.
+      </p>
+      <a href="sensitivity/index.html" class="cta-button">Launch Financial Model →</a>
+    </div>
+
+    <!-- How to Use -->
+    <section class="section">
+      <h2 class="section-title">🎓 How to Use This Model</h2>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3 class="card-title">For Investors</h3>
+          <p class="card-desc">
+            1. Start → Financial Model<br/>
+            2. Focus on: Dead Leads + Marketplace<br/>
+            3. See: New revenue streams impact
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">For Operators</h3>
+          <p class="card-desc">
+            1. Start → Strategic Drivers<br/>
+            2. Understand: Multi-exit strategy<br/>
+            3. Review: Competitive positioning
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">For Analysts</h3>
+          <p class="card-desc">
+            1. Start → Market Intel (Comps)<br/>
+            2. Validate: Competitive gaps<br/>
+            3. Cross-reference: Assumptions
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

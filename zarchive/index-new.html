@@ -193,10 +193,9 @@
       border-radius: 24px;
       padding: clamp(24px, 3vw, 32px);
       box-shadow: 0 28px 60px rgba(0,0,0,0.35);
-      overflow: visible;
+      overflow: hidden;
       backdrop-filter: blur(18px);
       transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
-      z-index: 1;
     }
 
     .stage-card::after {
@@ -223,31 +222,17 @@
     }
 
     .stage-card h3 {
-      font-size: clamp(22px, 2.2vw, 26px);
+      font-size: clamp(20px, 2.2vw, 24px);
       margin-bottom: 8px;
-      color: #f8fafc;
-      position: relative;
-      z-index: 2;
     }
 
     .stage-card p.lead {
-      color: #22d3ee;
-      font-weight: 700;
-      margin-bottom: 8px;
+      color: var(--accent-blue);
+      font-weight: 600;
+      margin-bottom: 12px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      font-size: 14px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .stage-card > p {
-      color: #e2e8f0;
-      font-size: 16px;
-      line-height: 1.6;
-      min-height: 80px;
-      position: relative;
-      z-index: 2;
+      font-size: 13px;
     }
 
     .stage-card ul {
@@ -256,21 +241,18 @@
       gap: 12px;
       padding: 0;
       margin: 20px 0 0 0;
-      position: relative;
-      z-index: 2;
     }
 
     .stage-card li {
-      background: rgba(15,23,42,0.8);
-      border: 1px solid rgba(148,163,184,0.3);
+      background: rgba(15,23,42,0.65);
+      border: 1px solid rgba(148,163,184,0.18);
       border-radius: 14px;
-      padding: 14px 16px;
+      padding: 12px 14px;
       font-size: 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      color: #e2e8f0;
     }
 
     body.mode-left .stage-card--left,
@@ -284,8 +266,8 @@
     body.mode-left .stage-card--left { box-shadow: 0 34px 76px rgba(56,189,248,0.45); }
 
     .metric {
-      color: #22d3ee;
-      font-weight: 700;
+      color: var(--accent-cyan);
+      font-weight: 600;
     }
 
     /* Funnel core */
@@ -557,7 +539,6 @@
       background: radial-gradient(ellipse at center, rgba(14,116,144,0.85), rgba(15,23,42,0.95));
       border: 2px solid rgba(56,189,248,0.3);
       box-shadow: inset 0 0 24px rgba(56,189,248,0.3);
-      z-index: 3;
     }
 
     .particle-stream {
@@ -613,17 +594,15 @@
     }
 
     .payload-chips span {
-      padding: 10px 18px;
+      padding: 8px 14px;
       border-radius: 999px;
-      background: rgba(14,165,233,0.25);
-      color: #f8fafc;
-      border: 1px solid rgba(125,211,252,0.5);
-      font-size: 14px;
-      font-weight: 600;
+      background: rgba(14,165,233,0.18);
+      color: var(--text-strong);
+      border: 1px solid rgba(125,211,252,0.35);
+      font-size: 13px;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       animation: pulse 6s ease-in-out infinite;
-      box-shadow: 0 4px 16px rgba(14,165,233,0.3);
     }
 
     .payload-chips span:nth-child(2) { animation-delay: 0.8s; }
@@ -636,15 +615,12 @@
 
     /* Drip FX */
     .drip {
-      position: absolute;
+      position: relative;
       width: 70px;
       height: 140px;
-      right: 24px;
-      top: 50%;
-      transform: translateY(-50%);
+      margin-top: 36px;
       opacity: 0.15;
       transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
-      z-index: 1;
     }
 
     .drip::before,
@@ -686,39 +662,36 @@
     }
 
     .drip-cluster {
-      position: absolute;
-      width: 180px;
-      height: 200px;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%) scale(1.3);
-      opacity: 0.2;
+      position: relative;
+      width: 140px;
+      height: 160px;
+      margin-top: 36px;
+      opacity: 0.15;
       transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
-      z-index: 1;
     }
 
     .drip-cluster .drip-node {
       position: absolute;
       top: 0;
       left: 50%;
-      width: 28px;
-      height: 28px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(226,232,240,0.95), rgba(14,165,233,0.4));
-      box-shadow: 0 0 20px rgba(148,197,242,1), 0 0 40px rgba(34,211,238,0.6);
+      background: radial-gradient(circle at 30% 30%, rgba(226,232,240,0.9), rgba(14,165,233,0.3));
+      box-shadow: 0 0 14px rgba(148,197,242,0.85);
       animation: cluster-drip 2.4s infinite;
     }
 
     .drip-cluster .drip-node::after {
       content: "";
       position: absolute;
-      top: 16px;
+      top: 12px;
       left: 50%;
-      width: 22px;
-      height: 140px;
+      width: 16px;
+      height: 110px;
       transform: translateX(-50%);
       border-radius: 50% 50% 50% 50% / 25% 25% 90% 90%;
-      background: linear-gradient(180deg, rgba(226,232,240,0.95), rgba(34,211,238,0.3) 65%, transparent);
+      background: linear-gradient(180deg, rgba(226,232,240,0.9), rgba(14,165,233,0.2) 65%, transparent);
     }
 
     .drip-cluster .drip-node:nth-child(1) { left: 15%; animation-delay: 0s; }
@@ -796,15 +769,6 @@
       box-shadow: 0 8px 24px rgba(14,165,233,0.4);
     }
 
-    @keyframes bounce {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-8px);
-      }
-    }
-
     @media (max-width: 900px) {
       body { padding: 24px; }
       .stage-layout { grid-template-columns: 1fr; }
@@ -815,7 +779,7 @@
     .content-section {
       width: 100%;
       max-width: 1200px;
-      margin-top: 0;
+      margin-top: 64px;
     }
 
     .section {
@@ -1075,35 +1039,37 @@
 <body class="mode-right">
   <main class="canvas">
     <header class="headline">
-      <h1>Rebuilt × Picket: AI-Powered PropTech Vertical Integration</h1>
+      <h1>Revenue Evolution: Rebuilt ➝ Rebuilt × Picket Platform</h1>
       <p>
-        AI-powered PropTech leader merging Picket.ai's analytics with Rebuilt.com's off-market expertise. Creates end-to-end residential investment platform in $330B+ market (11% CAGR). <strong>Synergies unlock 5+ revenue streams instead of one</strong>—driving 75%+ revenue growth, 25% burn reduction, proprietary data flywheel. Path to profitability <1 year. Defensible moat via vertical integration, no true direct competitors.
+        Cinematic visualization of the journey from the legacy wholesale motion into the multi-stream platform engine.
+        Watch premium prospects swirl through a luminous intake funnel while downstream capture multiplies the value of every drip.
       </p>
       <div class="legend">
         <div class="legend-item">
           <span class="legend-swatch"></span>
           <div>
-            <h4 style="font-size:15px; margin:0; letter-spacing:0.08em; text-transform:uppercase;">Current Motion</h4>
-            <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-muted);">Single wholesale lane: 800 closes/year, 3,500 warm leads lost, no retail exit.</p>
+            <h4 style="font-size:15px; margin:0; letter-spacing:0.08em; text-transform:uppercase;">Luminous Flow</h4>
+            <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-muted);">Platform automation compounding addressable revenue sources.</p>
           </div>
         </div>
         <div class="legend-item">
           <span class="legend-swatch" style="background:linear-gradient(135deg, var(--accent-lime), var(--accent-blue)); box-shadow:0 0 12px rgba(163,230,53,0.7);"></span>
           <div>
-            <h4 style="font-size:15px; margin:0; letter-spacing:0.08em; text-transform:uppercase;">Future State</h4>
-            <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-muted);">5+ revenue streams: Wholesale baseline + dead lead recovery + marketplace fees + retail exits + SaaS.</p>
+            <h4 style="font-size:15px; margin:0; letter-spacing:0.08em; text-transform:uppercase;">Drip Capture</h4>
+            <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-muted);">Micro-transactions spilling from the funnel base into diversified revenue streams.</p>
           </div>
         </div>
       </div>
 
       <div class="nav-links">
         <a href="sensitivity/index.html">📊 Financial Model</a>
-        <a href="comps/index.html">🔍 Market Intel</a>
+        <a href="drivers/index.html">🎯 Strategy</a>
+        <a href="comps/index.html">📈 Market Intel</a>
       </div>
     </header>
 
     <section class="control-panel" role="radiogroup" aria-label="Funnel focus selector">
-      <span>Funnel Focus <span style="font-size: 11px; opacity: 0.7; font-weight: 400;">(Select One)</span></span>
+      <span>Funnel Focus</span>
       <label for="focus-none">
         <input type="radio" name="funnel-focus" id="focus-none" value="none">
         <span>None</span>
@@ -1123,12 +1089,12 @@
         <p class="lead">Current Motion</p>
         <h3>Rebuilt Wholesale</h3>
         <p>
-          Rapport engages <strong>5,000 warm leads</strong> with a single-purpose wholesale lane.
-          Despite intense effort, a narrow capture engine converts <span class="metric">800 wholesale closes</span>.
+          Rapport engages <strong>4,200 warm leads</strong> with a single-purpose wholesale lane.
+          Despite intense effort, a narrow capture engine converts only <span class="metric">800 wholesale closes</span>.
         </p>
         <div class="drip" aria-hidden="true"></div>
         <ul>
-          <li><span>5,000 Fully Engaged Prospects</span><span class="metric">Rapport Built</span></li>
+          <li><span>4,200 Fully Engaged Prospects</span><span class="metric">Rapport Built</span></li>
           <li><span>2,000 Accepted Offers</span><span class="metric">Wholesale Only</span></li>
           <li><span>800 Wholesale Closes</span><span class="metric">Single Revenue Stream</span></li>
         </ul>
@@ -1166,7 +1132,7 @@
         <p class="lead">Future State</p>
         <h3>Rebuilt × Picket Platform</h3>
         <p>
-          Platform fabric unlocks <strong>5+ revenue streams</strong> from the same <strong>5,000 relationships</strong>.
+          Platform fabric unlocks <strong>12 revenue streams</strong> from the same <strong>4,200 relationships</strong>.
           Automated nurture cycles and digital ops amplify engagement into multi-tap capture.
         </p>
         <div class="drip-cluster" aria-hidden="true">
@@ -1177,28 +1143,22 @@
           <span class="drip-node"></span>
         </div>
         <ul>
-          <li><span>5,000 Fully Engaged Prospects</span><span class="metric">Rapport Built</span></li>
+          <li><span>4,200 Fully Engaged Prospects</span><span class="metric">Rapport Built</span></li>
           <li><span>2,000 Accepted Offers</span><span class="metric">+ Platform Monetization</span></li>
           <li><span>800 Wholesale Closes</span><span class="metric">Baseline</span></li>
-          <li><span>Multi-Exit Revenue Capture</span><span class="metric">5+ Streams</span></li>
+          <li><span>Multi-Exit Revenue Capture</span><span class="metric">12 Streams</span></li>
         </ul>
       </article>
     </section>
 
     <section class="callouts">
-      <p><strong>Competitive Advantage:</strong> InvestorLift loses <span>50% of deals to fallout</span>, New Western suffers <span>47% agent churn</span>, EasyStreetOffers runs a closed marketplace—Rebuilt captures all three gaps with dead lead monetization, hybrid agent retention model, and open aggregation.</p>
-      <p><strong>Revenue Multiplier:</strong> Same 5,000 engaged prospects. Current state = 800 closes, single revenue stream. Future state = 800 baseline + 525 dead lead conversions + marketplace fees + retail exits + SaaS recurring revenue.</p>
-      <p><strong>Capital Efficiency:</strong> Asset-light model requires no inventory ownership or capital-intensive holding periods. Technology platform scales without linear cost growth. Agents work on company-provided leads with 50/50 commission split on retail exits.</p>
+      <p><strong>Key Insight:</strong> Picket platform technology converts <span>3-5% of relationship-built prospects</span> (≈3X current conversion) while preserving wholesale velocity.</p>
+      <p><strong>Merger Effect:</strong> Platform signing unlocks new monetization deals, digital operations, and analytic intelligence—doubling projected revenue capture per lead.</p>
+      <p><strong>Visual Narrative:</strong> Single drip versus cascading flow dramatizes the shift from a constrained lane to an orchestrated, CGI-grade revenue engine.</p>
     </section>
 
-    <!-- Scroll indicator -->
-    <div style="text-align: center; margin: 32px 0 24px; opacity: 0.6;">
-      <div style="display: inline-block; font-size: 13px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">Explore Details Below</div>
-      <div style="margin-top: 8px; font-size: 24px; color: var(--accent-cyan); animation: bounce 2s infinite;">↓</div>
-    </div>
-
     <!-- Content Sections -->
-    <div class="content-section" style="margin-top: 0;">
+    <div class="content-section">
       <!-- New Revenue Streams -->
       <section style="margin-bottom: 64px;">
         <h2 style="font-size: clamp(28px, 4vw, 36px); font-weight: 800; color: var(--text-strong); text-align: center; margin-bottom: 48px;">
@@ -1303,7 +1263,7 @@
           <div style="background: var(--panel); border: 2px solid rgba(20,184,166,0.4); border-radius: 20px; padding: 32px;">
             <div style="text-align: center; margin-bottom: 24px;">
               <span style="display: inline-block; padding: 8px 16px; background: rgba(20,184,166,0.2); color: var(--accent-teal); border-radius: 999px; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">AFTER</span>
-              <h3 style="font-size: 24px; font-weight: 700; color: var(--text-strong); margin: 0;">5+ Revenue Streams</h3>
+              <h3 style="font-size: 24px; font-weight: 700; color: var(--text-strong); margin: 0;">12 Revenue Streams</h3>
             </div>
             <ul style="list-style: none; padding: 0; margin: 0;">
               <li style="padding: 12px 0; color: var(--text-normal); font-size: 15px; border-bottom: 1px solid rgba(148,163,184,0.1);">
@@ -1329,20 +1289,28 @@
         <h2 style="font-size: clamp(28px, 4vw, 36px); font-weight: 800; color: var(--text-strong); text-align: center; margin-bottom: 48px;">
           📊 Interactive Tools
         </h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; max-width: 800px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
 
-          <a href="/sensitivity/" style="text-decoration: none; display: block; background: var(--panel); border: 2px solid var(--panel-border); border-radius: 20px; padding: 32px; transition: all 0.3s ease;">
-            <div style="font-size: 48px; margin-bottom: 20px;">🎛️</div>
-            <h3 style="font-size: 22px; font-weight: 700; color: var(--text-strong); margin: 0 0 16px 0;">Financial Model</h3>
-            <p style="color: var(--text-muted); font-size: 15px; line-height: 1.6; margin: 0;">
-              Adjust all levers—leads, conversion, pricing, costs—and see real-time impact on gross revenue and net contribution across 5+ revenue streams.
+          <a href="/sensitivity/" style="text-decoration: none; display: block; background: var(--panel); border: 2px solid var(--panel-border); border-radius: 20px; padding: 28px; transition: all 0.3s ease;">
+            <div style="font-size: 36px; margin-bottom: 16px;">🎛️</div>
+            <h3 style="font-size: 20px; font-weight: 700; color: var(--text-strong); margin: 0 0 12px 0;">Financial Model</h3>
+            <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin: 0;">
+              Adjust all levers—leads, conversion, pricing, costs—and see real-time impact on gross revenue and net contribution across 12 revenue streams.
             </p>
           </a>
 
-          <a href="/comps/" style="text-decoration: none; display: block; background: var(--panel); border: 2px solid var(--panel-border); border-radius: 20px; padding: 32px; transition: all 0.3s ease;">
-            <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
-            <h3 style="font-size: 22px; font-weight: 700; color: var(--text-strong); margin: 0 0 16px 0;">Market Intel</h3>
-            <p style="color: var(--text-muted); font-size: 15px; line-height: 1.6; margin: 0;">
+          <a href="/drivers/" style="text-decoration: none; display: block; background: var(--panel); border: 2px solid var(--panel-border); border-radius: 20px; padding: 28px; transition: all 0.3s ease;">
+            <div style="font-size: 36px; margin-bottom: 16px;">🎯</div>
+            <h3 style="font-size: 20px; font-weight: 700; color: var(--text-strong); margin: 0 0 12px 0;">Strategy Deep Dive</h3>
+            <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin: 0;">
+              Visual funnel diagrams, warm prospect conversion economics, marketplace enforcement, and defensive moat analysis.
+            </p>
+          </a>
+
+          <a href="/comps/" style="text-decoration: none; display: block; background: var(--panel); border: 2px solid var(--panel-border); border-radius: 20px; padding: 28px; transition: all 0.3s ease;">
+            <div style="font-size: 36px; margin-bottom: 16px;">🔍</div>
+            <h3 style="font-size: 20px; font-weight: 700; color: var(--text-strong); margin: 0 0 12px 0;">Market Intel</h3>
+            <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin: 0;">
               Competitive research—InvestorLift's 50% fallout, New Western's 47% churn, EasyStreetOffers' closed marketplace. See how we differentiate.
             </p>
           </a>
@@ -1399,7 +1367,7 @@
             <div style="font-size: 36px; margin-bottom: 16px;">💼</div>
             <h3 style="font-size: 18px; font-weight: 700; color: var(--text-strong); margin: 0 0 12px 0;">For Investors</h3>
             <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin: 0;">
-              Start with the <strong>Financial Model</strong> to test assumptions. Then review <strong>Market Intel</strong> for competitive positioning and differentiation strategy.
+              Start with the <strong>Financial Model</strong> to test assumptions. Then review <strong>Strategy</strong> for funnel economics and <strong>Market Intel</strong> for competitive positioning.
             </p>
           </div>
 
@@ -1407,7 +1375,7 @@
             <div style="font-size: 36px; margin-bottom: 16px;">🏢</div>
             <h3 style="font-size: 18px; font-weight: 700; color: var(--text-strong); margin: 0 0 12px 0;">For Operators</h3>
             <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin: 0;">
-              Use the <strong>Financial Model</strong> to forecast hiring and unit economics. Review <strong>Market Intel</strong> to understand competitive advantages in warm prospect recovery and marketplace aggregation.
+              Explore <strong>Strategy</strong> for operational playbook (warm prospect recovery, marketplace aggregation). Use <strong>Financial Model</strong> to forecast hiring and unit economics.
             </p>
           </div>
 
@@ -1424,7 +1392,7 @@
 
       <!-- CTA -->
       <section style="text-align: center; margin-bottom: 80px;">
-        <a href="/sensitivity/" style="display: inline-block; padding: 18px 42px; background: linear-gradient(135deg, #14b8a6 0%, #22d3ee 100%); color: #0f172a; font-size: 18px; font-weight: 700; text-decoration: none; border-radius: 12px; box-shadow: 0 6px 24px rgba(20,184,166,0.4); transition: all 0.3s ease; position: relative; z-index: 10;">
+        <a href="/sensitivity/" style="display: inline-block; padding: 20px 48px; background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-cyan) 100%); color: #0f172a; font-size: 18px; font-weight: 700; text-decoration: none; border-radius: 12px; box-shadow: 0 8px 24px rgba(20,184,166,0.4); transition: all 0.3s ease;">
           Launch Financial Model →
         </a>
       </section>

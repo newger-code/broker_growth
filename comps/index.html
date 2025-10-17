@@ -2,131 +2,413 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Comps & Evidence</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Market Intel — Rebuilt × Picket</title>
+  <meta name="robots" content="noindex" />
   <style>
-    :root { --fg:#0a0a0a; --muted:#667085; --border:#e5e7eb; --accent:#0ea5e9; --bg:#fff; --block:#e9eef5; }
-    * { box-sizing:border-box }
-    body { margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--fg); background:var(--bg); }
-    .wrap { width:min(1100px,92%); margin:auto; padding:20px 0 56px; }
-    header { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
-    .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:12px; text-decoration:none; color:inherit; background:#fff; }
-    h1 { font-size:clamp(28px,4vw,36px); margin:12px 0 6px; font-weight:750; letter-spacing:.1px; }
-    .sub { color:var(--muted); margin-bottom:12px; }
-
-    /* Blocks (darker tint) + tiny white gutter between */
-    .block { background:var(--block); border:1px solid #d0d7e2; border-radius:16px; padding:12px; margin:8px 0; }
-    .block + .block { margin-top:12px; }
-    .block h2 { margin:2px 0 6px; font-size:18px; letter-spacing:.2px; font-weight:800; }
-
-    /* Cards */
-    .cards { display:grid; gap:12px; }
-    .cards.two { grid-template-columns:1fr; }
-    .cards.four { grid-template-columns:1fr; }
-    @media (min-width: 960px){
-      .cards.two  { grid-template-columns:1fr 1fr; }
-      .cards.four { grid-template-columns:1fr 1fr; }
+    :root {
+      color-scheme: dark;
+      --bg: radial-gradient(circle at 20% 20%, rgba(56,189,248,0.18), transparent 55%),
+             radial-gradient(circle at 80% 30%, rgba(129,140,248,0.2), transparent 60%),
+             linear-gradient(140deg, #020824 0%, #071e32 40%, #031019 100%);
+      --panel: rgba(5,18,36,0.68);
+      --panel-border: rgba(148,163,184,0.2);
+      --text-strong: #f8fafc;
+      --text-normal: rgba(226,232,240,0.95);
+      --text-muted: rgba(226,232,240,0.75);
+      --accent-cyan: #22d3ee;
+      --accent-teal: #14b8a6;
+      --accent-blue: #38bdf8;
+      --accent-purple: #a855f7;
+      --accent-amber: #fbbf24;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    .card { border:1px solid var(--border); border-radius:14px; padding:12px; background:#fff; box-shadow:0 6px 16px rgba(10,10,10,.04); min-height:180px; display:flex; flex-direction:column; }
-    .card h3 { margin:0 0 8px; font-size:17px; font-weight:750; }
 
-    .cap { color:var(--muted); font-size:13px; margin-top:8px; }
-    .img { position:relative; border:1px solid var(--border); border-radius:12px; background:#fff; min-height:190px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-    .img img { width:100%; height:auto; display:block; }
+    * { box-sizing: border-box; }
 
-    /* Charts */
-    .chart { border:1px solid var(--border); border-radius:12px; background:#fff; width:100%; height:auto; }
-    .chart.slim { min-height:160px; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text-normal);
+      padding: clamp(24px, 4vw, 48px);
+    }
 
-    /* Easy Street §3 highlight — lower half of §3 */
+    h1, h2, h3, h4 {
+      color: var(--text-strong);
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .wrap {
+      width: min(1200px, 100%);
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 20px 0 32px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text-strong);
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      transition: all 0.2s ease;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav-links a:hover {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 4px 16px rgba(34,211,238,0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Page Title */
+    h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      margin: 0 0 12px 0;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: clamp(15px, 2vw, 18px);
+      margin-bottom: 48px;
+    }
+
+    /* Section Blocks */
+    .block {
+      background: var(--panel);
+      border: 2px solid var(--panel-border);
+      border-radius: 20px;
+      padding: clamp(24px, 4vw, 40px);
+      margin-bottom: 48px;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .block h2 {
+      font-size: clamp(22px, 3vw, 28px);
+      margin: 0 0 28px 0;
+      padding-bottom: 16px;
+      border-bottom: 2px solid rgba(34,211,238,0.3);
+      background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Cards Grid */
+    .cards {
+      display: grid;
+      gap: 24px;
+    }
+
+    .cards.two {
+      grid-template-columns: 1fr;
+    }
+
+    .cards.four {
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+      .cards.two {
+        grid-template-columns: 1fr 1fr;
+      }
+      .cards.four {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .card {
+      background: rgba(15,23,42,0.6);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 24px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(34,211,238,0.5);
+      box-shadow: 0 8px 24px rgba(34,211,238,0.2);
+      transform: translateY(-4px);
+    }
+
+    .card h3 {
+      margin: 0 0 16px 0;
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text-strong);
+    }
+
+    .card .cap {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-top: auto;
+    }
+
+    /* Stat Display */
+    .stat-box {
+      padding: 20px;
+      border-radius: 12px;
+      margin: 16px 0;
+      text-align: center;
+    }
+
+    .stat-box.amber {
+      background: linear-gradient(135deg, rgba(251,191,36,0.2) 0%, rgba(251,191,36,0.1) 100%);
+      border: 2px solid rgba(251,191,36,0.4);
+    }
+
+    .stat-box.red {
+      background: linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0.1) 100%);
+      border: 2px solid rgba(239,68,68,0.4);
+    }
+
+    .stat-box .number {
+      font-size: clamp(40px, 8vw, 56px);
+      font-weight: 900;
+      color: var(--text-strong);
+      line-height: 1;
+    }
+
+    .stat-box .label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Feature Table */
+    .feature-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .feature-table thead tr {
+      border-bottom: 2px solid var(--panel-border);
+    }
+
+    .feature-table th {
+      text-align: left;
+      padding: 14px 12px;
+      font-weight: 800;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .feature-table th:first-child {
+      text-align: left;
+    }
+
+    .feature-table th:not(:first-child) {
+      text-align: center;
+    }
+
+    .feature-table .th-rebuilt {
+      background: linear-gradient(135deg, rgba(20,184,166,0.2) 0%, rgba(20,184,166,0.1) 100%);
+      border-radius: 8px;
+    }
+
+    .feature-table tbody tr {
+      border-bottom: 1px solid rgba(148,163,184,0.1);
+    }
+
+    .feature-table td {
+      padding: 12px;
+      color: var(--text-normal);
+    }
+
+    .feature-table td:not(:first-child) {
+      text-align: center;
+    }
+
+    .feature-table .td-rebuilt {
+      background: rgba(20,184,166,0.08);
+      font-weight: 700;
+    }
+
+    /* Chart SVG */
+    .chart {
+      width: 100%;
+      height: auto;
+      min-height: 160px;
+      background: rgba(15,23,42,0.4);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 8px;
+    }
+
+    /* Responsive table wrapper */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      background: rgba(15,23,42,0.4);
+      padding: 16px;
+    }
+
+    /* Image container */
+    .img-container {
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      background: rgba(15,23,42,0.4);
+      padding: 16px;
+      position: relative;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .img-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+
+    /* Highlight box for Easy Street */
     .hi-box {
-      --hi-x: 4%;   /* left  */
-      --hi-y: 66%;  /* top (shifted down to lower half) */
-      --hi-w: 92%;  /* width */
-      --hi-h: 10%;  /* height */
-      position:absolute; left:var(--hi-x); top:var(--hi-y);
-      width:var(--hi-w); height:var(--hi-h);
-      border:2px dashed #ec4899; border-radius:10px;
-      box-shadow: 0 0 0 2000px rgba(236,72,153,.05) inset;
-      pointer-events:none;
+      position: absolute;
+      border: 2px dashed #ec4899;
+      border-radius: 10px;
+      box-shadow: 0 0 0 2000px rgba(236,72,153,0.05) inset;
+      pointer-events: none;
     }
+
     .hi-note {
-      position:absolute; left:calc(var(--hi-x) + 8px); top:calc(var(--hi-y) - 22px);
-      background:#ec4899; color:#fff; font-size:12px; padding:4px 8px; border-radius:8px;
-      box-shadow:0 4px 10px rgba(236,72,153,.25); pointer-events:none;
+      position: absolute;
+      background: #ec4899;
+      color: #fff;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(236,72,153,0.4);
+      pointer-events: none;
+      font-weight: 600;
     }
-    .hi-note::after{
-      content:""; position:absolute; left:12px; top:100%;
-      border:6px solid transparent; border-top-color:#ec4899;
+
+    .hi-note::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      top: 100%;
+      border: 6px solid transparent;
+      border-top-color: #ec4899;
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <a class="btn" href="../drivers/index.html">← Back to Drivers</a>
-      <a class="btn" href="../sensitivity/index.html">Open sensitivity</a>
+      <div class="logo">Rebuilt × Picket</div>
+      <div class="nav-links">
+        <a href="../index.html">🏠 Home</a>
+        <a href="../sensitivity/index.html">📊 Financial Model</a>
+      </div>
     </header>
 
-    <h1>Competitive Analysis & Market Evidence</h1>
-    <div class="sub">Detailed comparison vs InvestorLift, New Western, EasyStreetOffers + market data</div>
+    <h1>🔍 Market Intel</h1>
+    <div class="subtitle">Competitive analysis & market evidence — InvestorLift, New Western, EasyStreetOffers, Opendoor</div>
 
     <!-- COMPETITIVE COMPARISON TABLE -->
     <section class="block">
       <h2>Rebuilt vs. Competitors: Feature Matrix</h2>
-      <div class="card" style="overflow-x:auto;">
-        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+      <div class="table-wrapper">
+        <table class="feature-table">
           <thead>
-            <tr style="border-bottom:2px solid var(--border);">
-              <th style="text-align:left; padding:12px 8px; font-weight:800;">Capability</th>
-              <th style="text-align:center; padding:12px 8px; font-weight:800; color:#0ea5e9;">InvestorLift</th>
-              <th style="text-align:center; padding:12px 8px; font-weight:800; color:#f59e0b;">New Western</th>
-              <th style="text-align:center; padding:12px 8px; font-weight:800; color:#8b5cf6;">EasyStreetOffers</th>
-              <th style="text-align:center; padding:12px 8px; font-weight:800; color:#10b981; background:#f0fdf4;">Rebuilt</th>
+            <tr>
+              <th>Capability</th>
+              <th style="color: var(--accent-cyan);">InvestorLift</th>
+              <th style="color: var(--accent-amber);">New Western</th>
+              <th style="color: var(--accent-purple);">EasyStreetOffers</th>
+              <th class="th-rebuilt" style="color: var(--accent-teal);">Rebuilt</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom:1px solid var(--border);">
-              <td style="padding:10px 8px; font-weight:600;">Dead Lead Monetization</td>
-              <td style="text-align:center; padding:10px 8px;">❌</td>
-              <td style="text-align:center; padding:10px 8px;">❌</td>
-              <td style="text-align:center; padding:10px 8px;">❌</td>
-              <td style="text-align:center; padding:10px 8px; background:#f0fdf4; font-weight:700;">✅ 3,500/mo</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border);">
-              <td style="padding:10px 8px; font-weight:600;">Third-Party Marketplace</td>
-              <td style="text-align:center; padding:10px 8px;">⚠️ Members only</td>
-              <td style="text-align:center; padding:10px 8px;">❌</td>
-              <td style="text-align:center; padding:10px 8px;">❌</td>
-              <td style="text-align:center; padding:10px 8px; background:#f0fdf4; font-weight:700;">✅ Open</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border);">
-              <td style="padding:10px 8px; font-weight:600;">Agent Network</td>
-              <td style="text-align:center; padding:10px 8px;">❌</td>
-              <td style="text-align:center; padding:10px 8px;">✅ 47% churn</td>
-              <td style="text-align:center; padding:10px 8px;">❌</td>
-              <td style="text-align:center; padding:10px 8px; background:#f0fdf4; font-weight:700;">✅ Better model</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border);">
-              <td style="padding:10px 8px; font-weight:600;">Retail Buyer Access</td>
-              <td style="text-align:center; padding:10px 8px;">❌</td>
-              <td style="text-align:center; padding:10px 8px;">❌</td>
-              <td style="text-align:center; padding:10px 8px;">❌</td>
-              <td style="text-align:center; padding:10px 8px; background:#f0fdf4; font-weight:700;">✅ Via agents</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border);">
-              <td style="padding:10px 8px; font-weight:600;">Software Platform</td>
-              <td style="text-align:center; padding:10px 8px;">✅ $8K-$45K/yr</td>
-              <td style="text-align:center; padding:10px 8px;">⚠️ Limited</td>
-              <td style="text-align:center; padding:10px 8px;">✅ New</td>
-              <td style="text-align:center; padding:10px 8px; background:#f0fdf4; font-weight:700;">✅ Picket AI</td>
+            <tr>
+              <td style="font-weight: 600;">Dead Lead Monetization</td>
+              <td>❌</td>
+              <td>❌</td>
+              <td>❌</td>
+              <td class="td-rebuilt">✅ 3,500/mo</td>
             </tr>
             <tr>
-              <td style="padding:10px 8px; font-weight:600;">Capital Model</td>
-              <td style="text-align:center; padding:10px 8px;">Asset-light</td>
-              <td style="text-align:center; padding:10px 8px;">⚠️ Must buy inventory</td>
-              <td style="text-align:center; padding:10px 8px;">Asset-light</td>
-              <td style="text-align:center; padding:10px 8px; background:#f0fdf4; font-weight:700;">✅ Asset-light</td>
+              <td style="font-weight: 600;">Third-Party Marketplace</td>
+              <td>⚠️ Members only</td>
+              <td>❌</td>
+              <td>❌</td>
+              <td class="td-rebuilt">✅ Open</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">Agent Network</td>
+              <td>❌</td>
+              <td>✅ 47% churn</td>
+              <td>❌</td>
+              <td class="td-rebuilt">✅ Better model</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">Retail Buyer Access</td>
+              <td>❌</td>
+              <td>❌</td>
+              <td>❌</td>
+              <td class="td-rebuilt">✅ Via agents</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">Software Platform</td>
+              <td>✅ $8K-$45K/yr</td>
+              <td>⚠️ Limited</td>
+              <td>✅ New</td>
+              <td class="td-rebuilt">✅ Picket AI</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">Capital Model</td>
+              <td>Asset-light</td>
+              <td>⚠️ High capital needs</td>
+              <td>Asset-light</td>
+              <td class="td-rebuilt">✅ Asset-light</td>
             </tr>
           </tbody>
         </table>
@@ -137,33 +419,33 @@
     <section class="block">
       <h2>Competitor Weaknesses (Opportunity for Rebuilt)</h2>
       <div class="cards two">
-        <section class="card">
+        <div class="card">
           <h3>InvestorLift: 50% Contract Fallout</h3>
-          <div style="padding:16px; background:#fef3c7; border-radius:10px; margin:8px 0; border:1px solid #fbbf24;">
-            <div style="font-size:48px; font-weight:900; color:#92400e; text-align:center;">50%</div>
-            <div style="text-align:center; font-size:13px; color:#78350f; margin-top:4px;">Admitted contract fallout rate</div>
+          <div class="stat-box amber">
+            <div class="number">50%</div>
+            <div class="label">Admitted contract fallout rate</div>
           </div>
-          <div class="cap"><strong>Problem:</strong> InvestorLift acknowledges 50% of deals never close with end buyer but offers <strong>zero solution</strong> for dead leads. Pure software play = no agents to rescue deals.</div>
-        </section>
-        <section class="card">
+          <div class="cap"><strong>Problem:</strong> InvestorLift acknowledges 50% of deals never close with end buyer but offers <strong>zero solution</strong> for dead leads. Pure software play = no agents to rescue deals. <strong>We monetize 3,500 warm leads/month they'd lose entirely.</strong></div>
+        </div>
+        <div class="card">
           <h3>New Western: Agent Retention Crisis</h3>
-          <div style="padding:16px; background:#fee2e2; border-radius:10px; margin:8px 0; border:1px solid #f87171;">
-            <div style="font-size:48px; font-weight:900; color:#991b1b; text-align:center;">47%</div>
-            <div style="text-align:center; font-size:13px; color:#7f1d1d; margin-top:4px;">Annual agent attrition rate</div>
+          <div class="stat-box red">
+            <div class="number">47%</div>
+            <div class="label">Annual agent attrition rate</div>
           </div>
-          <div class="cap"><strong>Problem:</strong> "Good luck finding someone there >1 year." High-pressure culture + property quality issues = <strong>unsustainable agent churn.</strong></div>
-        </section>
+          <div class="cap"><strong>Problem:</strong> "Good luck finding someone there >1 year." High-pressure culture + property quality issues = <strong>unsustainable agent churn.</strong> Our hybrid W-2 model with dual revenue streams (wholesale + retail) creates better retention.</div>
+        </div>
       </div>
     </section>
 
-    <!-- OPENDOOR — symmetric 2×2 grid -->
+    <!-- OPENDOOR — 2×2 grid -->
     <section class="block">
-      <h2>Opendoor (10-Q Q2’25)</h2>
+      <h2>Opendoor (10-Q Q2'25) — iBuyer Model Collapse</h2>
       <div class="cards four">
-        <!-- 1. Homes purchased YoY -->
-        <section class="card">
+
+        <div class="card">
           <h3>Homes Purchased (YoY)</h3>
-          <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Homes purchased YoY">
+          <svg class="chart" viewBox="0 0 720 180" role="img" aria-label="Homes purchased YoY">
             <defs>
               <linearGradient id="gradGray" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.7"/>
@@ -174,54 +456,46 @@
                 <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.3"/>
               </linearGradient>
             </defs>
-            <!-- Q2 2024: 4,771 homes -->
             <rect x="120" y="20" width="180" height="140" fill="url(#gradGray)" rx="4"/>
-            <text x="210" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#475569">4,771</text>
-            <text x="210" y="75" text-anchor="middle" font-size="12" fill="#666">Q2 2024</text>
+            <text x="210" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#f8fafc">4,771</text>
+            <text x="210" y="75" text-anchor="middle" font-size="12" fill="#94a3b8">Q2 2024</text>
 
-            <!-- Q2 2025: 1,757 homes (63% decline) -->
             <rect x="420" y="20" width="180" height="51" fill="url(#gradBlue)" rx="4"/>
-            <text x="510" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#0c4a6e">1,757</text>
-            <text x="510" y="75" text-anchor="middle" font-size="12" fill="#666">Q2 2025</text>
+            <text x="510" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#f8fafc">1,757</text>
+            <text x="510" y="75" text-anchor="middle" font-size="12" fill="#94a3b8">Q2 2025</text>
 
-            <!-- Decline arrow and label -->
             <text x="360" y="45" text-anchor="middle" font-size="18" font-weight="700" fill="#dc2626">-63%</text>
           </svg>
           <div class="cap"><strong>Massive pullback:</strong> Opendoor cut acquisitions by 63% YoY as iBuyer model proves capital-intensive and risky. Rebuilt needs zero inventory risk.</div>
-        </section>
+        </div>
 
-        <!-- 2. ≥120 day share -->
-        <section class="card">
+        <div class="card">
           <h3>Inventory on-market ≥120 days</h3>
-          <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Inventory 120+ days">
+          <svg class="chart" viewBox="0 0 720 180" role="img" aria-label="Inventory 120+ days">
             <defs>
               <linearGradient id="gradAmber" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.8"/>
                 <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.3"/>
               </linearGradient>
             </defs>
-            <!-- Q2 2024: 14% -->
-            <rect x="60" y="50" width="220" height="80" rx="8" fill="#e5e7eb"/>
+            <rect x="60" y="50" width="220" height="80" rx="8" fill="#334155"/>
             <rect x="60" y="50" width="31" height="80" rx="8" fill="url(#gradAmber)"/>
-            <text x="170" y="100" text-anchor="middle" font-size="32" font-weight="800" fill="#92400e">14%</text>
-            <text x="170" y="120" text-anchor="middle" font-size="12" fill="#666">Q2 2024</text>
+            <text x="170" y="100" text-anchor="middle" font-size="32" font-weight="800" fill="#fbbf24">14%</text>
+            <text x="170" y="120" text-anchor="middle" font-size="12" fill="#94a3b8">Q2 2024</text>
 
-            <!-- Q2 2025: 36% -->
-            <rect x="360" y="50" width="220" height="80" rx="8" fill="#e5e7eb"/>
+            <rect x="360" y="50" width="220" height="80" rx="8" fill="#334155"/>
             <rect x="360" y="50" width="79" height="80" rx="8" fill="url(#gradAmber)"/>
-            <text x="470" y="100" text-anchor="middle" font-size="32" font-weight="800" fill="#92400e">36%</text>
-            <text x="470" y="120" text-anchor="middle" font-size="12" fill="#666">Q2 2025</text>
+            <text x="470" y="100" text-anchor="middle" font-size="32" font-weight="800" fill="#fbbf24">36%</text>
+            <text x="470" y="120" text-anchor="middle" font-size="12" fill="#94a3b8">Q2 2025</text>
 
-            <!-- Label -->
-            <text x="360" y="155" text-anchor="middle" font-size="14" fill="#78350f" font-weight="600">+157% increase → holding costs pile up</text>
+            <text x="360" y="155" text-anchor="middle" font-size="14" fill="#fbbf24" font-weight="600">+157% increase → holding costs pile up</text>
           </svg>
           <div class="cap"><strong>Inventory aging crisis:</strong> Over 1/3 of homes now sitting 120+ days (up from 14%). Every month = holding costs. Rebuilt carries zero inventory.</div>
-        </section>
+        </div>
 
-        <!-- 3. Affiliate vs Hybrid mini-chart -->
-        <section class="card">
+        <div class="card">
           <h3>Agent Model Comparison</h3>
-          <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Affiliate vs Hybrid">
+          <svg class="chart" viewBox="0 0 720 180" role="img" aria-label="Affiliate vs Hybrid">
             <defs>
               <linearGradient id="gradRed2" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>
@@ -232,79 +506,64 @@
                 <stop offset="100%" stop-color="#10b981" stop-opacity="0.3"/>
               </linearGradient>
             </defs>
-            <!-- Labels -->
-            <text x="40" y="50" font-size="14" font-weight="600" fill="#666">Annual Attrition</text>
-            <text x="40" y="130" font-size="14" font-weight="600" fill="#666">Avg Income</text>
+            <text x="40" y="50" font-size="14" font-weight="600" fill="#94a3b8">Annual Attrition</text>
+            <text x="40" y="130" font-size="14" font-weight="600" fill="#94a3b8">Avg Income</text>
 
-            <!-- Attrition: Affiliate 47% -->
             <rect x="200" y="30" width="180" height="60" rx="8" fill="url(#gradRed2)"/>
-            <text x="290" y="65" text-anchor="middle" font-size="28" font-weight="800" fill="#991b1b">47%</text>
-            <text x="290" y="85" text-anchor="middle" font-size="11" fill="#666">Affiliate</text>
+            <text x="290" y="65" text-anchor="middle" font-size="28" font-weight="800" fill="#f8fafc">47%</text>
+            <text x="290" y="85" text-anchor="middle" font-size="11" fill="#94a3b8">Affiliate</text>
 
-            <!-- Attrition: Hybrid ≤20% -->
             <rect x="420" y="30" width="180" height="60" rx="8" fill="url(#gradGreen)"/>
-            <text x="510" y="65" text-anchor="middle" font-size="28" font-weight="800" fill="#065f46">≤20%</text>
-            <text x="510" y="85" text-anchor="middle" font-size="11" fill="#666">Hybrid W-2</text>
+            <text x="510" y="65" text-anchor="middle" font-size="28" font-weight="800" fill="#f8fafc">≤20%</text>
+            <text x="510" y="85" text-anchor="middle" font-size="11" fill="#94a3b8">Hybrid W-2</text>
 
-            <!-- Income: Affiliate ~$50K -->
-            <rect x="200" y="110" width="140" height="50" rx="8" fill="#cbd5e1"/>
-            <text x="270" y="142" text-anchor="middle" font-size="22" font-weight="700" fill="#475569">~$50K</text>
+            <rect x="200" y="110" width="140" height="50" rx="8" fill="#475569"/>
+            <text x="270" y="142" text-anchor="middle" font-size="22" font-weight="700" fill="#cbd5e1">~$50K</text>
 
-            <!-- Income: Hybrid >$75K -->
             <rect x="420" y="110" width="180" height="50" rx="8" fill="#0ea5e9" opacity="0.7"/>
-            <text x="510" y="142" text-anchor="middle" font-size="22" font-weight="700" fill="#0c4a6e">$75K+</text>
+            <text x="510" y="142" text-anchor="middle" font-size="22" font-weight="700" fill="#f8fafc">$75K+</text>
           </svg>
           <div class="cap"><strong>Rebuilt's Hybrid W-2 advantage:</strong> Company-provided leads + training + better income retention = lower churn vs affiliate chaos. Better for agents, better for business.</div>
-        </section>
+        </div>
 
-        <!-- 4. Homes Under Contract -->
-        <section class="card">
+        <div class="card">
           <h3>Homes Under Contract for Purchase</h3>
-          <svg class="chart slim" viewBox="0 0 720 180" role="img" aria-label="Homes under contract YoY">
+          <svg class="chart" viewBox="0 0 720 180" role="img" aria-label="Homes under contract YoY">
             <defs>
               <linearGradient id="gradRed" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>
                 <stop offset="100%" stop-color="#ef4444" stop-opacity="0.3"/>
               </linearGradient>
             </defs>
-            <!-- Q2 2024: ~1,800 homes -->
             <rect x="120" y="20" width="180" height="140" fill="url(#gradRed)" rx="4"/>
-            <text x="210" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#dc2626">~1,800</text>
-            <text x="210" y="75" text-anchor="middle" font-size="12" fill="#666">Q2 2024</text>
+            <text x="210" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#f8fafc">~1,800</text>
+            <text x="210" y="75" text-anchor="middle" font-size="12" fill="#94a3b8">Q2 2024</text>
 
-            <!-- Q2 2025: 393 homes (78% decline) -->
             <rect x="420" y="20" width="180" height="31" fill="url(#gradRed)" rx="4"/>
-            <text x="510" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#dc2626">393</text>
-            <text x="510" y="75" text-anchor="middle" font-size="12" fill="#666">Q2 2025</text>
+            <text x="510" y="50" text-anchor="middle" font-size="24" font-weight="700" fill="#f8fafc">393</text>
+            <text x="510" y="75" text-anchor="middle" font-size="12" fill="#94a3b8">Q2 2025</text>
 
-            <!-- Decline arrow and label -->
             <text x="360" y="45" text-anchor="middle" font-size="16" font-weight="700" fill="#dc2626">-78%</text>
-            <path d="M 330 35 L 380 35" stroke="#dc2626" stroke-width="2" marker-end="url(#arrowRed)"/>
-            <defs>
-              <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                <path d="M0,0 L0,6 L9,3 z" fill="#dc2626" />
-              </marker>
-            </defs>
           </svg>
           <div class="cap"><strong>iBuyer retreat:</strong> Opendoor slashed home acquisitions by 78% YoY as capital-intensive model struggles (Debt-to-Equity: 220%, per 10-Q dated Q2'25). Meanwhile, <strong>MLS inventory at record highs</strong> — Rebuilt's marketplace aggregation model fills the void without inventory risk.</div>
-        </section>
+        </div>
       </div>
     </section>
 
-    <!-- EASY STREET — lower half of §3 highlighted -->
+    <!-- EASY STREET — highlighted contract section -->
     <section class="block">
       <h2>Easy Street — Buyer Participation Agreement</h2>
-      <section class="card">
-        <h3>§3: Compensation and Buyer’s Credit (up to 3%)</h3>
-        <div class="img">
+      <div class="card">
+        <h3>§3: Compensation and Buyer's Credit (up to 3%)</h3>
+        <div class="img-container">
           <img src="../brand/easystreet_agreement_p1.png" alt="Easy Street Buyer Participation Agreement (Page 1)">
-          <!-- same size box, shifted down to emphasize the latter half of §3 -->
-          <div class="hi-box" style="--hi-x:4%; --hi-y:66%; --hi-w:92%; --hi-h:10%;"></div>
-          <div class="hi-note">§3 — Buyer may pay up to 3% if no co-op</div>
+          <div class="hi-box" style="left: 4%; top: 66%; width: 92%; height: 10%;"></div>
+          <div class="hi-note" style="left: calc(4% + 8px); top: calc(66% - 34px);">§3 — Buyer may pay up to 3% if no co-op</div>
         </div>
-        <div class="cap">PNG preferred for crisp text. Adjust highlight by changing the inline <code>--hi-*</code> values above.</div>
-      </section>
+        <div class="cap" style="margin-top: 16px;"><strong>Evidence of closed marketplace:</strong> EasyStreetOffers locks buyers into exclusive agreements with potential 3% fees. Rebuilt's open marketplace model creates network effects and gives buyers choice.</div>
+      </div>
     </section>
+
   </div>
 </body>
 </html>

@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Revenue Evolution — Cinematic Funnel Concept</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: radial-gradient(circle at 20% 20%, rgba(56,189,248,0.18), transparent 55%),
+             radial-gradient(circle at 80% 30%, rgba(129,140,248,0.2), transparent 60%),
+             linear-gradient(140deg, #020824 0%, #071e32 40%, #031019 100%);
+      --panel: rgba(5,18,36,0.68);
+      --panel-border: rgba(148,163,184,0.2);
+      --text-strong: #f8fafc;
+      --text-muted: rgba(226,232,240,0.85);
+      --accent-cyan: #22d3ee;
+      --accent-blue: #38bdf8;
+      --accent-purple: #818cf8;
+      --accent-lime: #a3e635;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: clamp(32px, 4vw, 64px);
+    }
+
+    h1, h2, h3, h4 {
+      color: var(--text-strong);
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .canvas {
+      width: min(1200px, 100%);
+      display: grid;
+      gap: clamp(32px, 4vw, 48px);
+    }
+
+    .control-panel {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      border-radius: 20px;
+      background: rgba(15,23,42,0.55);
+      border: 1px solid rgba(148,163,184,0.2);
+      box-shadow: 0 18px 40px rgba(2,6,23,0.45);
+      backdrop-filter: blur(16px);
+    }
+
+    .control-panel span {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-strong);
+    }
+
+    .control-panel label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(125,211,252,0.35);
+      color: var(--text-strong);
+      background: rgba(14,116,144,0.35);
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .control-panel label:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(2,132,199,0.35);
+    }
+
+    .control-panel label span {
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .control-panel input[type="radio"] {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(226,232,240,0.65);
+      box-shadow: inset 0 0 6px rgba(226,232,240,0.85);
+      display: grid;
+      place-items: center;
+      background: rgba(15,23,42,0.65);
+    }
+
+    .control-panel input[type="radio"]::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      transform: scale(0);
+      transition: transform 0.25s ease;
+    }
+
+    .control-panel input[type="radio"]:checked::after {
+      transform: scale(1);
+    }
+
+    .control-panel input[type="radio"]:checked + span {
+      color: var(--accent-cyan);
+      text-shadow: 0 0 12px rgba(34,211,238,0.55);
+    }
+
+    .control-panel label:focus-within {
+      outline: 2px solid rgba(34,211,238,0.55);
+      outline-offset: 3px;
+    }
+
+    .headline {
+      text-align: center;
+      background: linear-gradient(145deg, rgba(56,189,248,0.12), rgba(129,140,248,0.08));
+      border: 1px solid rgba(148,163,184,0.18);
+      border-radius: 28px;
+      padding: clamp(32px, 5vw, 48px);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 40px 120px rgba(15,23,42,0.55);
+    }
+
+    .headline h1 {
+      font-size: clamp(36px, 4vw, 56px);
+      letter-spacing: 0.02em;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .headline p {
+      margin: 0 auto;
+      max-width: 720px;
+      font-size: clamp(16px, 2vw, 20px);
+      line-height: 1.7;
+    }
+
+    .legend {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      margin-top: 32px;
+    }
+
+    .legend-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: rgba(15,23,42,0.5);
+      border-radius: 16px;
+      padding: 14px 16px;
+      border: 1px solid rgba(148,163,184,0.18);
+      backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(148,163,184,0.2);
+    }
+
+    .legend-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      box-shadow: 0 0 12px rgba(56,189,248,0.8);
+    }
+
+    .stage-layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      align-items: center;
+      gap: clamp(24px, 3vw, 40px);
+    }
+
+    .stage-card {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      padding: clamp(24px, 3vw, 32px);
+      box-shadow: 0 28px 60px rgba(0,0,0,0.35);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+      transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+    }
+
+    .stage-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 20% 0%, rgba(148,163,184,0.18), transparent 55%),
+                  radial-gradient(circle at 80% 120%, rgba(34,211,238,0.12), transparent 60%);
+      mix-blend-mode: screen;
+      opacity: 0.8;
+    }
+
+    .stage-card[data-active]::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: radial-gradient(circle at 50% 20%, rgba(34,211,238,0.35), transparent 70%),
+                  linear-gradient(140deg, rgba(59,130,246,0.25), rgba(14,165,233,0));
+      opacity: 0.75;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .stage-card h3 {
+      font-size: clamp(20px, 2.2vw, 24px);
+      margin-bottom: 8px;
+    }
+
+    .stage-card p.lead {
+      color: var(--accent-blue);
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 13px;
+    }
+
+    .stage-card ul {
+      list-style: none;
+      display: grid;
+      gap: 12px;
+      padding: 0;
+      margin: 20px 0 0 0;
+    }
+
+    .stage-card li {
+      background: rgba(15,23,42,0.65);
+      border: 1px solid rgba(148,163,184,0.18);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    body.mode-left .stage-card--left,
+    body.mode-right .stage-card--right {
+      border-color: rgba(125,211,252,0.45);
+      box-shadow: 0 36px 80px rgba(14,165,233,0.45);
+      transform: translateY(-6px);
+    }
+
+    body.mode-right .stage-card--right { box-shadow: 0 40px 90px rgba(59,130,246,0.55); }
+    body.mode-left .stage-card--left { box-shadow: 0 34px 76px rgba(56,189,248,0.45); }
+
+    .metric {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* Funnel core */
+    body {
+      --funnel-bottom-left: 30%;
+      --funnel-bottom-right: 70%;
+      --funnel-base-width: 160%;
+      --water-strength: 1;
+      --particle-opacity: 0.8;
+    }
+
+    body.mode-none {
+      --water-strength: 0.1;
+      --particle-opacity: 0.2;
+    }
+
+    body.mode-left {
+      --funnel-bottom-left: 28%;
+      --funnel-bottom-right: 72%;
+      --funnel-base-width: 150%;
+      --water-strength: 0.6;
+      --particle-opacity: 0.7;
+    }
+
+    body.mode-right {
+      --funnel-bottom-left: 20%;
+      --funnel-bottom-right: 80%;
+      --funnel-base-width: 190%;
+      --water-strength: 1.35;
+      --particle-opacity: 1;
+    }
+
+    .funnel-wrapper {
+      position: relative;
+      width: clamp(280px, 35vw, 420px);
+      height: clamp(420px, 46vw, 520px);
+      margin: 0 auto;
+      display: grid;
+      place-items: center;
+    }
+
+    .funnel {
+      position: relative;
+      width: 80%;
+      height: 65%;
+      transform-style: preserve-3d;
+    }
+
+    .funnel::before {
+      content: "";
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      width: 140%;
+      height: 90px;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse at center, rgba(15,23,42,0.1) 0%, rgba(15,23,42,0) 70%);
+      filter: blur(18px);
+      opacity: 0.7;
+    }
+
+    .funnel-top {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 110px;
+      border-radius: 999px;
+      background: radial-gradient(ellipse at center, rgba(34,211,238,0.28) 0%, rgba(34,211,238,0.06) 60%, rgba(15,23,42,0.9) 100%);
+      border: 2px solid rgba(34,211,238,0.3);
+      box-shadow: inset 0 0 30px rgba(34,211,238,0.35);
+      overflow: hidden;
+    }
+
+    .funnel-top::after {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, rgba(226,232,240,0.55), rgba(14,165,233,0.15) 55%, rgba(14,116,144,0));
+      box-shadow: inset 0 10px 40px rgba(14,165,233,0.45);
+      animation: swirl 9s linear infinite;
+    }
+
+    .funnel-top .surface-ripple {
+      position: absolute;
+      inset: 24px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 50% 40%, rgba(224,247,250,0.55), rgba(14,165,233,0.2) 45%, rgba(14,165,233,0));
+      mix-blend-mode: screen;
+      overflow: hidden;
+    }
+
+    .funnel-top .surface-ripple::before,
+    .funnel-top .surface-ripple::after {
+      content: "";
+      position: absolute;
+      inset: -40% 10% 30% 10%;
+      background: radial-gradient(circle at 50% 0%, rgba(226,232,240,0.35), rgba(14,165,233,0));
+      animation: ripple 6s ease-in-out infinite;
+      opacity: 0.7;
+    }
+
+    .funnel-top .surface-ripple::after {
+      animation-delay: 3s;
+      opacity: 0.5;
+    }
+
+    @keyframes ripple {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-6%) scale(1.04); }
+    }
+
+    @keyframes swirl {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.03); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    .funnel-body {
+      position: absolute;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      height: 55%;
+      background: linear-gradient(180deg, rgba(2,6,23,0.9) 0%, rgba(7,89,133,0.6) 25%, rgba(14,165,233,0.75) 55%, rgba(56,189,248,0.65) 75%, rgba(165,243,252,0.28) 100%);
+      clip-path: polygon(0% 0%, 100% 0%, var(--funnel-bottom-right) 100%, var(--funnel-bottom-left) 100%);
+      border-left: 2px solid rgba(148,163,184,0.35);
+      border-right: 2px solid rgba(56,189,248,0.35);
+      overflow: hidden;
+    }
+
+    .funnel-body::before {
+      content: "";
+      position: absolute;
+      inset: -35% -35% 25% -35%;
+      background: linear-gradient(120deg, rgba(186,230,253,0.12), rgba(56,189,248,0.45), rgba(14,165,233,0.18), rgba(14,165,233,0));
+      animation: flow 5s linear infinite;
+      opacity: calc(0.2 + 0.45 * var(--water-strength));
+    }
+
+    .funnel-body::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(190,242,100,0.2), transparent 65%);
+      mix-blend-mode: screen;
+    }
+
+    .water-flow {
+      position: absolute;
+      inset: 4% 16% -4% 16%;
+      background: linear-gradient(180deg,
+        rgba(186,230,253,0.05),
+        rgba(59,130,246,0.25) 25%,
+        rgba(56,189,248,0.45) 50%,
+        rgba(56,189,248,0.65) 75%,
+        rgba(125,211,252,0.8));
+      filter: blur(0.6px);
+      border-radius: 0 0 50% 50% / 0 0 40% 40%;
+      overflow: hidden;
+      opacity: calc(0.2 + 0.5 * var(--water-strength));
+    }
+
+    .water-flow::before,
+    .water-flow::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      width: 160%;
+      height: 120%;
+      transform: translate(-50%, -30%);
+      background: repeating-linear-gradient(
+        180deg,
+        rgba(226,232,240,0.15) 0%,
+        rgba(226,232,240,0.02) 14%,
+        transparent 24%,
+        rgba(14,165,233,0.2) 36%
+      );
+      animation: cascade 2.4s linear infinite;
+      opacity: 0.6;
+      mix-blend-mode: screen;
+    }
+
+    .water-flow::after {
+      animation-duration: 1.8s;
+      animation-delay: 0.6s;
+      opacity: 0.45;
+    }
+
+    body.mode-left .water-flow::before,
+    body.mode-left .water-flow::after {
+      animation-duration: 2.8s;
+    }
+
+    body.mode-right .water-flow::before { animation-duration: 1.6s; }
+    body.mode-right .water-flow::after { animation-duration: 1.2s; }
+
+    @keyframes cascade {
+      0% { transform: translate(-50%, -35%) skewY(-6deg); }
+      100% { transform: translate(-50%, 5%) skewY(-6deg); }
+    }
+
+    .water-caustics {
+      position: absolute;
+      inset: 8% 12% 20% 12%;
+      background: radial-gradient(circle at 30% 30%, rgba(226,232,240,0.35), transparent 55%),
+                  radial-gradient(circle at 70% 60%, rgba(34,211,238,0.35), transparent 55%);
+      mix-blend-mode: screen;
+      opacity: calc(0.15 + 0.35 * var(--water-strength));
+      animation: shimmer 3.4s ease-in-out infinite alternate;
+    }
+
+    body.mode-left .water-caustics { animation-duration: 4.2s; }
+    body.mode-right .water-caustics { animation-duration: 2.6s; }
+
+    @keyframes shimmer {
+      0% { filter: blur(12px); opacity: calc(0.2 + 0.3 * var(--water-strength)); }
+      100% { filter: blur(4px); opacity: calc(0.35 + 0.45 * var(--water-strength)); }
+    }
+
+    @keyframes flow {
+      0% { transform: translateY(-20%); }
+      100% { transform: translateY(20%); }
+    }
+
+    .funnel-core-glow {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      width: 60%;
+      height: 16%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at center, rgba(186,230,253,0.8), rgba(14,165,233,0.05));
+      filter: blur(16px);
+      opacity: calc(0.25 + 0.35 * var(--water-strength));
+    }
+
+    .funnel-neck {
+      position: absolute;
+      bottom: 45px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(32% + (var(--water-strength) - 1) * 12%);
+      height: 70px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(14,165,233,0.8), rgba(8,145,178,0.95));
+      box-shadow: inset 0 6px 16px rgba(255,255,255,0.2);
+    }
+
+    .funnel-neck::after {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 50% 20%, rgba(226,232,240,0.4), rgba(14,165,233,0.2));
+    }
+
+    .funnel-base {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--funnel-base-width);
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(14,116,144,0.85), rgba(15,23,42,0.95));
+      border: 2px solid rgba(56,189,248,0.3);
+      box-shadow: inset 0 0 24px rgba(56,189,248,0.3);
+    }
+
+    .particle-stream {
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(18% + (var(--water-strength) - 1) * 12%);
+      height: 55%;
+      display: grid;
+      place-items: center;
+      overflow: visible;
+      pointer-events: none;
+      opacity: clamp(0, var(--particle-opacity), 1);
+    }
+
+    .particle {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #e0f2fe, #0284c7 65%);
+      box-shadow: 0 0 12px rgba(125,211,252,0.7);
+      animation: drop 4s infinite;
+      opacity: calc(0.2 + 0.6 * var(--particle-opacity));
+    }
+
+    .particle:nth-child(2) { animation-delay: 0.6s; }
+    .particle:nth-child(3) { animation-delay: 1.2s; }
+    .particle:nth-child(4) { animation-delay: 1.8s; }
+    .particle:nth-child(5) { animation-delay: 2.4s; }
+    .particle:nth-child(6) { animation-delay: 3s; }
+
+    body.mode-none .particle { opacity: 0; animation-play-state: paused; }
+    body.mode-left .particle:nth-child(n+5) { opacity: 0; animation-play-state: paused; }
+    body.mode-none .particle-stream { opacity: 0.05; }
+    body.mode-left .particle-stream { opacity: 0.65; }
+
+    @keyframes drop {
+      0% { transform: translateY(-20%) scale(0.6); opacity: 0; }
+      10% { opacity: 1; }
+      70% { transform: translateY(120%) scale(1); opacity: 1; }
+      100% { transform: translateY(180%) scale(0.4); opacity: 0; }
+    }
+
+    .payload-chips {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+
+    .payload-chips span {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(14,165,233,0.18);
+      color: var(--text-strong);
+      border: 1px solid rgba(125,211,252,0.35);
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      animation: pulse 6s ease-in-out infinite;
+    }
+
+    .payload-chips span:nth-child(2) { animation-delay: 0.8s; }
+    .payload-chips span:nth-child(3) { animation-delay: 1.6s; }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+      50% { transform: translateY(-6px) scale(1.05); opacity: 1; }
+    }
+
+    /* Drip FX */
+    .drip {
+      position: relative;
+      width: 70px;
+      height: 140px;
+      margin-top: 36px;
+      opacity: 0.15;
+      transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
+    }
+
+    .drip::before,
+    .drip::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(circle at 30% 30%, rgba(224,242,254,0.95), rgba(14,165,233,0.2) 70%, rgba(14,165,233,0));
+    }
+
+    .drip::before {
+      top: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      animation: drip-head 2.6s ease-in infinite;
+    }
+
+    .drip::after {
+      top: 10px;
+      width: 18px;
+      height: 100px;
+      border-radius: 50% 50% 50% 50% / 20% 20% 80% 80%;
+      animation: drip-tail 2.6s ease-in infinite;
+      transform-origin: top center;
+    }
+
+    @keyframes drip-head {
+      0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+      60% { transform: translate(-50%, 80px) scale(0.9); opacity: 1; }
+      100% { transform: translate(-50%, 140px) scale(0.3); opacity: 0; }
+    }
+
+    @keyframes drip-tail {
+      0% { height: 100px; opacity: 0.9; }
+      60% { height: 120px; opacity: 0.8; }
+      100% { height: 150px; opacity: 0; }
+    }
+
+    .drip-cluster {
+      position: relative;
+      width: 140px;
+      height: 160px;
+      margin-top: 36px;
+      opacity: 0.15;
+      transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
+    }
+
+    .drip-cluster .drip-node {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(226,232,240,0.9), rgba(14,165,233,0.3));
+      box-shadow: 0 0 14px rgba(148,197,242,0.85);
+      animation: cluster-drip 2.4s infinite;
+    }
+
+    .drip-cluster .drip-node::after {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      width: 16px;
+      height: 110px;
+      transform: translateX(-50%);
+      border-radius: 50% 50% 50% 50% / 25% 25% 90% 90%;
+      background: linear-gradient(180deg, rgba(226,232,240,0.9), rgba(14,165,233,0.2) 65%, transparent);
+    }
+
+    .drip-cluster .drip-node:nth-child(1) { left: 15%; animation-delay: 0s; }
+    .drip-cluster .drip-node:nth-child(2) { left: 35%; animation-delay: 0.4s; }
+    .drip-cluster .drip-node:nth-child(3) { left: 55%; animation-delay: 0.8s; }
+    .drip-cluster .drip-node:nth-child(4) { left: 75%; animation-delay: 1.2s; }
+    .drip-cluster .drip-node:nth-child(5) { left: 90%; animation-delay: 1.6s; }
+
+    @keyframes cluster-drip {
+      0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+      70% { transform: translate(-50%, 100px) scale(0.9); opacity: 0.9; }
+      100% { transform: translate(-50%, 160px) scale(0.5); opacity: 0; }
+    }
+
+    body.mode-none .drip,
+    body.mode-none .drip-cluster {
+      opacity: 0;
+      filter: blur(2px);
+    }
+
+    body.mode-left .drip {
+      opacity: 1;
+      filter: drop-shadow(0 18px 32px rgba(56,189,248,0.45));
+    }
+
+    body.mode-left .drip-cluster { opacity: 0; }
+
+    body.mode-right .drip { opacity: 0; }
+
+    body.mode-right .drip-cluster {
+      opacity: 1;
+      filter: drop-shadow(0 18px 42px rgba(59,130,246,0.5));
+    }
+
+    .callouts {
+      background: rgba(15,23,42,0.62);
+      border: 1px solid rgba(148,163,184,0.18);
+      border-radius: 24px;
+      padding: clamp(24px, 3vw, 36px);
+      box-shadow: 0 28px 80px rgba(2,6,23,0.65);
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .callouts strong { color: var(--text-strong); }
+
+    .callouts span {
+      color: var(--accent-lime);
+      font-weight: 600;
+    }
+
+    .nav-links {
+      margin-top: 32px;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      padding: 12px 24px;
+      background: rgba(14,165,233,0.18);
+      border: 1px solid rgba(125,211,252,0.35);
+      border-radius: 12px;
+      color: var(--text-strong);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      background: rgba(14,165,233,0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(14,165,233,0.4);
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 24px; }
+      .stage-layout { grid-template-columns: 1fr; }
+      .funnel-wrapper { order: -1; }
+    }
+  </style>
+</head>
+<body class="mode-right">
+  <main class="canvas">
+    <header class="headline">
+      <h1>Revenue Evolution: Rebuilt ➝ Rebuilt × Picket Platform</h1>
+      <p>
+        Cinematic visualization of the journey from the legacy wholesale motion into the multi-stream platform engine.
+        Watch premium prospects swirl through a luminous intake funnel while downstream capture multiplies the value of every drip.
+      </p>
+      <div class="legend">
+        <div class="legend-item">
+          <span class="legend-swatch"></span>
+          <div>
+            <h4 style="font-size:15px; margin:0; letter-spacing:0.08em; text-transform:uppercase;">Luminous Flow</h4>
+            <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-muted);">Platform automation compounding addressable revenue sources.</p>
+          </div>
+        </div>
+        <div class="legend-item">
+          <span class="legend-swatch" style="background:linear-gradient(135deg, var(--accent-lime), var(--accent-blue)); box-shadow:0 0 12px rgba(163,230,53,0.7);"></span>
+          <div>
+            <h4 style="font-size:15px; margin:0; letter-spacing:0.08em; text-transform:uppercase;">Drip Capture</h4>
+            <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-muted);">Micro-transactions spilling from the funnel base into diversified revenue streams.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a href="sensitivity/index.html">📊 Financial Model</a>
+        <a href="drivers/index.html">🎯 Revenue Drivers</a>
+        <a href="comps/index.html">📈 Market Intel</a>
+      </div>
+    </header>
+
+    <section class="control-panel" role="radiogroup" aria-label="Funnel focus selector">
+      <span>Funnel Focus</span>
+      <label for="focus-none">
+        <input type="radio" name="funnel-focus" id="focus-none" value="none">
+        <span>None</span>
+      </label>
+      <label for="focus-left">
+        <input type="radio" name="funnel-focus" id="focus-left" value="left">
+        <span>Current Motion</span>
+      </label>
+      <label for="focus-right">
+        <input type="radio" name="funnel-focus" id="focus-right" value="right" checked>
+        <span>Future State</span>
+      </label>
+    </section>
+
+    <section class="stage-layout">
+      <article class="stage-card stage-card--left" data-mode="left">
+        <p class="lead">Current Motion</p>
+        <h3>Rebuilt Wholesale</h3>
+        <p>
+          Rapport engages <strong>4,200 warm leads</strong> with a single-purpose wholesale lane.
+          Despite intense effort, a narrow capture engine converts only <span class="metric">800 wholesale closes</span>.
+        </p>
+        <div class="drip" aria-hidden="true"></div>
+        <ul>
+          <li><span>4,200 Fully Engaged Prospects</span><span class="metric">Rapport Built</span></li>
+          <li><span>2,000 Accepted Offers</span><span class="metric">Wholesale Only</span></li>
+          <li><span>800 Wholesale Closes</span><span class="metric">Single Revenue Stream</span></li>
+        </ul>
+      </article>
+
+      <div class="funnel-wrapper" aria-hidden="true">
+        <div class="payload-chips">
+          <span>Prospects</span>
+          <span>Rapport</span>
+          <span>Platform</span>
+        </div>
+        <div class="funnel">
+          <div class="funnel-top">
+            <div class="surface-ripple" aria-hidden="true"></div>
+          </div>
+          <div class="funnel-body">
+            <div class="water-flow" aria-hidden="true"></div>
+            <div class="water-caustics" aria-hidden="true"></div>
+          </div>
+          <div class="funnel-core-glow"></div>
+          <div class="particle-stream">
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+          </div>
+          <div class="funnel-neck"></div>
+          <div class="funnel-base"></div>
+        </div>
+      </div>
+
+      <article class="stage-card stage-card--right" data-mode="right">
+        <p class="lead">Future State</p>
+        <h3>Rebuilt × Picket Platform</h3>
+        <p>
+          Platform fabric unlocks <strong>12 revenue streams</strong> from the same <strong>4,200 relationships</strong>.
+          Automated nurture cycles and digital ops amplify engagement into multi-tap capture.
+        </p>
+        <div class="drip-cluster" aria-hidden="true">
+          <span class="drip-node"></span>
+          <span class="drip-node"></span>
+          <span class="drip-node"></span>
+          <span class="drip-node"></span>
+          <span class="drip-node"></span>
+        </div>
+        <ul>
+          <li><span>4,200 Fully Engaged Prospects</span><span class="metric">Rapport Built</span></li>
+          <li><span>2,000 Accepted Offers</span><span class="metric">+ Platform Monetization</span></li>
+          <li><span>800 Wholesale Closes</span><span class="metric">Baseline</span></li>
+          <li><span>Multi-Exit Revenue Capture</span><span class="metric">12 Streams</span></li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="callouts">
+      <p><strong>Key Insight:</strong> Picket platform technology converts <span>3-5% of relationship-built prospects</span> (≈3X current conversion) while preserving wholesale velocity.</p>
+      <p><strong>Merger Effect:</strong> Platform signing unlocks new monetization deals, digital operations, and analytic intelligence—doubling projected revenue capture per lead.</p>
+      <p><strong>Visual Narrative:</strong> Single drip versus cascading flow dramatizes the shift from a constrained lane to an orchestrated, CGI-grade revenue engine.</p>
+    </section>
+  </main>
+  <script>
+    const bodyEl = document.body;
+    const focusControls = document.querySelectorAll('input[name="funnel-focus"]');
+
+    const updateMode = (mode) => {
+      bodyEl.classList.remove('mode-none', 'mode-left', 'mode-right');
+      bodyEl.classList.add(`mode-${mode}`);
+
+      document.querySelectorAll('.stage-card').forEach((card) => {
+        if (!card.dataset.mode) return;
+        if (mode === card.dataset.mode) {
+          card.setAttribute('data-active', 'true');
+        } else {
+          card.removeAttribute('data-active');
+        }
+      });
+    };
+
+    focusControls.forEach((input) => {
+      input.addEventListener('change', () => updateMode(input.value));
+    });
+
+    const initial = document.querySelector('input[name="funnel-focus"]:checked');
+    if (initial) {
+      updateMode(initial.value);
+    }
+  </script>
+</body>
+</html>
