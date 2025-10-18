@@ -86,17 +86,17 @@
         return () => window.removeEventListener('scroll', handleScroll);
       }, []);
 
-      // Funnel inputs
+      // Funnel inputs (Sept 2025 baseline: 59 deals/mo * 12 = 708/yr)
       const [intakes,setIntakes]=useState(48000);
       const [assessments,setAssessments]=useState(5000);
-      const [offerRate,setOfferRate]=useState(0.5);
-      const [acceptRate,setAcceptRate]=useState(0.5);
-      const [closeRate,setCloseRate]=useState(0.35);
+      const [offerRate,setOfferRate]=useState(0.50);
+      const [acceptRate,setAcceptRate]=useState(0.60); // Tuned: 708 deals/yr
+      const [closeRate,setCloseRate]=useState(0.472); // Tuned: 708 deals/yr
 
-      // Mix / economics
-      const [offMarketShare,setOffMarketShare]=useState(0.9);
-      const [offMarketCapture,setOffMarketCapture]=useState(0.8);
-      const [offMarketFee,setOffMarketFee]=useState(7000);
+      // Mix / economics (Sept actuals: $675K/mo * 12 = $8.1M/yr)
+      const [offMarketShare,setOffMarketShare]=useState(0.90);
+      const [offMarketCapture,setOffMarketCapture]=useState(0.80);
+      const [offMarketFee,setOffMarketFee]=useState(15442); // Tuned: $8.1M/yr GP
       const [mlsAvgPrice,setMlsAvgPrice]=useState(150000);
       const [mlsCommissionRate,setMlsCommissionRate]=useState(0.022);
       const [titleDirectCaptureRate,setTitleDirectCaptureRate]=useState(0.90); // Rebuilt off-market only
