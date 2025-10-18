@@ -117,9 +117,15 @@
       const [wholesalerAgentBaseSalary,setWholesalerAgentBaseSalary]=useState(18000); // $1,500/mo
       const [flatFeeListedPct,setFlatFeeListedPct]=useState(0.41); // Sept: 24/59
 
+      // **TIER RATE ADJUSTMENTS** (allow manual override of calculated tiers for top performers)
+      const [acqTierAdjustment,setAcqTierAdjustment]=useState(0); // +/- % points
+      const [dispoTierAdjustment,setDispoTierAdjustment]=useState(0); // +/- % points
+
       // **MANAGER / TEAM LEAD COMMISSIONS**
       // Sept actuals: $25,177 manager payout (3.73% of GP)
       const [managerCommissionPctOfGP,setManagerCommissionPctOfGP]=useState(3.73);
+      const [numManagers,setNumManagers]=useState(4); // Sept: ~4 managers
+      const [managerAvgBaseSalary,setManagerAvgBaseSalary]=useState(45000); // Estimated
 
       // **LICENSED BROKER %** (agents who can also do MLS deals - subset of wholesaler agents)
       const [pctAgentsLicensed,setPctAgentsLicensed]=useState(0.30); // 30% now, future 70%
@@ -217,9 +223,9 @@
         const acqMonthlyGPperAgent = (acqGrossProfit / 12) / Math.max(1, numAcqAgents);
         const dispoMonthlyGPperAgent = (dispoGrossProfit / 12) / Math.max(1, numDispoAgents);
 
-        // Get commission rates based on tiers
-        const acqCommRate = getAcqCommissionRate(acqMonthlyGPperAgent);
-        const dispoCommRate = getDispoCommissionRate(dispoMonthlyGPperAgent);
+        // Get commission rates based on tiers (with manual adjustments for top performers)
+        const acqCommRate = Math.max(0, getAcqCommissionRate(acqMonthlyGPperAgent) + (acqTierAdjustment / 100));
+        const dispoCommRate = Math.max(0, getDispoCommissionRate(dispoMonthlyGPperAgent) + (dispoTierAdjustment / 100));
 
         // Calculate agent variable commissions
         // Acq: straight percentage
@@ -380,7 +386,8 @@
         mlsAvgPrice, mlsCommissionRate, titleDirectCaptureRate, titleProfitPerDeal,
         infraPerMarketPerMonth, activeMarkets.length, additionalMarkets,
         numAcqAgents, numDispoAgents, wholesalerAgentBaseSalary, flatFeeListedPct,
-        managerCommissionPctOfGP, pctAgentsLicensed,
+        acqTierAdjustment, dispoTierAdjustment,
+        managerCommissionPctOfGP, numManagers, managerAvgBaseSalary, pctAgentsLicensed,
         agentOutsideSplitToAgent, agentOutsideAvgPrice, agentOutsideDealsPerSeatPerYear,
         deadLeadConversionRate, avgRetailDealValue,
         thirdPartyWholesalers, avgDealsPerWholesaler, marketplaceFeeRate, marketplaceMinFee, avgWholesaleDealValue,
@@ -613,52 +620,96 @@
                 </div>
               </div>
 
-              {/* Agent Headcount & Modeling */}
+              {/* Agent Headcount & Modeling - 2x2 Grid */}
               <div className="grid md:grid-cols-2 gap-6">
+                {/* LEFT COLUMN: Agent Headcount */}
                 <div className="space-y-4">
                   <h3 className="text-sm font-bold text-cyan-300">Wholesaler Agent Headcount</h3>
-                  <div>
-                    <div className="text-sm text-cyan-300">Acquisition agents: <span className="font-bold">{numAcqAgents}</span></div>
-                    <input className="mt-2 w-full" type="range" min={5} max={50} step={1} value={numAcqAgents} onChange={e=>setNumAcqAgents(parseInt(e.target.value))} />
-                    <div className="mt-1 text-xs text-cyan-600">Monthly GP/agent: {formatUSD((economics.wholesaler.acqGP / 12) / numAcqAgents)} → Tier rate: {(economics.wholesaler.acqCommRate*100).toFixed(1)}%</div>
+
+                  {/* Acq Agents - Side by Side */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs text-cyan-300 mb-1">Acq agents: <span className="font-bold">{numAcqAgents}</span></div>
+                      <input className="w-full" type="range" min={5} max={50} step={1} value={numAcqAgents} onChange={e=>setNumAcqAgents(parseInt(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-cyan-600">GP/agent/mo: {formatUSD((economics.wholesaler.acqGP / 12) / numAcqAgents)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-cyan-300 mb-1">Acq tier rate: <span className="font-bold">{(economics.wholesaler.acqCommRate*100).toFixed(2)}%</span></div>
+                      <input className="w-full" type="range" min={-2} max={2} step={0.25} value={acqTierAdjustment} onChange={e=>setAcqTierAdjustment(parseFloat(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-cyan-600">Adjust: {acqTierAdjustment >= 0 ? '+' : ''}{acqTierAdjustment.toFixed(2)}%</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-sm text-cyan-300">Disposition agents: <span className="font-bold">{numDispoAgents}</span></div>
-                    <input className="mt-2 w-full" type="range" min={5} max={50} step={1} value={numDispoAgents} onChange={e=>setNumDispoAgents(parseInt(e.target.value))} />
-                    <div className="mt-1 text-xs text-cyan-600">Monthly GP/agent: {formatUSD((economics.wholesaler.dispoGP / 12) / numDispoAgents)} → Tier rate: {(economics.wholesaler.dispoCommRate*100).toFixed(1)}%</div>
+
+                  {/* Dispo Agents - Side by Side */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs text-cyan-300 mb-1">Dispo agents: <span className="font-bold">{numDispoAgents}</span></div>
+                      <input className="w-full" type="range" min={5} max={50} step={1} value={numDispoAgents} onChange={e=>setNumDispoAgents(parseInt(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-cyan-600">GP/agent/mo: {formatUSD((economics.wholesaler.dispoGP / 12) / numDispoAgents)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-cyan-300 mb-1">Dispo tier rate: <span className="font-bold">{(economics.wholesaler.dispoCommRate*100).toFixed(2)}%</span></div>
+                      <input className="w-full" type="range" min={-2} max={2} step={0.25} value={dispoTierAdjustment} onChange={e=>setDispoTierAdjustment(parseFloat(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-cyan-600">Adjust: {dispoTierAdjustment >= 0 ? '+' : ''}{dispoTierAdjustment.toFixed(2)}%</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-sm text-cyan-300">Agent base salary (annual): <span className="font-bold">{formatUSD(wholesalerAgentBaseSalary)}</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={30000} step={1000} value={wholesalerAgentBaseSalary} onChange={e=>setWholesalerAgentBaseSalary(parseInt(e.target.value))} />
-                    <div className="mt-1 text-xs text-cyan-600">{formatUSD(wholesalerAgentBaseSalary / 12)}/mo per agent</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-cyan-300">Flat-fee listed %: <span className="font-bold">{Math.round(flatFeeListedPct*100)}%</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={1} step={0.01} value={flatFeeListedPct} onChange={e=>setFlatFeeListedPct(parseFloat(e.target.value))} />
-                    <div className="mt-1 text-xs text-cyan-600">Flat-fee deals pay 2/3 commission rate</div>
+
+                  {/* Base Salary & Flat-Fee - Side by Side */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs text-cyan-300 mb-1">Base salary (annual): <span className="font-bold">{formatUSD(wholesalerAgentBaseSalary)}</span></div>
+                      <input className="w-full" type="range" min={0} max={30000} step={1000} value={wholesalerAgentBaseSalary} onChange={e=>setWholesalerAgentBaseSalary(parseInt(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-cyan-600">{formatUSD(wholesalerAgentBaseSalary / 12)}/mo per agent</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-cyan-300 mb-1">Flat-fee listed: <span className="font-bold">{Math.round(flatFeeListedPct*100)}%</span></div>
+                      <input className="w-full" type="range" min={0} max={1} step={0.01} value={flatFeeListedPct} onChange={e=>setFlatFeeListedPct(parseFloat(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-cyan-600">Pays 2/3 commission rate</div>
+                    </div>
                   </div>
                 </div>
 
+                {/* RIGHT COLUMN: Managers & Costs */}
                 <div className="space-y-4">
                   <h3 className="text-sm font-bold text-amber-300">Manager & Cost Breakdown</h3>
-                  <div>
-                    <div className="text-sm text-amber-300">Manager comm % of GP: <span className="font-bold">{managerCommissionPctOfGP.toFixed(2)}%</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={10} step={0.1} value={managerCommissionPctOfGP} onChange={e=>setManagerCommissionPctOfGP(parseFloat(e.target.value))} />
-                    <div className="mt-1 text-xs text-amber-600">Sept actual: 3.73% ($25,177 on $675K GP)</div>
+
+                  {/* Managers - Side by Side */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs text-amber-300 mb-1">Number of managers: <span className="font-bold">{numManagers}</span></div>
+                      <input className="w-full" type="range" min={1} max={15} step={1} value={numManagers} onChange={e=>setNumManagers(parseInt(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-amber-600">Acq + Dispo managers</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-amber-300 mb-1">Mgr comm % of GP: <span className="font-bold">{managerCommissionPctOfGP.toFixed(2)}%</span></div>
+                      <input className="w-full" type="range" min={0} max={10} step={0.25} value={managerCommissionPctOfGP} onChange={e=>setManagerCommissionPctOfGP(parseFloat(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-amber-600">Sept: 3.73% ($25K)</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-sm text-neutral-300">% Licensed (can do MLS): <span className="font-bold">{Math.round(pctAgentsLicensed*100)}%</span></div>
-                    <input className="mt-2 w-full" type="range" min={0} max={1} step={0.05} value={pctAgentsLicensed} onChange={e=>setPctAgentsLicensed(parseFloat(e.target.value))} />
-                    <div className="mt-1 text-xs text-neutral-500">{economics.licensedAgent.seats.toFixed(1)} licensed agents (handle dead leads + outside deals)</div>
+
+                  {/* Manager Base Salary & Licensed % - Side by Side */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs text-amber-300 mb-1">Mgr base salary: <span className="font-bold">{formatUSD(managerAvgBaseSalary)}</span></div>
+                      <input className="w-full" type="range" min={30000} max={80000} step={5000} value={managerAvgBaseSalary} onChange={e=>setManagerAvgBaseSalary(parseInt(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-amber-600">{formatUSD(managerAvgBaseSalary / 12)}/mo per manager</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-neutral-300 mb-1">% Licensed (MLS): <span className="font-bold">{Math.round(pctAgentsLicensed*100)}%</span></div>
+                      <input className="w-full" type="range" min={0} max={1} step={0.05} value={pctAgentsLicensed} onChange={e=>setPctAgentsLicensed(parseFloat(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-neutral-500">{economics.licensedAgent.seats.toFixed(1)} licensed agents</div>
+                    </div>
                   </div>
+
+                  {/* Cost Summary */}
                   <div className="mt-4 p-3 dark-card rounded-xl border border-neutral-600">
                     <div className="text-xs font-bold text-neutral-400 mb-2">Cost Summary</div>
                     <div className="space-y-1 text-xs">
-                      <div className="flex justify-between"><span>Base salaries:</span><span className="font-bold">{formatUSD(economics.wholesaler.baseCost)}</span></div>
-                      <div className="flex justify-between"><span>Benefits (15% + $5K):</span><span className="font-bold">{formatUSD(economics.wholesaler.benefitsCost)}</span></div>
-                      <div className="flex justify-between border-t border-neutral-600 pt-1"><span>Fixed Cost:</span><span className="font-bold">{formatUSD(economics.wholesaler.fixedCost)}</span></div>
-                      <div className="flex justify-between"><span>Agent Commissions:</span><span className="font-bold text-blue-300">{formatUSD(economics.wholesaler.agentCommissions)}</span></div>
-                      <div className="flex justify-between"><span>Manager Commissions:</span><span className="font-bold text-amber-300">{formatUSD(economics.wholesaler.managerCommissions)}</span></div>
+                      <div className="flex justify-between"><span>Agent base salaries:</span><span className="font-bold">{formatUSD(economics.wholesaler.baseCost)}</span></div>
+                      <div className="flex justify-between"><span>Agent benefits:</span><span className="font-bold">{formatUSD(economics.wholesaler.benefitsCost)}</span></div>
+                      <div className="flex justify-between border-t border-neutral-600 pt-1"><span>Agent Fixed Cost:</span><span className="font-bold">{formatUSD(economics.wholesaler.fixedCost)}</span></div>
+                      <div className="flex justify-between"><span>Agent Variable:</span><span className="font-bold text-blue-300">{formatUSD(economics.wholesaler.agentCommissions)}</span></div>
+                      <div className="flex justify-between"><span>Manager Variable:</span><span className="font-bold text-amber-300">{formatUSD(economics.wholesaler.managerCommissions)}</span></div>
                       <div className="flex justify-between border-t border-neutral-600 pt-1"><span className="font-bold">Total Wholesaler Cost:</span><span className="font-bold text-green-300">{formatUSD(economics.wholesaler.totalCost)}</span></div>
                     </div>
                   </div>
