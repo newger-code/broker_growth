@@ -627,9 +627,27 @@
                     <div className="mt-1 text-xs text-neutral-500">Off-Mkt: {economics.offMktAnnual.toLocaleString()} • MLS: {economics.mlsAnnual.toLocaleString()}</div>
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-sm">
-                    <div><div>Off-Mkt Capture: <span className="font-medium">{Math.round(offMarketCapture*100)}%</span></div><input type="range" min={0.4} max={1} step={0.01} value={offMarketCapture} onChange={e=>setOffMarketCapture(parseFloat(e.target.value))}/></div>
-                    <div><div>Off-Mkt Fee: <span className="font-medium">{formatUSD(offMarketFee)}</span></div><input type="range" min={0} max={20000} step={500} value={offMarketFee} onChange={e=>setOffMarketFee(parseInt(e.target.value))}/></div>
-                    <div><div>Title Direct Capture: <span className="font-medium">{Math.round(titleDirectCaptureRate*100)}%</span></div><input type="range" min={0.5} max={1} step={0.01} value={titleDirectCaptureRate} onChange={e=>setTitleDirectCaptureRate(parseFloat(e.target.value))}/><div className="mt-1 text-xs text-neutral-500">Rebuilt off-market only (National Title Service)</div></div>
+                    <div>
+                      <div title="% of off-market deals where Rebuilt captures the assignment fee (vs seller backing out or deal falling through)">
+                        Off-Mkt Capture: <span className="font-medium">{Math.round(offMarketCapture*100)}%</span>
+                      </div>
+                      <input type="range" min={0.4} max={1} step={0.01} value={offMarketCapture} onChange={e=>setOffMarketCapture(parseFloat(e.target.value))}/>
+                      <div className="mt-1 text-xs text-neutral-500">Assignment fee collection rate</div>
+                    </div>
+                    <div>
+                      <div title="Gross profit per off-market deal (assignment fee after transaction costs)">
+                        Off-Mkt Revenue: <span className="font-medium">{formatUSD(offMarketFee)}</span>
+                      </div>
+                      <input type="range" min={0} max={20000} step={500} value={offMarketFee} onChange={e=>setOffMarketFee(parseInt(e.target.value))}/>
+                      <div className="mt-1 text-xs text-neutral-500">GP per deal</div>
+                    </div>
+                    <div>
+                      <div title="% of Rebuilt off-market deals where we also close title through National Title Service (90% in Sept)">
+                        Title Direct Capture: <span className="font-medium">{Math.round(titleDirectCaptureRate*100)}%</span>
+                      </div>
+                      <input type="range" min={0.5} max={1} step={0.01} value={titleDirectCaptureRate} onChange={e=>setTitleDirectCaptureRate(parseFloat(e.target.value))}/>
+                      <div className="mt-1 text-xs text-neutral-500">Rebuilt off-market only (National Title Service)</div>
+                    </div>
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div><div>MLS Avg Price: <span className="font-medium">{formatUSD(mlsAvgPrice)}</span></div><input type="range" min={100000} max={300000} step={5000} value={mlsAvgPrice} onChange={e=>setMlsAvgPrice(parseInt(e.target.value))}/></div>
