@@ -104,7 +104,26 @@
       const [infraPerMarketPerMonth,setInfraPerMarketPerMonth]=useState(2500);
       const [additionalMarkets,setAdditionalMarkets]=useState(0);
 
-      // **NEW** Agent cost surfaced
+      // **MARKETING EXPENSE** (NEW)
+      const [sellerMailPerMonth,setSellerMailPerMonth]=useState(545000); // Q3 avg: 1.635M ÷ 3
+      const [sellerMailCostPerPiece,setSellerMailCostPerPiece]=useState(0.66);
+      const [contractMailPerContract,setContractMailPerContract]=useState(200);
+      const [contractMailCostPerPiece,setContractMailCostPerPiece]=useState(0.52);
+
+      // **WHOLESALER AGENTS** (Internal sales agents - acquisition + disposition)
+      const [numAcqAgents,setNumAcqAgents]=useState(27);
+      const [numDispoAgents,setNumDispoAgents]=useState(22);
+      const [acqAgentAvgBaseSalary,setAcqAgentAvgBaseSalary]=useState(18000);
+      const [dispoAgentAvgBaseSalary,setDispoAgentAvgBaseSalary]=useState(18000);
+      const [flatFeeListedPct,setFlatFeeListedPct]=useState(0.41); // Sept: 24/59
+
+      // **PICKET TECH EFFICIENCY**
+      const [picketTechMultiplier,setPicketTechMultiplier]=useState(1.0); // 1.0 = baseline, 2.0 = 2x productivity
+
+      // **LICENSED BROKER %** (agents who can also do MLS deals)
+      const [pctAgentsLicensed,setPctAgentsLicensed]=useState(0.30); // 30% now, future 70%
+
+      // **OLD AGENT MODELING** (kept for broker MLS business)
       const [agentsPerMarket,setAgentsPerMarket]=useState(0.8);
       const [agentBaseAnnual,setAgentBaseAnnual]=useState(18000);
 
@@ -158,22 +177,82 @@
         const offMarketFees  = capturedOffMkt*offMarketFee;
         const mlsCommission  = mlsAnnual*mlsAvgPrice*mlsCommissionRate;
 
+        // Wholesale revenue (core business)
+        const wholesaleRevenue = offMarketFees + mlsCommission;
+
         // Title Direct (Rebuilt off-market only, 90% capture)
         const titleDirectDeals = offMktAnnual * titleDirectCaptureRate;
         const titleDirectProfit = titleDirectDeals * titleProfitPerDeal;
 
+        // **MARKETING EXPENSE** (NEW)
+        const contractsAnnual = funnel.accepted; // Accepted offers = signed contracts
+        const sellerMailAnnual = sellerMailPerMonth * 12;
+        const contractMailAnnual = contractsAnnual * contractMailPerContract;
+        const sellerMailCost = sellerMailAnnual * sellerMailCostPerPiece;
+        const contractMailCost = contractMailAnnual * contractMailCostPerPiece;
+        const totalMarketingCost = sellerMailCost + contractMailCost;
+
+        // **WHOLESALER AGENT COMMISSIONS** (NEW - internal sales agents on core wholesale business)
+        // Commission tier functions from PDFs
+        const getAcqCommissionRate = (monthlyGP) => {
+          if (monthlyGP < 25000) return 0.04;
+          if (monthlyGP < 50000) return 0.06;
+          if (monthlyGP < 100000) return 0.08;
+          return 0.10;
+        };
+        const getDispoCommissionRate = (monthlyGP) => {
+          if (monthlyGP < 25000) return 0.02;
+          if (monthlyGP < 50000) return 0.03;
+          if (monthlyGP < 75000) return 0.04;
+          if (monthlyGP < 100000) return 0.05;
+          if (monthlyGP < 125000) return 0.06;
+          if (monthlyGP < 150000) return 0.07;
+          if (monthlyGP < 175000) return 0.08;
+          if (monthlyGP < 200000) return 0.09;
+          return 0.10;
+        };
+
+        // Split wholesale revenue 50/50 between acq and dispo
+        const acqGrossProfit = wholesaleRevenue * 0.5;
+        const dispoGrossProfit = wholesaleRevenue * 0.5;
+
+        // Monthly GP per agent (determines tier)
+        const acqMonthlyGPperAgent = (acqGrossProfit / 12) / Math.max(1, numAcqAgents);
+        const dispoMonthlyGPperAgent = (dispoGrossProfit / 12) / Math.max(1, numDispoAgents);
+
+        // Get commission rates based on tiers
+        const acqCommRate = getAcqCommissionRate(acqMonthlyGPperAgent);
+        const dispoCommRate = getDispoCommissionRate(dispoMonthlyGPperAgent);
+
+        // Calculate commissions
+        // Acq: straight percentage
+        const acqCommissions = acqGrossProfit * acqCommRate;
+
+        // Dispo: split between off-market (full rate) and flat-fee listed (2/3 rate)
+        const dispoOffMarketGP = dispoGrossProfit * (1 - flatFeeListedPct);
+        const dispoFlatFeeGP = dispoGrossProfit * flatFeeListedPct;
+        const dispoCommissions = (dispoOffMarketGP * dispoCommRate) + (dispoFlatFeeGP * dispoCommRate * 0.6667);
+
+        const wholesalerCommissions = acqCommissions + dispoCommissions;
+
+        // Wholesaler fixed costs (base + benefits)
+        const totalWholesalerAgents = numAcqAgents + numDispoAgents;
+        const wholesalerBaseCost = (numAcqAgents * acqAgentAvgBaseSalary) + (numDispoAgents * dispoAgentAvgBaseSalary);
+        const avgBaseSalary = wholesalerBaseCost / totalWholesalerAgents;
+        const wholesalerBenefitsCost = totalWholesalerAgents * ((avgBaseSalary * 0.15) + 5000);
+        const wholesalerFixedCost = wholesalerBaseCost + wholesalerBenefitsCost;
+        const totalWholesalerCost = wholesalerFixedCost + wholesalerCommissions;
+
         const totalMarkets   = activeMarkets.length + additionalMarkets;
 
-        // Infra + Agent modeling
+        // **LICENSED BROKER AGENTS** (subset of wholesaler agents who can also do MLS deals)
         const infra          = infraPerMarketPerMonth*Math.max(0,totalMarkets)*12;
-        const agentSeats     = agentsPerMarket*Math.max(0,totalMarkets);
-        const agentBenefitsPerSeat = agentBaseAnnual*0.15 + 5000;
-        const agentBaseCost  = agentSeats*agentBaseAnnual;
-        const agentBenefitsCost = agentSeats*agentBenefitsPerSeat;
-        const agentFixedCost = agentBaseCost + agentBenefitsCost;
 
-        // Agent Outside Business (agents bring their own deals)
-        const agentOutsideTotalDeals = agentSeats * agentOutsideDealsPerSeatPerYear;
+        // Only licensed agents bring outside MLS business (dead leads + outside deals)
+        const licensedAgentSeats = totalWholesalerAgents * pctAgentsLicensed;
+
+        // Agent Outside Business (licensed agents bring their own MLS deals)
+        const agentOutsideTotalDeals = licensedAgentSeats * agentOutsideDealsPerSeatPerYear;
         const agentOutsideTotalCommission = agentOutsideTotalDeals * agentOutsideAvgPrice * mlsCommissionRate;
         const agentOutsideRevenueToCompany = agentOutsideTotalCommission; // Firm earns FULL commission
         const agentOutsideSplitCost = agentOutsideTotalCommission * agentOutsideSplitToAgent; // Then pays agent 80%
