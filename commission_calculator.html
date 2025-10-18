@@ -8,9 +8,9 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: #f8f9fa;
+      background: #1a1a1a;
       padding: 15px;
-      color: #1a1a1a;
+      color: #e0e0e0;
       font-size: 12px;
     }
     .container { max-width: 1800px; margin: 0 auto; }
@@ -19,7 +19,10 @@
     h1 {
       font-size: 20px;
       margin-bottom: 12px;
-      color: #1e40af;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       font-weight: 700;
     }
 
@@ -40,16 +43,16 @@
 
     /* Compact Tier Reference */
     .tier-reference {
-      background: white;
+      background: #2c2c2c;
       border-radius: 6px;
       padding: 12px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-      border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border: 1px solid #404040;
     }
     .tier-reference h2 {
       font-size: 13px;
       margin-bottom: 8px;
-      color: #1e40af;
+      color: #60a5fa;
       font-weight: 600;
     }
     .tier-table {
@@ -58,7 +61,7 @@
       font-size: 11px;
     }
     .tier-table th {
-      background: #1e40af;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       color: white;
       padding: 5px 6px;
       text-align: left;
@@ -68,38 +71,41 @@
     }
     .tier-table td {
       padding: 4px 6px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #404040;
       white-space: nowrap;
+      color: #e0e0e0;
     }
-    .tier-table tbody tr:nth-child(odd) { background: #f9fafb; }
-    .tier-table tbody tr:hover { background: #eff6ff; }
+    .tier-table tbody tr:nth-child(odd) { background: #2a2a2a; }
+    .tier-table tbody tr:nth-child(even) { background: #333333; }
+    .tier-table tbody tr:hover { background: #3b82f6; color: white; }
     .tier-active {
-      background: #fef3c7 !important;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
       font-weight: 700;
-      box-shadow: inset 0 0 0 2px #f59e0b;
+      color: #1a1a1a !important;
+      box-shadow: inset 0 0 0 2px #fbbf24;
     }
-    .tier-num { font-weight: 700; color: #1e40af; }
+    .tier-num { font-weight: 700; color: #60a5fa; }
 
     /* Agent Selector */
     .agent-selector {
-      background: white;
+      background: #2c2c2c;
       border-radius: 6px;
       padding: 12px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-      border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border: 1px solid #404040;
     }
     .agent-selector.dispo-selector {
-      background: #eff6ff;
+      background: #1e3a5f;
       border-left: 3px solid #3b82f6;
     }
     .agent-selector.acq-selector {
-      background: #fef3c7;
+      background: #3d2e1e;
       border-left: 3px solid #f59e0b;
     }
     .agent-selector h2 {
       font-size: 13px;
       margin-bottom: 8px;
-      color: #1e40af;
+      color: #60a5fa;
       font-weight: 600;
     }
     .agent-checkbox {
@@ -107,6 +113,7 @@
       align-items: center;
       padding: 4px 0;
       font-size: 11px;
+      color: #e0e0e0;
     }
     .agent-checkbox input[type="checkbox"] {
       margin-right: 6px;
@@ -119,10 +126,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      color: #e0e0e0;
     }
     .agent-checkbox-count {
       font-size: 9px;
-      color: #6b7280;
+      color: #9ca3af;
       font-weight: 600;
       margin-left: 4px;
     }
@@ -145,23 +153,23 @@
 
     /* Controls Section */
     .controls-section {
-      background: white;
+      background: #2c2c2c;
       border-radius: 6px;
       padding: 10px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-      border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border: 1px solid #404040;
       font-size: 11px;
     }
     .controls-section h3 {
       font-size: 12px;
       margin-bottom: 8px;
-      color: #1e40af;
+      color: #60a5fa;
       font-weight: 600;
     }
     .control-group {
       margin-bottom: 10px;
       padding-bottom: 10px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #404040;
     }
     .control-group:last-child {
       border-bottom: none;
@@ -173,7 +181,7 @@
       margin-bottom: 4px;
       display: block;
       font-size: 10px;
-      color: #374151;
+      color: #e0e0e0;
     }
     .radio-option, .checkbox-option {
       display: flex;
@@ -188,18 +196,20 @@
     .number-input {
       width: 100%;
       padding: 4px 6px;
-      border: 1px solid #d1d5db;
+      border: 1px solid #404040;
       border-radius: 3px;
       font-size: 11px;
+      background: #1a1a1a;
+      color: #e0e0e0;
     }
 
     /* Right Side - Agent Performance Grid */
     .performance-container {
-      background: white;
+      background: #2c2c2c;
       border-radius: 6px;
       padding: 12px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-      border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border: 1px solid #404040;
       max-height: calc(100vh - 120px);
       overflow-y: auto;
     }
@@ -212,23 +222,24 @@
     }
 
     .agent-card {
-      border: 1px solid #d1d5db;
+      border: 1px solid #404040;
       border-radius: 4px;
       padding: 10px;
-      background: #fafafa;
+      background: #333333;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
     .agent-card.dispo-card {
-      background: #eff6ff;
+      background: #1e3a5f;
       border-left: 3px solid #3b82f6;
     }
     .agent-card.acq-card {
-      background: #fef3c7;
+      background: #3d2e1e;
       border-left: 3px solid #f59e0b;
     }
     .agent-card-header {
       font-size: 13px;
       font-weight: 700;
-      color: #1e40af;
+      color: #60a5fa;
       margin-bottom: 8px;
       padding-bottom: 6px;
       border-bottom: 2px solid #3b82f6;
@@ -240,16 +251,16 @@
     .deal-count-badge {
       font-size: 10px;
       padding: 2px 6px;
-      background: #e0e7ff;
-      color: #3730a3;
+      background: #1e3a8a;
+      color: #93c5fd;
       border-radius: 3px;
       font-weight: 600;
     }
     .agent-tier-badge {
       font-size: 10px;
       padding: 2px 6px;
-      background: #fef3c7;
-      color: #92400e;
+      background: #3d2e1e;
+      color: #fbbf24;
       border-radius: 3px;
       font-weight: 700;
     }
@@ -262,16 +273,18 @@
       font-size: 10px;
     }
     .deals-table th {
-      background: #f3f4f6;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       padding: 3px 4px;
       text-align: left;
       font-weight: 600;
-      border: 1px solid #d1d5db;
+      border: 1px solid #1e3a8a;
       font-size: 9px;
+      color: white;
     }
     .deals-table td {
       padding: 3px 4px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #404040;
+      background: #2a2a2a;
     }
     .deals-table input[type="text"] {
       width: 100%;
@@ -279,28 +292,31 @@
       background: transparent;
       font-size: 10px;
       padding: 2px;
+      color: #e0e0e0;
     }
     .deals-table input[type="number"] {
       width: 100%;
-      border: 1px solid #d1d5db;
-      background: #fffbeb;
+      border: 1px solid #404040;
+      background: #1a1a1a;
       font-size: 11px;
       padding: 3px 4px;
       text-align: right;
       border-radius: 2px;
       font-weight: 600;
+      color: #fbbf24;
     }
     .deals-table input[type="number"]:focus {
       outline: 2px solid #3b82f6;
-      background: white;
+      background: #2c2c2c;
     }
     .deals-table select {
       width: 100%;
-      border: 1px solid #d1d5db;
-      background: white;
+      border: 1px solid #404040;
+      background: #1a1a1a;
       font-size: 10px;
       padding: 3px;
       border-radius: 2px;
+      color: #e0e0e0;
     }
     .deals-table select:focus {
       outline: 2px solid #3b82f6;
@@ -314,14 +330,14 @@
       gap: 0;
       margin-top: 6px;
       padding-top: 6px;
-      border-top: 2px solid #1e40af;
+      border-top: 2px solid #3b82f6;
     }
 
     /* Excel-style cells - COMPACT */
     .summary-cell {
-      border: 2px solid #000;
+      border: 2px solid #404040;
       padding: 4px 8px;
-      background: #dbeafe;
+      background: #2a2a2a;
       display: flex;
       gap: 10px;
       align-items: flex-start;
@@ -329,7 +345,7 @@
 
     .cell-label {
       font-size: 10px;
-      color: #000;
+      color: #60a5fa;
       font-weight: 600;
       line-height: 1.1;
       margin-bottom: 1px;
@@ -338,7 +354,7 @@
     .cell-value {
       font-size: 20px;
       font-weight: 700;
-      color: #000;
+      color: #e0e0e0;
       font-family: Arial, sans-serif;
       line-height: 1;
     }
@@ -349,7 +365,7 @@
       gap: 0;
       font-size: 11px;
       line-height: 1.2;
-      color: #000;
+      color: #9ca3af;
       font-family: Arial, sans-serif;
     }
 
@@ -371,18 +387,25 @@
       font-size: 22px;
     }
 
-    /* Bottom-right: Commission (green) */
+    /* Bottom-right: Commission (green accent) */
     .cell-bottom-right {
-      background: #d1fae5;
+      background: #1e3a2a;
+      border-color: #10b981;
+    }
+    .cell-bottom-right .cell-label {
+      color: #10b981;
+    }
+    .cell-bottom-right .cell-value {
+      color: #10b981;
     }
 
     /* Global Summary - 3 Rows */
     .global-summary {
-      background: white;
+      background: #2c2c2c;
       border-radius: 6px;
       padding: 10px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-      border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border: 1px solid #404040;
       font-size: 11px;
     }
     .summary-row {
@@ -390,7 +413,7 @@
       grid-template-columns: 70px repeat(7, 1fr);
       gap: 6px;
       padding: 8px 6px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #404040;
       align-items: center;
     }
     .summary-row.dispo,
@@ -398,30 +421,36 @@
       grid-template-columns: 70px repeat(7, 1fr);
     }
     .summary-row:last-child {
-      grid-template-columns: 70px repeat(7, 1fr);
+      grid-template-columns: 70px repeat(8, 1fr);
     }
     .summary-row:last-child {
       border-bottom: none;
-      border-top: 3px solid #000;
-      background: #f0fdf4;
+      border-top: 3px solid #10b981;
+      background: #1e3a2a;
     }
     .summary-row.dispo {
-      background: #eff6ff;
+      background: #1e3a5f;
     }
     .summary-row.acq {
-      background: #fef3c7;
+      background: #3d2e1e;
     }
     .summary-row-label {
       font-weight: 700;
       font-size: 11px;
-      color: #1e40af;
+      color: #60a5fa;
+    }
+    .summary-row.acq .summary-row-label {
+      color: #fbbf24;
+    }
+    .summary-row:last-child .summary-row-label {
+      color: #10b981;
     }
     .summary-cell-compact {
       text-align: center;
     }
     .summary-cell-compact-label {
       font-size: 9px;
-      color: #6b7280;
+      color: #9ca3af;
       font-weight: 600;
       text-transform: uppercase;
       margin-bottom: 2px;
@@ -429,7 +458,7 @@
     .summary-cell-compact-value {
       font-size: 14px;
       font-weight: 700;
-      color: #000;
+      color: #e0e0e0;
       font-family: 'Courier New', monospace;
     }
     .summary-row:last-child .summary-cell-compact-value {
@@ -439,12 +468,14 @@
     .emp-input {
       width: 50px;
       padding: 2px 4px;
-      border: 1px solid #d1d5db;
+      border: 1px solid #404040;
       border-radius: 3px;
       font-size: 12px;
       font-weight: 700;
       text-align: center;
       font-family: 'Courier New', monospace;
+      background: #1a1a1a;
+      color: #fbbf24;
     }
     .emp-checkbox {
       display: flex;
@@ -453,6 +484,7 @@
       font-size: 11px;
       margin-top: 2px;
       font-weight: 600;
+      color: #e0e0e0;
     }
   </style>
 </head>
@@ -461,24 +493,24 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <h1 style="margin: 0;">🏢 Rebuilt Commission Calculator - September 2025</h1>
       <div style="display: flex; gap: 20px; align-items: center;">
-        <div style="display: flex; gap: 15px; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid #e5e7eb;">
-          <span style="font-size: 11px; font-weight: 600; color: #374151;">View:</span>
-          <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer;">
+        <div style="display: flex; gap: 15px; align-items: center; background: #2c2c2c; padding: 8px 12px; border-radius: 6px; border: 1px solid #404040;">
+          <span style="font-size: 11px; font-weight: 600; color: #60a5fa;">View:</span>
+          <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; color: #e0e0e0;">
             <input type="radio" id="view-both" name="view-mode" value="both" checked onchange="updateViewMode()">
             Both
           </label>
-          <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer;">
+          <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; color: #e0e0e0;">
             <input type="radio" id="view-dispo" name="view-mode" value="dispo" onchange="updateViewMode()">
             Dispo Only
           </label>
-          <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer;">
+          <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; color: #e0e0e0;">
             <input type="radio" id="view-acq" name="view-mode" value="acq" onchange="updateViewMode()">
             Acq Only
           </label>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid #e5e7eb;">
-          <span style="font-size: 11px; font-weight: 600; color: #374151;">Sort:</span>
-          <select id="sort-by" onchange="updateSort()" style="border: 1px solid #d1d5db; border-radius: 3px; padding: 4px 8px; font-size: 11px; background: white; cursor: pointer;">
+        <div style="display: flex; gap: 8px; align-items: center; background: #2c2c2c; padding: 8px 12px; border-radius: 6px; border: 1px solid #404040;">
+          <span style="font-size: 11px; font-weight: 600; color: #60a5fa;">Sort:</span>
+          <select id="sort-by" onchange="updateSort()" style="border: 1px solid #404040; border-radius: 3px; padding: 4px 8px; font-size: 11px; background: #1a1a1a; color: #e0e0e0; cursor: pointer;">
             <option value="default">Default</option>
             <option value="a-z">A-Z</option>
             <option value="z-a">Z-A</option>
@@ -576,15 +608,15 @@
         <!-- Dispo Sprints -->
         <div class="agent-selector dispo-selector" style="margin-top: 10px;">
           <h2 style="font-size: 12px; margin-bottom: 6px;">Dispo Sprints</h2>
-          <div style="font-size: 10px; line-height: 1.4; margin-bottom: 6px; color: #374151;">
+          <div style="font-size: 10px; line-height: 1.4; margin-bottom: 6px; color: #9ca3af;">
             Weekly purse for top achievers in KPI categories.
           </div>
           <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
-            <label style="font-size: 10px; font-weight: 600; color: #374151;">Amount:</label>
+            <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Amount:</label>
             <input type="number" id="dispo-sprint-amount" class="number-input" value="800" min="0" step="100" onchange="updateGlobalSummary()" style="width: 80px;">
           </div>
           <div style="display: flex; gap: 6px; align-items: center;">
-            <label style="font-size: 10px; font-weight: 600; color: #374151;">Frequency:</label>
+            <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Frequency:</label>
             <select id="dispo-sprint-frequency" class="number-input" onchange="updateGlobalSummary()" style="width: 90px; padding: 4px;">
               <option value="4">Weekly</option>
               <option value="1">Monthly</option>
@@ -649,15 +681,15 @@
         <!-- Acq Sprints -->
         <div class="agent-selector acq-selector" style="margin-top: 10px;">
           <h2 style="font-size: 12px; margin-bottom: 6px;">Acq Sprints</h2>
-          <div style="font-size: 10px; line-height: 1.4; margin-bottom: 6px; color: #374151;">
+          <div style="font-size: 10px; line-height: 1.4; margin-bottom: 6px; color: #9ca3af;">
             Weekly purse for top achievers in KPI categories.
           </div>
           <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
-            <label style="font-size: 10px; font-weight: 600; color: #374151;">Amount:</label>
+            <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Amount:</label>
             <input type="number" id="acq-sprint-amount" class="number-input" value="1000" min="0" step="100" onchange="updateGlobalSummary()" style="width: 80px;">
           </div>
           <div style="display: flex; gap: 6px; align-items: center;">
-            <label style="font-size: 10px; font-weight: 600; color: #374151;">Frequency:</label>
+            <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Frequency:</label>
             <select id="acq-sprint-frequency" class="number-input" onchange="updateGlobalSummary()" style="width: 90px; padding: 4px;">
               <option value="4">Weekly</option>
               <option value="1">Monthly</option>
@@ -670,6 +702,58 @@
       <!-- Column 3: Performance Grid -->
       <div class="performance-container">
         <div class="agents-grid" id="agents-grid"></div>
+      </div>
+    </div>
+
+    <!-- Manager Commissions -->
+    <div class="global-summary" style="margin-bottom: 12px;">
+      <div style="background: #3d2e1e; padding: 10px; border-radius: 6px; border: 2px solid #f59e0b;">
+        <h3 style="font-size: 13px; font-weight: 700; color: #fbbf24; margin-bottom: 8px;">💼 Manager / Team Lead Commissions</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <!-- Dispo Managers -->
+          <div style="background: #1e3a5f; padding: 8px; border-radius: 4px; border-left: 3px solid #3b82f6;">
+            <div style="font-size: 11px; font-weight: 700; color: #60a5fa; margin-bottom: 6px;">Dispo Managers</div>
+            <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; margin-bottom: 4px;">
+              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Method:</label>
+              <select id="dispo-mgr-method" class="number-input" onchange="updateGlobalSummary()" style="font-size: 10px; padding: 3px;">
+                <option value="gp">% of GP</option>
+                <option value="comm">% of Agent Comm</option>
+                <option value="fixed">Fixed Amount</option>
+              </select>
+              <span style="font-size: 9px; color: #9ca3af;">(TBD)</span>
+            </div>
+            <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: center;">
+              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Rate/Amt:</label>
+              <input type="number" id="dispo-mgr-rate" class="number-input" value="0" min="0" step="0.1" onchange="updateGlobalSummary()" style="width: 70px; font-size: 11px;">
+            </div>
+            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #404040;">
+              <div style="font-size: 9px; color: #9ca3af; font-weight: 600;">Calculated:</div>
+              <div style="font-size: 14px; font-weight: 700; color: #60a5fa;" id="dispo-mgr-total">$0</div>
+            </div>
+          </div>
+
+          <!-- Acq Managers -->
+          <div style="background: #3d2e1e; padding: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
+            <div style="font-size: 11px; font-weight: 700; color: #fbbf24; margin-bottom: 6px;">Acq Managers</div>
+            <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; margin-bottom: 4px;">
+              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Method:</label>
+              <select id="acq-mgr-method" class="number-input" onchange="updateGlobalSummary()" style="font-size: 10px; padding: 3px;">
+                <option value="gp">% of GP</option>
+                <option value="comm">% of Agent Comm</option>
+                <option value="fixed">Fixed Amount</option>
+              </select>
+              <span style="font-size: 9px; color: #9ca3af;">(TBD)</span>
+            </div>
+            <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: center;">
+              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Rate/Amt:</label>
+              <input type="number" id="acq-mgr-rate" class="number-input" value="0" min="0" step="0.1" onchange="updateGlobalSummary()" style="width: 70px; font-size: 11px;">
+            </div>
+            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #404040;">
+              <div style="font-size: 9px; color: #9ca3af; font-weight: 600;">Calculated:</div>
+              <div style="font-size: 14px; font-weight: 700; color: #fbbf24;" id="acq-mgr-total">$0</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -769,15 +853,19 @@
           <div class="summary-cell-compact-value" id="employee-cost">$0</div>
         </div>
         <div class="summary-cell-compact">
-          <div class="summary-cell-compact-label">Variable Comm</div>
+          <div class="summary-cell-compact-label">Agent Comm</div>
           <div class="summary-cell-compact-value" id="total-commission">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Mgr Comm</div>
+          <div class="summary-cell-compact-value" id="manager-total">$0</div>
         </div>
         <div class="summary-cell-compact">
           <div class="summary-cell-compact-label">Sprints</div>
           <div class="summary-cell-compact-value" id="sprint-total">$0</div>
         </div>
         <div class="summary-cell-compact">
-          <div class="summary-cell-compact-label">Total Comm</div>
+          <div class="summary-cell-compact-label">Total Paid</div>
           <div class="summary-cell-compact-value" id="net-total">$0</div>
         </div>
       </div>
@@ -1470,13 +1558,43 @@
 
       const sprintTotal = dispoSprintMonthly + acqSprintMonthly;
 
-      const netTotal = totalCommission + totalAgentCost + sprintTotal;
+      // Manager Commissions
+      const dispoMgrMethod = document.getElementById('dispo-mgr-method').value;
+      const dispoMgrRate = parseFloat(document.getElementById('dispo-mgr-rate').value) || 0;
+      let dispoMgrComm = 0;
+      if (dispoMgrMethod === 'gp') {
+        dispoMgrComm = dispoGP * (dispoMgrRate / 100);
+      } else if (dispoMgrMethod === 'comm') {
+        dispoMgrComm = dispoCommission * (dispoMgrRate / 100);
+      } else if (dispoMgrMethod === 'fixed') {
+        dispoMgrComm = dispoMgrRate;
+      }
+
+      const acqMgrMethod = document.getElementById('acq-mgr-method').value;
+      const acqMgrRate = parseFloat(document.getElementById('acq-mgr-rate').value) || 0;
+      let acqMgrComm = 0;
+      if (acqMgrMethod === 'gp') {
+        acqMgrComm = acqGP * (acqMgrRate / 100);
+      } else if (acqMgrMethod === 'comm') {
+        acqMgrComm = acqCommission * (acqMgrRate / 100);
+      } else if (acqMgrMethod === 'fixed') {
+        acqMgrComm = acqMgrRate;
+      }
+
+      const managerTotal = dispoMgrComm + acqMgrComm;
+
+      // Update manager displays
+      document.getElementById('dispo-mgr-total').textContent = formatCurrency(dispoMgrComm);
+      document.getElementById('acq-mgr-total').textContent = formatCurrency(acqMgrComm);
+
+      const netTotal = totalCommission + totalAgentCost + sprintTotal + managerTotal;
 
       document.getElementById('total-agents').textContent = totalSelectedAgents;
       document.getElementById('total-deals').textContent = totalDeals;
       document.getElementById('total-all-agents').textContent = totalAllAgents;
       document.getElementById('employee-cost').textContent = formatCurrency(totalAgentCost);
       document.getElementById('total-commission').textContent = formatCurrency(totalCommission);
+      document.getElementById('manager-total').textContent = formatCurrency(managerTotal);
       document.getElementById('sprint-total').textContent = formatCurrency(sprintTotal);
       document.getElementById('net-total').textContent = formatCurrency(netTotal);
     }
