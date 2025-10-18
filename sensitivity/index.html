@@ -114,9 +114,10 @@
       const [contractMailCostPerPiece,setContractMailCostPerPiece]=useState(0.52);
 
       // **WHOLESALER AGENTS** (Internal sales agents - acquisition + disposition)
-      // Sept actuals: 13 Acq, 14 Dispo = 27 total
+      // Sept actuals: 13 Acq (11 producing), 14 Dispo (12 producing) = 27 total, 23 producing
       const [numAcqAgents,setNumAcqAgents]=useState(13);
       const [numDispoAgents,setNumDispoAgents]=useState(14);
+      const [pctProducingAgents,setPctProducingAgents]=useState(0.85); // 23/27 = 85% producing
       const [wholesalerAgentBaseSalary,setWholesalerAgentBaseSalary]=useState(18000); // $1,500/mo
       const [flatFeeListedPct,setFlatFeeListedPct]=useState(0.41); // Sept: 24/59
 
@@ -249,6 +250,8 @@
 
         // Wholesaler fixed costs (base + benefits)
         const totalWholesalerAgents = numAcqAgents + numDispoAgents;
+        const producingAgents = Math.round(totalWholesalerAgents * pctProducingAgents);
+        const nonProducingAgents = totalWholesalerAgents - producingAgents;
         const wholesalerBaseCost = totalWholesalerAgents * wholesalerAgentBaseSalary;
         const wholesalerBenefitsCost = totalWholesalerAgents * ((wholesalerAgentBaseSalary * 0.15) + 5000);
         const wholesalerFixedCost = wholesalerBaseCost + wholesalerBenefitsCost;
@@ -322,6 +325,9 @@
             numAcq: numAcqAgents,
             numDispo: numDispoAgents,
             totalAgents: totalWholesalerAgents,
+            producingAgents,
+            nonProducingAgents,
+            pctProducing: pctProducingAgents,
             acqGP: acqGrossProfit,
             dispoGP: dispoGrossProfit,
             acqCommRate,
@@ -388,7 +394,7 @@
         offMarketShare, offMarketCapture, offMarketFee,
         mlsAvgPrice, mlsCommissionRate, titleDirectCaptureRate, titleProfitPerDeal,
         infraPerMarketPerMonth, activeMarkets.length, additionalMarkets,
-        numAcqAgents, numDispoAgents, wholesalerAgentBaseSalary, flatFeeListedPct,
+        numAcqAgents, numDispoAgents, pctProducingAgents, wholesalerAgentBaseSalary, flatFeeListedPct,
         acqTierAdjustment, dispoTierAdjustment,
         managerCommissionPctOfGP, numManagers, managerAvgBaseSalary, pctAgentsLicensed,
         agentOutsideSplitToAgent, agentOutsideAvgPrice, agentOutsideDealsPerSeatPerYear,
@@ -720,15 +726,22 @@
                     </div>
                   </div>
 
+                  {/* Producing vs Non-Producing */}
+                  <div>
+                    <div className="text-xs text-neutral-300 mb-1">% Producing agents: <span className="font-bold">{Math.round(pctProducingAgents*100)}%</span></div>
+                    <input className="w-full" type="range" min={0.5} max={1} step={0.05} value={pctProducingAgents} onChange={e=>setPctProducingAgents(parseFloat(e.target.value))} />
+                    <div className="mt-1 text-[10px] text-neutral-500">{economics.wholesaler.producingAgents} producing, {economics.wholesaler.nonProducingAgents} new/ramping</div>
+                  </div>
+
                   {/* Cost Summary */}
                   <div className="mt-4 p-3 dark-card rounded-xl border border-neutral-600">
-                    <div className="text-xs font-bold text-neutral-400 mb-2">Cost Summary</div>
+                    <div className="text-xs font-bold text-neutral-400 mb-2">Cost Summary (annual)</div>
                     <div className="space-y-1 text-xs">
-                      <div className="flex justify-between"><span>Agent base salaries:</span><span className="font-bold">{formatUSD(economics.wholesaler.baseCost)}</span></div>
-                      <div className="flex justify-between"><span>Agent benefits:</span><span className="font-bold">{formatUSD(economics.wholesaler.benefitsCost)}</span></div>
-                      <div className="flex justify-between border-t border-neutral-600 pt-1"><span>Agent Fixed Cost:</span><span className="font-bold">{formatUSD(economics.wholesaler.fixedCost)}</span></div>
-                      <div className="flex justify-between"><span>Agent Variable:</span><span className="font-bold text-blue-300">{formatUSD(economics.wholesaler.agentCommissions)}</span></div>
-                      <div className="flex justify-between"><span>Manager Variable:</span><span className="font-bold text-amber-300">{formatUSD(economics.wholesaler.managerCommissions)}</span></div>
+                      <div className="flex justify-between"><span className="text-neutral-500">Agent base salaries:</span><span className="font-bold">{formatUSD(economics.wholesaler.baseCost)}</span></div>
+                      <div className="flex justify-between"><span className="text-neutral-500">Agent benefits:</span><span className="font-bold">{formatUSD(economics.wholesaler.benefitsCost)}</span></div>
+                      <div className="flex justify-between border-t border-neutral-600 pt-1"><span className="text-neutral-500">Agent Fixed Cost:</span><span className="font-bold">{formatUSD(economics.wholesaler.fixedCost)}</span></div>
+                      <div className="flex justify-between"><span className="text-neutral-500">Agent Variable:</span><span className="font-bold text-blue-300">{formatUSD(economics.wholesaler.agentCommissions)}</span></div>
+                      <div className="flex justify-between"><span className="text-neutral-500">Manager Variable:</span><span className="font-bold text-amber-300">{formatUSD(economics.wholesaler.managerCommissions)}</span></div>
                       <div className="flex justify-between border-t border-neutral-600 pt-1"><span className="font-bold">Total Wholesaler Cost:</span><span className="font-bold text-green-300">{formatUSD(economics.wholesaler.totalCost)}</span></div>
                     </div>
                   </div>
