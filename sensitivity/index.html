@@ -114,10 +114,11 @@
       const [contractMailCostPerPiece,setContractMailCostPerPiece]=useState(0.52);
 
       // **WHOLESALER AGENTS** (Internal sales agents - acquisition + disposition)
-      // Sept actuals: 13 Acq (11 producing), 14 Dispo (12 producing) = 27 total, 23 producing
-      const [numAcqAgents,setNumAcqAgents]=useState(13);
-      const [numDispoAgents,setNumDispoAgents]=useState(14);
-      const [pctProducingAgents,setPctProducingAgents]=useState(0.85); // 23/27 = 85% producing
+      // Sept actuals: 25 Acq, 24 Dispo = 49 total (user confirmed)
+      const [numAcqAgents,setNumAcqAgents]=useState(25);
+      const [numDispoAgents,setNumDispoAgents]=useState(24);
+      const [pctAcqProducing,setPctAcqProducing]=useState(0.52); // 13/25 = 52% producing in Sept
+      const [pctDispoProducing,setPctDispoProducing]=useState(0.58); // 14/24 = 58% producing in Sept
       const [wholesalerAgentBaseSalary,setWholesalerAgentBaseSalary]=useState(18000); // $1,500/mo
       const [flatFeeListedPct,setFlatFeeListedPct]=useState(0.41); // Sept: 24/59
 
@@ -250,7 +251,9 @@
 
         // Wholesaler fixed costs (base + benefits)
         const totalWholesalerAgents = numAcqAgents + numDispoAgents;
-        const producingAgents = Math.round(totalWholesalerAgents * pctProducingAgents);
+        const producingAcqAgents = Math.round(numAcqAgents * pctAcqProducing);
+        const producingDispoAgents = Math.round(numDispoAgents * pctDispoProducing);
+        const producingAgents = producingAcqAgents + producingDispoAgents;
         const nonProducingAgents = totalWholesalerAgents - producingAgents;
         const wholesalerBaseCost = totalWholesalerAgents * wholesalerAgentBaseSalary;
         const wholesalerBenefitsCost = totalWholesalerAgents * ((wholesalerAgentBaseSalary * 0.15) + 5000);
@@ -325,9 +328,12 @@
             numAcq: numAcqAgents,
             numDispo: numDispoAgents,
             totalAgents: totalWholesalerAgents,
+            producingAcqAgents,
+            producingDispoAgents,
             producingAgents,
             nonProducingAgents,
-            pctProducing: pctProducingAgents,
+            pctAcqProducing,
+            pctDispoProducing,
             acqGP: acqGrossProfit,
             dispoGP: dispoGrossProfit,
             acqCommRate,
@@ -394,7 +400,7 @@
         offMarketShare, offMarketCapture, offMarketFee,
         mlsAvgPrice, mlsCommissionRate, titleDirectCaptureRate, titleProfitPerDeal,
         infraPerMarketPerMonth, activeMarkets.length, additionalMarkets,
-        numAcqAgents, numDispoAgents, pctProducingAgents, wholesalerAgentBaseSalary, flatFeeListedPct,
+        numAcqAgents, numDispoAgents, pctAcqProducing, pctDispoProducing, wholesalerAgentBaseSalary, flatFeeListedPct,
         acqTierAdjustment, dispoTierAdjustment,
         managerCommissionPctOfGP, numManagers, managerAvgBaseSalary, pctAgentsLicensed,
         agentOutsideSplitToAgent, agentOutsideAvgPrice, agentOutsideDealsPerSeatPerYear,
@@ -655,13 +661,13 @@
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <div className="text-xs text-cyan-300 mb-1">Acq agents: <span className="font-bold">{numAcqAgents}</span></div>
-                      <input className="w-full" type="range" min={5} max={50} step={1} value={numAcqAgents} onChange={e=>setNumAcqAgents(parseInt(e.target.value))} />
+                      <input className="w-full" type="range" min={5} max={75} step={1} value={numAcqAgents} onChange={e=>setNumAcqAgents(parseInt(e.target.value))} />
                       <div className="mt-1 text-[10px] text-cyan-600">GP/agent/mo: {formatUSD((economics.wholesaler.acqGP / 12) / numAcqAgents)}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-cyan-300 mb-1">Acq tier rate: <span className="font-bold">{(economics.wholesaler.acqCommRate*100).toFixed(2)}%</span></div>
-                      <input className="w-full" type="range" min={-2} max={2} step={0.25} value={acqTierAdjustment} onChange={e=>setAcqTierAdjustment(parseFloat(e.target.value))} />
-                      <div className="mt-1 text-[10px] text-cyan-600">Adjust: {acqTierAdjustment >= 0 ? '+' : ''}{acqTierAdjustment.toFixed(2)}%</div>
+                      <div className="text-xs text-cyan-300 mb-1">Acq % producing: <span className="font-bold">{Math.round(pctAcqProducing*100)}%</span></div>
+                      <input className="w-full" type="range" min={0.3} max={1} step={0.05} value={pctAcqProducing} onChange={e=>setPctAcqProducing(parseFloat(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-cyan-600">{economics.wholesaler.producingAcqAgents} producing, {numAcqAgents - economics.wholesaler.producingAcqAgents} new</div>
                     </div>
                   </div>
 
@@ -669,8 +675,22 @@
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <div className="text-xs text-cyan-300 mb-1">Dispo agents: <span className="font-bold">{numDispoAgents}</span></div>
-                      <input className="w-full" type="range" min={5} max={50} step={1} value={numDispoAgents} onChange={e=>setNumDispoAgents(parseInt(e.target.value))} />
+                      <input className="w-full" type="range" min={5} max={75} step={1} value={numDispoAgents} onChange={e=>setNumDispoAgents(parseInt(e.target.value))} />
                       <div className="mt-1 text-[10px] text-cyan-600">GP/agent/mo: {formatUSD((economics.wholesaler.dispoGP / 12) / numDispoAgents)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-cyan-300 mb-1">Dispo % producing: <span className="font-bold">{Math.round(pctDispoProducing*100)}%</span></div>
+                      <input className="w-full" type="range" min={0.3} max={1} step={0.05} value={pctDispoProducing} onChange={e=>setPctDispoProducing(parseFloat(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-cyan-600">{economics.wholesaler.producingDispoAgents} producing, {numDispoAgents - economics.wholesaler.producingDispoAgents} new</div>
+                    </div>
+                  </div>
+
+                  {/* Tier Rate Adjustments - Side by Side */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs text-cyan-300 mb-1">Acq tier rate: <span className="font-bold">{(economics.wholesaler.acqCommRate*100).toFixed(2)}%</span></div>
+                      <input className="w-full" type="range" min={-2} max={2} step={0.25} value={acqTierAdjustment} onChange={e=>setAcqTierAdjustment(parseFloat(e.target.value))} />
+                      <div className="mt-1 text-[10px] text-cyan-600">Adjust: {acqTierAdjustment >= 0 ? '+' : ''}{acqTierAdjustment.toFixed(2)}%</div>
                     </div>
                     <div>
                       <div className="text-xs text-cyan-300 mb-1">Dispo tier rate: <span className="font-bold">{(economics.wholesaler.dispoCommRate*100).toFixed(2)}%</span></div>
@@ -724,13 +744,6 @@
                       <input className="w-full" type="range" min={0} max={1} step={0.05} value={pctAgentsLicensed} onChange={e=>setPctAgentsLicensed(parseFloat(e.target.value))} />
                       <div className="mt-1 text-[10px] text-neutral-500">{economics.licensedAgent.seats.toFixed(1)} licensed agents</div>
                     </div>
-                  </div>
-
-                  {/* Producing vs Non-Producing */}
-                  <div>
-                    <div className="text-xs text-neutral-300 mb-1">% Producing agents: <span className="font-bold">{Math.round(pctProducingAgents*100)}%</span></div>
-                    <input className="w-full" type="range" min={0.5} max={1} step={0.05} value={pctProducingAgents} onChange={e=>setPctProducingAgents(parseFloat(e.target.value))} />
-                    <div className="mt-1 text-[10px] text-neutral-500">{economics.wholesaler.producingAgents} producing, {economics.wholesaler.nonProducingAgents} new/ramping</div>
                   </div>
 
                   {/* Cost Summary */}
