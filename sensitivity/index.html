@@ -66,6 +66,9 @@
       // **SCENARIO SELECTOR** (September actuals vs proforma)
       const [selectedScenario, setSelectedScenario] = useState('september-2025');
 
+      // **FUNNEL MODE** (actuals vs system-driven)
+      const [funnelMode, setFunnelMode] = useState('actuals'); // 'actuals' or 'system'
+
       // Scroll state for hero metrics
       const [isHeroSticky, setIsHeroSticky] = useState(false);
       const heroRef = useRef(null);
@@ -86,12 +89,16 @@
         return () => window.removeEventListener('scroll', handleScroll);
       }, []);
 
-      // Funnel inputs (Sept 2025 baseline: 59 deals/mo * 12 = 708/yr)
+      // Funnel inputs - SYSTEM MODE (conversion rate driven)
       const [intakes,setIntakes]=useState(48000);
       const [assessments,setAssessments]=useState(5000);
       const [offerRate,setOfferRate]=useState(0.50);
-      const [acceptRate,setAcceptRate]=useState(0.60); // Tuned: 708 deals/yr
-      const [closeRate,setCloseRate]=useState(0.472); // Tuned: 708 deals/yr
+      const [acceptRate,setAcceptRate]=useState(0.60);
+      const [closeRate,setCloseRate]=useState(0.50);
+
+      // ACTUALS MODE override (Sept 2025: 59 deals/mo, $675K GP/mo)
+      const [actualsDealsPerMonth,setActualsDealsPerMonth]=useState(59);
+      const [actualsGPperMonth,setActualsGPperMonth]=useState(675443);
 
       // Mix / economics (Sept actuals: $675K/mo * 12 = $8.1M/yr)
       const [offMarketShare,setOffMarketShare]=useState(0.90);
@@ -178,15 +185,30 @@
       },[assessments,offerRate,acceptRate,closeRate]);
 
       const economics = useMemo(()=>{
-        const annualClosed   = Math.max(0,funnel.closed);
+        // **FUNNEL MODE SWITCH**: Actuals vs System
+        let annualClosed, wholesaleRevenue;
+
+        if (funnelMode === 'actuals') {
+          // ACTUALS MODE: Direct input from monthly actuals
+          annualClosed = actualsDealsPerMonth * 12;
+          wholesaleRevenue = actualsGPperMonth * 12;
+        } else {
+          // SYSTEM MODE: Calculate from funnel conversion rates
+          annualClosed = Math.max(0, funnel.closed);
+          const offMktAnnual = Math.round(annualClosed * offMarketShare);
+          const mlsAnnual = Math.max(0, annualClosed - offMktAnnual);
+          const capturedOffMkt = offMktAnnual * offMarketCapture;
+          const offMarketFees = capturedOffMkt * offMarketFee;
+          const mlsCommission = mlsAnnual * mlsAvgPrice * mlsCommissionRate;
+          wholesaleRevenue = offMarketFees + mlsCommission;
+        }
+
+        // Continue with common calculations (both modes use same deal split)
         const offMktAnnual   = Math.round(annualClosed*offMarketShare);
         const mlsAnnual      = Math.max(0, annualClosed - offMktAnnual);
         const capturedOffMkt = offMktAnnual*offMarketCapture;
         const offMarketFees  = capturedOffMkt*offMarketFee;
         const mlsCommission  = mlsAnnual*mlsAvgPrice*mlsCommissionRate;
-
-        // Wholesale revenue (core business)
-        const wholesaleRevenue = offMarketFees + mlsCommission;
 
         // Title Direct (Rebuilt off-market only, 90% capture)
         const titleDirectDeals = offMktAnnual * titleDirectCaptureRate;
@@ -399,6 +421,7 @@
           }
         };
       },[
+        funnelMode, actualsDealsPerMonth, actualsGPperMonth,
         funnel.closed, funnel.accepted, assessments,
         offMarketShare, offMarketCapture, offMarketFee,
         mlsAvgPrice, mlsCommissionRate, titleDirectCaptureRate, titleProfitPerDeal,
@@ -473,6 +496,18 @@
                     <option value="custom">Custom</option>
                   </select>
                 </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-neutral-400 font-medium">Mode:</label>
+                  <select
+                    value={funnelMode}
+                    onChange={e=>setFunnelMode(e.target.value)}
+                    className="px-3 py-1.5 text-sm bg-neutral-700 text-neutral-200 border border-neutral-600 rounded-lg hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    title="Actuals: Use direct monthly inputs. System: Calculate from funnel conversion rates."
+                  >
+                    <option value="actuals">Actuals (Direct)</option>
+                    <option value="system">System (Funnel)</option>
+                  </select>
+                </div>
                 <div className="flex gap-3">
                   <a className="text-sm text-cyan-400 hover:text-cyan-300 underline" href="../index.html">Home</a>
                   <a className="text-sm text-blue-400 hover:text-blue-300 underline" href="../comps/index.html">Market Intel</a>
@@ -531,6 +566,33 @@
           </div>
 
           <main className="mx-auto max-w-7xl px-4 pb-24">
+
+            {/* ACTUALS MODE CONTROLS (only show when in actuals mode) */}
+            {funnelMode === 'actuals' && (
+              <section className="mt-8 p-6 dark-card border-2 border-amber-600 rounded-2xl shadow-md fade-in">
+                <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-amber-300">Actuals Mode (Direct Input)</h2>
+                    <p className="text-sm text-amber-700 mt-1">Modeling based on direct monthly inputs, bypassing funnel conversion calculations</p>
+                  </div>
+                  <div className="px-3 py-1 bg-amber-600 text-white text-xs font-bold uppercase tracking-wider rounded-full">Direct</div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <div className="text-sm text-amber-300">Deals per month: <span className="font-bold">{actualsDealsPerMonth}</span></div>
+                    <input className="mt-2 w-full" type="range" min={10} max={150} step={1} value={actualsDealsPerMonth} onChange={e=>setActualsDealsPerMonth(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-amber-600">Annual: {(actualsDealsPerMonth * 12).toLocaleString()} deals/year</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-amber-300">GP per month: <span className="font-bold">{formatUSD(actualsGPperMonth)}</span></div>
+                    <input className="mt-2 w-full" type="range" min={100000} max={2000000} step={10000} value={actualsGPperMonth} onChange={e=>setActualsGPperMonth(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-amber-600">Annual: {formatUSD(actualsGPperMonth * 12)}/year</div>
+                  </div>
+                </div>
+              </section>
+            )}
+
             {/* Markets toggle */}
             <section className="mt-8 p-6 dark-card rounded-2xl shadow-sm border border-neutral-700">
               <div className="flex items-center justify-between gap-4 flex-wrap">
