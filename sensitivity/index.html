@@ -111,21 +111,18 @@
       const [contractMailCostPerPiece,setContractMailCostPerPiece]=useState(0.52);
 
       // **WHOLESALER AGENTS** (Internal sales agents - acquisition + disposition)
-      const [numAcqAgents,setNumAcqAgents]=useState(27);
-      const [numDispoAgents,setNumDispoAgents]=useState(22);
-      const [acqAgentAvgBaseSalary,setAcqAgentAvgBaseSalary]=useState(18000);
-      const [dispoAgentAvgBaseSalary,setDispoAgentAvgBaseSalary]=useState(18000);
+      // Sept actuals: 13 Acq, 14 Dispo = 27 total
+      const [numAcqAgents,setNumAcqAgents]=useState(13);
+      const [numDispoAgents,setNumDispoAgents]=useState(14);
+      const [wholesalerAgentBaseSalary,setWholesalerAgentBaseSalary]=useState(18000); // $1,500/mo
       const [flatFeeListedPct,setFlatFeeListedPct]=useState(0.41); // Sept: 24/59
 
-      // **PICKET TECH EFFICIENCY**
-      const [picketTechMultiplier,setPicketTechMultiplier]=useState(1.0); // 1.0 = baseline, 2.0 = 2x productivity
+      // **MANAGER / TEAM LEAD COMMISSIONS**
+      // Sept actuals: $25,177 manager payout (3.73% of GP)
+      const [managerCommissionPctOfGP,setManagerCommissionPctOfGP]=useState(3.73);
 
-      // **LICENSED BROKER %** (agents who can also do MLS deals)
+      // **LICENSED BROKER %** (agents who can also do MLS deals - subset of wholesaler agents)
       const [pctAgentsLicensed,setPctAgentsLicensed]=useState(0.30); // 30% now, future 70%
-
-      // **OLD AGENT MODELING** (kept for broker MLS business)
-      const [agentsPerMarket,setAgentsPerMarket]=useState(0.8);
-      const [agentBaseAnnual,setAgentBaseAnnual]=useState(18000);
 
       // Agent Outside Business (agents bring their own deals, not from Rebuilt funnel)
       const [agentOutsideSplitToAgent,setAgentOutsideSplitToAgent]=useState(0.80); // Agent gets 80%, firm gets 20%
@@ -192,8 +189,8 @@
         const contractMailCost = contractMailAnnual * contractMailCostPerPiece;
         const totalMarketingCost = sellerMailCost + contractMailCost;
 
-        // **WHOLESALER AGENT COMMISSIONS** (NEW - internal sales agents on core wholesale business)
-        // Commission tier functions from PDFs
+        // **WHOLESALER AGENT COMMISSIONS** (Internal sales agents on core wholesale business)
+        // Commission tier functions from commission calculator
         const getAcqCommissionRate = (monthlyGP) => {
           if (monthlyGP < 25000) return 0.04;
           if (monthlyGP < 50000) return 0.06;
@@ -224,24 +221,31 @@
         const acqCommRate = getAcqCommissionRate(acqMonthlyGPperAgent);
         const dispoCommRate = getDispoCommissionRate(dispoMonthlyGPperAgent);
 
-        // Calculate commissions
+        // Calculate agent variable commissions
         // Acq: straight percentage
-        const acqCommissions = acqGrossProfit * acqCommRate;
+        const acqAgentCommissions = acqGrossProfit * acqCommRate;
 
         // Dispo: split between off-market (full rate) and flat-fee listed (2/3 rate)
         const dispoOffMarketGP = dispoGrossProfit * (1 - flatFeeListedPct);
         const dispoFlatFeeGP = dispoGrossProfit * flatFeeListedPct;
-        const dispoCommissions = (dispoOffMarketGP * dispoCommRate) + (dispoFlatFeeGP * dispoCommRate * 0.6667);
+        const dispoAgentCommissions = (dispoOffMarketGP * dispoCommRate) + (dispoFlatFeeGP * dispoCommRate * 0.6667);
 
-        const wholesalerCommissions = acqCommissions + dispoCommissions;
+        const wholesalerAgentCommissions = acqAgentCommissions + dispoAgentCommissions;
+
+        // Manager / Team Lead Commissions (separate from agent commissions)
+        const managerCommissions = wholesaleRevenue * (managerCommissionPctOfGP / 100);
+
+        // Total variable compensation
+        const totalVariableCompensation = wholesalerAgentCommissions + managerCommissions;
 
         // Wholesaler fixed costs (base + benefits)
         const totalWholesalerAgents = numAcqAgents + numDispoAgents;
-        const wholesalerBaseCost = (numAcqAgents * acqAgentAvgBaseSalary) + (numDispoAgents * dispoAgentAvgBaseSalary);
-        const avgBaseSalary = wholesalerBaseCost / totalWholesalerAgents;
-        const wholesalerBenefitsCost = totalWholesalerAgents * ((avgBaseSalary * 0.15) + 5000);
+        const wholesalerBaseCost = totalWholesalerAgents * wholesalerAgentBaseSalary;
+        const wholesalerBenefitsCost = totalWholesalerAgents * ((wholesalerAgentBaseSalary * 0.15) + 5000);
         const wholesalerFixedCost = wholesalerBaseCost + wholesalerBenefitsCost;
-        const totalWholesalerCost = wholesalerFixedCost + wholesalerCommissions;
+
+        // Total wholesaler cost (fixed + variable)
+        const totalWholesalerCost = wholesalerFixedCost + totalVariableCompensation;
 
         const totalMarkets   = activeMarkets.length + additionalMarkets;
 
@@ -268,10 +272,12 @@
         const deadLeadRevenueToCompany = deadLeadConversions * avgRetailDealValue * deadLeadCommissionRate;
         const deadLeadSplitCost = deadLeadRevenueToCompany * 0.5; // Pay agent 50% of the commission
 
-        // Total agent revenue and costs
-        const agentRevenueToCompany = deadLeadRevenueToCompany + agentOutsideRevenueToCompany;
-        const agentSplitCost = deadLeadSplitCost + agentOutsideSplitCost;
-        const agentCost = agentFixedCost + agentSplitCost;
+        // Total licensed agent revenue and costs (dead leads + outside business)
+        const licensedAgentRevenueToCompany = deadLeadRevenueToCompany + agentOutsideRevenueToCompany;
+        const licensedAgentSplitCost = deadLeadSplitCost + agentOutsideSplitCost;
+
+        // TOTAL AGENT COST = Wholesaler (fixed + variable) + Licensed agent splits
+        const totalAgentCost = totalWholesalerCost + licensedAgentSplitCost;
 
         // Marketplace Revenue ($150 min OR x%, whichever greater)
         const marketplaceDealsAnnual = thirdPartyWholesalers * avgDealsPerWholesaler * 12;
@@ -296,13 +302,31 @@
         // Lead Sales (de-emphasized, default 0)
         const leadSalesRevenue = leadSalesUnits * leadSalesPrice * 12;
 
-        const gross = offMarketFees + mlsCommission + titleDirectProfit + agentRevenueToCompany + marketplaceRevenue + saasARR + rehabAIRevenue + arvAIRevenue + titleSaasProfit + leadSalesRevenue;
-        const net   = gross - infra - agentCost;
+        const gross = offMarketFees + mlsCommission + titleDirectProfit + licensedAgentRevenueToCompany + marketplaceRevenue + saasARR + rehabAIRevenue + arvAIRevenue + titleSaasProfit + leadSalesRevenue;
+        const net   = gross - infra - totalAgentCost;
 
         return {
           annualClosed, offMktAnnual, mlsAnnual,
           offMarketFees, mlsCommission, titleDirectProfit,
-          infra, agentCost, gross, net,
+          infra, totalAgentCost, gross, net,
+          wholesaler: {
+            numAcq: numAcqAgents,
+            numDispo: numDispoAgents,
+            totalAgents: totalWholesalerAgents,
+            acqGP: acqGrossProfit,
+            dispoGP: dispoGrossProfit,
+            acqCommRate,
+            dispoCommRate,
+            acqAgentCommissions,
+            dispoAgentCommissions,
+            agentCommissions: wholesalerAgentCommissions,
+            managerCommissions,
+            totalVariableComp: totalVariableCompensation,
+            baseCost: wholesalerBaseCost,
+            benefitsCost: wholesalerBenefitsCost,
+            fixedCost: wholesalerFixedCost,
+            totalCost: totalWholesalerCost
+          },
           deadLead: {
             monthly: deadLeadsMonthly,
             annualLeads: deadLeadsAnnual,
@@ -325,15 +349,13 @@
             leadSalesRevenue,
             totalSaasRevenue: saasARR + rehabAIRevenue + arvAIRevenue + titleSaasProfit + leadSalesRevenue
           },
-          agent: {
-            seats: agentSeats,
+          licensedAgent: {
+            seats: licensedAgentSeats,
+            pctLicensed: pctAgentsLicensed,
             totalMarkets,
             additionalMarkets,
-            revenueToCompany: agentRevenueToCompany,
-            baseCost: agentBaseCost,
-            benefitsCost: agentBenefitsCost,
-            fixedCost: agentFixedCost,
-            splitCost: agentSplitCost,
+            revenueToCompany: licensedAgentRevenueToCompany,
+            splitCost: licensedAgentSplitCost,
             outsideBusiness: {
               dealsPerYear: agentOutsideTotalDeals,
               revenueToCompany: agentOutsideRevenueToCompany,
@@ -348,8 +370,8 @@
             platformSaasTotal: roundToNearestTenK(saasARR + rehabAIRevenue + arvAIRevenue + titleSaasProfit + leadSalesRevenue),
             gross: roundToNearestTenK(gross),
             net: roundToNearestTenK(net),
-            agentRevenueToCompany: roundToNearestTenK(agentRevenueToCompany),
-            agentCost: roundToNearestTenK(agentCost)
+            licensedAgentRevenue: roundToNearestTenK(licensedAgentRevenueToCompany),
+            totalAgentCost: roundToNearestTenK(totalAgentCost)
           }
         };
       },[
@@ -357,7 +379,8 @@
         offMarketShare, offMarketCapture, offMarketFee,
         mlsAvgPrice, mlsCommissionRate, titleDirectCaptureRate, titleProfitPerDeal,
         infraPerMarketPerMonth, activeMarkets.length, additionalMarkets,
-        agentsPerMarket, agentBaseAnnual,
+        numAcqAgents, numDispoAgents, wholesalerAgentBaseSalary, flatFeeListedPct,
+        managerCommissionPctOfGP, pctAgentsLicensed,
         agentOutsideSplitToAgent, agentOutsideAvgPrice, agentOutsideDealsPerSeatPerYear,
         deadLeadConversionRate, avgRetailDealValue,
         thirdPartyWholesalers, avgDealsPerWholesaler, marketplaceFeeRate, marketplaceMinFee, avgWholesaleDealValue,
@@ -373,11 +396,11 @@
           { key:"offMarket", label:"Off-Market", value:economics.offMarketFees, tone:"positive" },
           { key:"mls", label:"MLS", value:economics.mlsCommission, tone:"positive" },
           { key:"titleDirect", label:"Title Direct", value:economics.titleDirectProfit, tone:"positive" },
-          { key:"agentRevenue", label:"Agent Revenue", value:economics.agent.revenueToCompany, tone:"positive" },
+          { key:"agentRevenue", label:"Agent Revenue", value:economics.licensedAgent.revenueToCompany, tone:"positive" },
           { key:"marketplace", label:"Marketplace", value:economics.marketplace.revenue, tone:"positive", highlight:true },
           { key:"platformSaaS", label:"Platform SaaS", value:economics.platformSaaS.totalSaasRevenue, tone:"positive", highlight:true },
           { key:"infra", label:"Infrastructure", value:-economics.infra, tone:"negative" },
-          { key:"agentCost", label:"Agent Cost", value:-economics.agentCost, tone:"negative" }
+          { key:"agentCost", label:"Agent Cost", value:-economics.totalAgentCost, tone:"negative" }
         ];
         const maxMagnitude = Math.max(...segments.map(s=>Math.abs(s.value)),1);
         return segments.map(segment=>{
@@ -395,11 +418,11 @@
         economics.offMarketFees,
         economics.mlsCommission,
         economics.titleDirectProfit,
-        economics.agent.revenueToCompany,
+        economics.licensedAgent.revenueToCompany,
         economics.marketplace.revenue,
         economics.platformSaaS.totalSaasRevenue,
         economics.infra,
-        economics.agentCost
+        economics.totalAgentCost
       ]);
 
       return (
@@ -487,7 +510,7 @@
               <div className="mt-6 pt-4 border-t border-neutral-700">
                 <div className="flex items-center justify-between text-sm">
                   <span>Additional markets</span>
-                  <span className="font-medium text-neutral-300">{additionalMarkets.toLocaleString()} ({economics.agent.totalMarkets.toLocaleString()} total)</span>
+                  <span className="font-medium text-neutral-300">{additionalMarkets.toLocaleString()} ({economics.licensedAgent.totalMarkets.toLocaleString()} total)</span>
                 </div>
                 <input
                   className="mt-2 w-full"
@@ -524,7 +547,7 @@
                 </div>
                 <div className="p-6 dark-card rounded-2xl shadow-sm border border-neutral-700">
                   <h3 className="text-sm font-semibold">Infrastructure Modeling</h3>
-                  <div className="mt-3 text-sm">Total markets: <span className="font-medium">{economics.agent.totalMarkets.toLocaleString()}</span></div>
+                  <div className="mt-3 text-sm">Total markets: <span className="font-medium">{economics.licensedAgent.totalMarkets.toLocaleString()}</span></div>
                   <div className="mt-1 text-xs text-neutral-500">Selected: {activeMarkets.length.toLocaleString()} • Additional: {additionalMarkets.toLocaleString()}</div>
                   <div className="mt-3 text-sm">Per-market / month: <span className="font-medium">{formatUSD(infraPerMarketPerMonth)}</span></div>
                   <input className="mt-2 w-full" type="range" min={1000} max={5000} step={100} value={infraPerMarketPerMonth} onChange={e=>setInfraPerMarketPerMonth(parseInt(e.target.value))} />
@@ -551,6 +574,93 @@
                     <div><div>MLS Avg Price: <span className="font-medium">{formatUSD(mlsAvgPrice)}</span></div><input type="range" min={100000} max={300000} step={5000} value={mlsAvgPrice} onChange={e=>setMlsAvgPrice(parseInt(e.target.value))}/></div>
                     <div><div>MLS Commission: <span className="font-medium">{(mlsCommissionRate*100).toFixed(1)}%</span></div><input type="range" min={0.01} max={0.04} step={0.001} value={mlsCommissionRate} onChange={e=>setMlsCommissionRate(parseFloat(e.target.value))}/></div>
                     <div><div>Title Profit/Deal: <span className="font-medium">{formatUSD(titleProfitPerDeal)}</span></div><input type="range" min={200} max={800} step={25} value={titleProfitPerDeal} onChange={e=>setTitleProfitPerDeal(parseInt(e.target.value))}/></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* WHOLESALE DEAL ECONOMICS (Detailed Breakdown) */}
+            <section className="mt-8 p-6 dark-card border-2 border-cyan-600 rounded-2xl shadow-md fade-in">
+              <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-cyan-300">Wholesale Deal Economics</h2>
+                  <p className="text-sm text-cyan-700 mt-1">Detailed breakdown: Revenue → Agent Costs → Manager Costs → Net</p>
+                </div>
+                <div className="px-3 py-1 bg-cyan-600 text-white text-xs font-bold uppercase tracking-wider rounded-full">Sept Actuals</div>
+              </div>
+
+              {/* Summary Cards */}
+              <div className="grid md:grid-cols-4 gap-4 mb-6">
+                <div className="p-4 dark-card rounded-xl border border-cyan-700">
+                  <div className="text-xs text-cyan-700 uppercase tracking-wider mb-1">Wholesale Revenue</div>
+                  <div className="text-2xl font-bold text-cyan-300">{formatUSD(economics.offMarketFees + economics.mlsCommission)}</div>
+                  <div className="text-xs text-cyan-600 mt-1">Off-Mkt + MLS</div>
+                </div>
+                <div className="p-4 dark-card rounded-xl border border-blue-700">
+                  <div className="text-xs text-blue-700 uppercase tracking-wider mb-1">Agent Commissions</div>
+                  <div className="text-2xl font-bold text-blue-300">{formatUSD(economics.wholesaler.agentCommissions)}</div>
+                  <div className="text-xs text-blue-600 mt-1">{((economics.wholesaler.agentCommissions / (economics.offMarketFees + economics.mlsCommission)) * 100).toFixed(1)}% of GP</div>
+                </div>
+                <div className="p-4 dark-card rounded-xl border border-amber-700">
+                  <div className="text-xs text-amber-700 uppercase tracking-wider mb-1">Manager Commissions</div>
+                  <div className="text-2xl font-bold text-amber-300">{formatUSD(economics.wholesaler.managerCommissions)}</div>
+                  <div className="text-xs text-amber-600 mt-1">{managerCommissionPctOfGP.toFixed(2)}% of GP</div>
+                </div>
+                <div className="p-4 dark-card rounded-xl border border-green-700">
+                  <div className="text-xs text-green-700 uppercase tracking-wider mb-1">Total Variable Comp</div>
+                  <div className="text-2xl font-bold text-green-300">{formatUSD(economics.wholesaler.totalVariableComp)}</div>
+                  <div className="text-xs text-green-600 mt-1">{((economics.wholesaler.totalVariableComp / (economics.offMarketFees + economics.mlsCommission)) * 100).toFixed(1)}% of GP</div>
+                </div>
+              </div>
+
+              {/* Agent Headcount & Modeling */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-cyan-300">Wholesaler Agent Headcount</h3>
+                  <div>
+                    <div className="text-sm text-cyan-300">Acquisition agents: <span className="font-bold">{numAcqAgents}</span></div>
+                    <input className="mt-2 w-full" type="range" min={5} max={50} step={1} value={numAcqAgents} onChange={e=>setNumAcqAgents(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-cyan-600">Monthly GP/agent: {formatUSD((economics.wholesaler.acqGP / 12) / numAcqAgents)} → Tier rate: {(economics.wholesaler.acqCommRate*100).toFixed(1)}%</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-cyan-300">Disposition agents: <span className="font-bold">{numDispoAgents}</span></div>
+                    <input className="mt-2 w-full" type="range" min={5} max={50} step={1} value={numDispoAgents} onChange={e=>setNumDispoAgents(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-cyan-600">Monthly GP/agent: {formatUSD((economics.wholesaler.dispoGP / 12) / numDispoAgents)} → Tier rate: {(economics.wholesaler.dispoCommRate*100).toFixed(1)}%</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-cyan-300">Agent base salary (annual): <span className="font-bold">{formatUSD(wholesalerAgentBaseSalary)}</span></div>
+                    <input className="mt-2 w-full" type="range" min={0} max={30000} step={1000} value={wholesalerAgentBaseSalary} onChange={e=>setWholesalerAgentBaseSalary(parseInt(e.target.value))} />
+                    <div className="mt-1 text-xs text-cyan-600">{formatUSD(wholesalerAgentBaseSalary / 12)}/mo per agent</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-cyan-300">Flat-fee listed %: <span className="font-bold">{Math.round(flatFeeListedPct*100)}%</span></div>
+                    <input className="mt-2 w-full" type="range" min={0} max={1} step={0.01} value={flatFeeListedPct} onChange={e=>setFlatFeeListedPct(parseFloat(e.target.value))} />
+                    <div className="mt-1 text-xs text-cyan-600">Flat-fee deals pay 2/3 commission rate</div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-amber-300">Manager & Cost Breakdown</h3>
+                  <div>
+                    <div className="text-sm text-amber-300">Manager comm % of GP: <span className="font-bold">{managerCommissionPctOfGP.toFixed(2)}%</span></div>
+                    <input className="mt-2 w-full" type="range" min={0} max={10} step={0.1} value={managerCommissionPctOfGP} onChange={e=>setManagerCommissionPctOfGP(parseFloat(e.target.value))} />
+                    <div className="mt-1 text-xs text-amber-600">Sept actual: 3.73% ($25,177 on $675K GP)</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-neutral-300">% Licensed (can do MLS): <span className="font-bold">{Math.round(pctAgentsLicensed*100)}%</span></div>
+                    <input className="mt-2 w-full" type="range" min={0} max={1} step={0.05} value={pctAgentsLicensed} onChange={e=>setPctAgentsLicensed(parseFloat(e.target.value))} />
+                    <div className="mt-1 text-xs text-neutral-500">{economics.licensedAgent.seats.toFixed(1)} licensed agents (handle dead leads + outside deals)</div>
+                  </div>
+                  <div className="mt-4 p-3 dark-card rounded-xl border border-neutral-600">
+                    <div className="text-xs font-bold text-neutral-400 mb-2">Cost Summary</div>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between"><span>Base salaries:</span><span className="font-bold">{formatUSD(economics.wholesaler.baseCost)}</span></div>
+                      <div className="flex justify-between"><span>Benefits (15% + $5K):</span><span className="font-bold">{formatUSD(economics.wholesaler.benefitsCost)}</span></div>
+                      <div className="flex justify-between border-t border-neutral-600 pt-1"><span>Fixed Cost:</span><span className="font-bold">{formatUSD(economics.wholesaler.fixedCost)}</span></div>
+                      <div className="flex justify-between"><span>Agent Commissions:</span><span className="font-bold text-blue-300">{formatUSD(economics.wholesaler.agentCommissions)}</span></div>
+                      <div className="flex justify-between"><span>Manager Commissions:</span><span className="font-bold text-amber-300">{formatUSD(economics.wholesaler.managerCommissions)}</span></div>
+                      <div className="flex justify-between border-t border-neutral-600 pt-1"><span className="font-bold">Total Wholesaler Cost:</span><span className="font-bold text-green-300">{formatUSD(economics.wholesaler.totalCost)}</span></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -590,20 +700,10 @@
                   </div>
                 </div>
                 <div className="p-4 dark-card rounded-xl border border-amber-700">
-                  <div className="text-xs font-bold text-amber-300 mb-3">📊 Agent Economics</div>
-                  <div className="text-xs text-amber-200 leading-relaxed mb-3">
-                    Dead leads are converted by agents earning <strong>50/50 commission split</strong> (company revenue already in Agent Revenue above). More reliable than referral fees, with better retention.
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <div className="text-amber-300">Agents / market: <span className="font-bold">{agentsPerMarket.toFixed(1)}</span></div>
-                      <input className="mt-2 w-full" type="range" min={0} max={4} step={0.1} value={agentsPerMarket} onChange={e=>setAgentsPerMarket(parseFloat(e.target.value))} />
-                    </div>
-                    <div>
-                      <div className="text-amber-300">Agent base (annual): <span className="font-bold">{formatUSD(agentBaseAnnual)}</span></div>
-                      <input className="mt-2 w-full" type="range" min={0} max={40000} step={1000} value={agentBaseAnnual} onChange={e=>setAgentBaseAnnual(parseInt(e.target.value))} />
-                      <div className="mt-1 text-xs text-amber-700">Benefits add {formatUSD((agentBaseAnnual*0.15)+5000)} per agent</div>
-                    </div>
+                  <div className="text-xs font-bold text-amber-300 mb-3">📊 Agent Hybrid Model</div>
+                  <div className="text-xs text-amber-200 leading-relaxed">
+                    Dead leads are converted by <strong>{economics.licensedAgent.seats.toFixed(1)} licensed agents</strong> ({Math.round(pctAgentsLicensed*100)}% of {economics.wholesaler.totalAgents} wholesaler agents).
+                    They earn <strong>50/50 commission split</strong> on retail deals. More reliable than referral fees, with better retention.
                   </div>
                 </div>
 
@@ -627,7 +727,7 @@
                     <div>
                       <div className="text-neutral-400">Deals/seat/yr: <span className="font-bold text-neutral-300">{agentOutsideDealsPerSeatPerYear.toFixed(1)}</span></div>
                       <input className="mt-2 w-full" type="range" min={0} max={20} step={0.5} value={agentOutsideDealsPerSeatPerYear} onChange={e=>setAgentOutsideDealsPerSeatPerYear(parseFloat(e.target.value))} />
-                      <div className="mt-1 text-[10px] text-neutral-600">{economics.agent.outsideBusiness.dealsPerYear.toFixed(0)} total/yr</div>
+                      <div className="mt-1 text-[10px] text-neutral-600">{economics.licensedAgent.outsideBusiness.dealsPerYear.toFixed(0)} total/yr</div>
                     </div>
                   </div>
                 </div>
@@ -792,7 +892,7 @@
                   <div className="text-xs text-right text-neutral-400 leading-relaxed">
                     <div title="Sum of all revenue streams below">Gross: <span className="text-neutral-100">{formatUSD(economics.rounded.gross)}</span></div>
                     <div title="Markets × $2,500/mo × 12">Infra cost: <span className="text-neutral-100">{formatUSD(economics.infra)}</span></div>
-                    <div title="Fixed + Variable commission splits">Agent cost: <span className="text-neutral-100">{formatUSD(economics.agentCost)}</span></div>
+                    <div title="Wholesaler (fixed + variable) + Licensed agent splits">Agent cost: <span className="text-neutral-100">{formatUSD(economics.totalAgentCost)}</span></div>
                   </div>
                 </div>
                 <div className="mt-5 border-t border-white/40 pt-4">
@@ -824,7 +924,7 @@
                           formula = `${economics.offMktAnnual} off-mkt × ${Math.round(titleDirectCaptureRate*100)}% × $${titleProfitPerDeal}`;
                           break;
                         case 'agentRevenue':
-                          formula = `Dead leads: ${Math.round(economics.deadLead.conversions)} conversions + Outside: ${economics.agent.outsideBusiness.dealsPerYear.toFixed(0)} deals`;
+                          formula = `Dead leads: ${Math.round(economics.deadLead.conversions)} conversions + Outside: ${economics.licensedAgent.outsideBusiness.dealsPerYear.toFixed(0)} deals`;
                           break;
                         case 'marketplace':
                           formula = `${thirdPartyWholesalers} wholesalers × ${avgDealsPerWholesaler} deals/mo × 12 × $${economics.marketplace.feePerDeal.toLocaleString()}`;
@@ -833,10 +933,10 @@
                           formula = `Base: $${(saasActiveUsers*saasBaseFee*12).toLocaleString()} + Envelopes + AI Tools + Title SaaS`;
                           break;
                         case 'infra':
-                          formula = `${economics.agent.totalMarkets} markets × $${infraPerMarketPerMonth.toLocaleString()}/mo × 12`;
+                          formula = `${economics.licensedAgent.totalMarkets} markets × $${infraPerMarketPerMonth.toLocaleString()}/mo × 12`;
                           break;
                         case 'agentCost':
-                          formula = `${economics.agent.seats.toFixed(1)} agents × ($${agentBaseAnnual.toLocaleString()} + benefits + splits)`;
+                          formula = `${economics.wholesaler.totalAgents} wholesaler agents + ${economics.licensedAgent.seats.toFixed(1)} licensed (${Math.round(pctAgentsLicensed*100)}%)`;
                           break;
                       }
                       return (
