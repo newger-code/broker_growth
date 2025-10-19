@@ -45,6 +45,14 @@
     .tooltip-enhanced{visibility:hidden;background:#1f1f1f;color:#e0e0e0;border-radius:6px;padding:10px;position:absolute;z-index:50;bottom:100%;left:50%;transform:translateX(-50%);width:max-content;max-width:300px;text-align:center;opacity:0;transition:opacity 0.3s,visibility 0.3s;box-shadow:0 4px 12px rgba(0,0,0,0.6);border:1px solid #4da6ff;font-size:0.75rem;line-height:1.4}
     .tooltip-enhanced::after{content:'';position:absolute;top:100%;left:50%;margin-left:-5px;border-width:5px;border-style:solid;border-color:#1f1f1f transparent transparent transparent}
     .has-tooltip:hover .tooltip-enhanced{visibility:visible;opacity:1}
+
+    /* Info icon tooltips */
+    .info-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-size:11px;font-weight:bold;margin-left:6px;cursor:help;position:relative;border:1px solid #3b82f6;transition:all 0.2s;flex-shrink:0}
+    .info-icon::before{content:'i';display:block}
+    .info-icon:hover{background:linear-gradient(135deg,#3b82f6,#2563eb);transform:scale(1.1);box-shadow:0 0 8px rgba(37,99,235,0.6)}
+    .info-icon .info-tooltip{visibility:hidden;background:#1f1f1f;color:#e0e0e0;border-radius:6px;padding:8px 12px;position:absolute;z-index:60;bottom:130%;left:50%;transform:translateX(-50%);width:max-content;max-width:220px;text-align:left;opacity:0;transition:opacity 0.3s,visibility 0.3s;box-shadow:0 4px 12px rgba(0,0,0,0.7);border:1px solid #3b82f6;font-size:11px;line-height:1.5;font-weight:normal;white-space:normal}
+    .info-icon .info-tooltip::after{content:'';position:absolute;top:100%;left:50%;margin-left:-4px;border-width:4px;border-style:solid;border-color:#1f1f1f transparent transparent transparent}
+    .info-icon:hover .info-tooltip{visibility:visible;opacity:1}
   </style>
 </head>
 <body>
@@ -61,6 +69,15 @@
 
     function roundToNearestTenK(n){ if(!isFinite(n)) return 0; return Math.round(n/10000)*10000; }
     function formatUSD(n){ return n.toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0}); }
+
+    // Info icon component with tooltip
+    function InfoIcon({text}){
+      return (
+        <span className="info-icon">
+          <span className="info-tooltip">{text}</span>
+        </span>
+      );
+    }
 
     function App(){
       // **SCENARIO SELECTOR** (September actuals vs proforma)
@@ -608,10 +625,15 @@
                 </div>
                 <div className="p-6 dark-card rounded-2xl shadow-sm border border-neutral-700">
                   <h3 className="text-sm font-semibold">Infrastructure Modeling</h3>
-                  <div className="mt-3 text-sm">Total markets: <span className="font-medium">{economics.licensedAgent.totalMarkets.toLocaleString()}</span></div>
+                  <div className="mt-3 flex items-center gap-3">
+                    <div className="text-sm flex-shrink-0">Total markets: <span className="font-medium">{economics.licensedAgent.totalMarkets.toLocaleString()}</span></div>
+                    <input className="flex-1" type="range" min={0} max={15} step={1} value={additionalMarkets} onChange={e=>setAdditionalMarkets(parseInt(e.target.value))} />
+                  </div>
                   <div className="mt-1 text-xs text-neutral-500">Selected: {activeMarkets.length.toLocaleString()} • Additional: {additionalMarkets.toLocaleString()}</div>
-                  <div className="mt-3 text-sm">Per-market / month: <span className="font-medium">{formatUSD(infraPerMarketPerMonth)}</span></div>
-                  <input className="mt-2 w-full" type="range" min={1000} max={5000} step={100} value={infraPerMarketPerMonth} onChange={e=>setInfraPerMarketPerMonth(parseInt(e.target.value))} />
+                  <div className="mt-3 flex items-center gap-3">
+                    <div className="text-sm flex-shrink-0">Per-market / month: <span className="font-medium">{formatUSD(infraPerMarketPerMonth)}</span></div>
+                    <input className="flex-1" type="range" min={1000} max={5000} step={100} value={infraPerMarketPerMonth} onChange={e=>setInfraPerMarketPerMonth(parseInt(e.target.value))} />
+                  </div>
                   <div className="mt-2 text-xs text-neutral-500">Annual infrastructure spend: {formatUSD(economics.infra)}</div>
                 </div>
               </div>
@@ -619,31 +641,37 @@
               {/* Mix & economics */}
               <div className="p-6 dark-card rounded-2xl shadow-sm border border-neutral-700">
                 <h2 className="text-lg font-semibold">Deal Mix & Economics</h2>
-                <div className="mt-2 text-xs text-neutral-500">Volumes derive from the funnel’s <span className="font-medium text-neutral-300">Closed</span> count.</div>
+                <div className="mt-2 text-xs text-neutral-500">Volumes derive from the funnel's <span className="font-medium text-neutral-300">Closed</span> count.</div>
                 <div className="mt-4 grid gap-4">
                   <div>
-                    <div className="text-sm">Off-Market Share: <span className="font-medium">{Math.round(offMarketShare*100)}%</span></div>
+                    <div className="text-sm">
+                      Off-Market Share: <span className="font-medium">{Math.round(offMarketShare*100)}%</span>
+                      <InfoIcon text="% of closed deals that are off-market assignments vs MLS-listed properties (90% in Sept 2025)" />
+                    </div>
                     <input type="range" min={0} max={1} step={0.01} value={offMarketShare} onChange={e=>setOffMarketShare(parseFloat(e.target.value))}/>
                     <div className="mt-1 text-xs text-neutral-500">Off-Mkt: {economics.offMktAnnual.toLocaleString()} • MLS: {economics.mlsAnnual.toLocaleString()}</div>
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div>
-                      <div title="% of off-market deals where Rebuilt captures the assignment fee (vs seller backing out or deal falling through)">
+                      <div>
                         Off-Mkt Capture: <span className="font-medium">{Math.round(offMarketCapture*100)}%</span>
+                        <InfoIcon text="% of off-market deals where Rebuilt captures the assignment fee (vs seller backing out or deal falling through)" />
                       </div>
                       <input type="range" min={0.4} max={1} step={0.01} value={offMarketCapture} onChange={e=>setOffMarketCapture(parseFloat(e.target.value))}/>
                       <div className="mt-1 text-xs text-neutral-500">Assignment fee collection rate</div>
                     </div>
                     <div>
-                      <div title="Gross profit per off-market deal (assignment fee after transaction costs)">
+                      <div>
                         Off-Mkt Revenue: <span className="font-medium">{formatUSD(offMarketFee)}</span>
+                        <InfoIcon text="Gross profit per off-market deal (assignment fee after transaction costs)" />
                       </div>
                       <input type="range" min={0} max={20000} step={500} value={offMarketFee} onChange={e=>setOffMarketFee(parseInt(e.target.value))}/>
                       <div className="mt-1 text-xs text-neutral-500">GP per deal</div>
                     </div>
                     <div>
-                      <div title="% of Rebuilt off-market deals where we also close title through National Title Service (90% in Sept)">
+                      <div>
                         Title Direct Capture: <span className="font-medium">{Math.round(titleDirectCaptureRate*100)}%</span>
+                        <InfoIcon text="% of Rebuilt off-market deals where we also close title through National Title Service (90% in Sept)" />
                       </div>
                       <input type="range" min={0.5} max={1} step={0.01} value={titleDirectCaptureRate} onChange={e=>setTitleDirectCaptureRate(parseFloat(e.target.value))}/>
                       <div className="mt-1 text-xs text-neutral-500">Rebuilt off-market only (National Title Service)</div>
