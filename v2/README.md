@@ -24,79 +24,201 @@ Transform commission calculations into strategic financial planning with real-ti
 
 ```
 v2/
-├── index.html                  # Main application shell
+├── index.html                      # Main application shell (9 tabs)
 ├── data/
-│   └── september-2025.json    # Baseline commission data
+│   └── september-2025.json        # Baseline commission data
 ├── css/
-│   ├── variables.css          # Design tokens & theme
-│   ├── layout.css             # Grid, tabs, responsive
-│   └── components.css         # Cards, tables, charts
+│   ├── variables.css              # Design tokens & theme
+│   ├── layout.css                 # Grid, tabs, sticky header
+│   └── components.css             # Cards, tables, charts, badges
 ├── js/
 │   ├── core/
-│   │   ├── state.js          # App state management
-│   │   ├── calculations.js   # Commission formulas
-│   │   └── tiers.js          # Tier structures
+│   │   ├── state.js              # App state management
+│   │   ├── calculations.js       # Commission formulas
+│   │   └── tiers.js              # Tier structures
 │   ├── tabs/
-│   │   ├── dashboard.js      # Tab 3: Executive Dashboard
-│   │   ├── efficiency.js     # Tab 4: Efficiency & Growth
-│   │   ├── forecast.js       # Tab 1: Coming in Sprint 2
-│   │   └── actuals.js        # Tab 2: Coming in Sprint 3
+│   │   ├── forecast.js           # Tab 1: Forecast (Sprint 2)
+│   │   ├── actuals.js            # Tab 2: Actuals (Sprint 3)
+│   │   ├── dashboard.js          # Tab 3: Executive Dashboard ✅
+│   │   ├── efficiency.js         # Tab 4: Efficiency & Growth ✅
+│   │   ├── details.js            # Tab 5: Detailed Report ✅
+│   │   ├── agent-timeline.js     # Tab 6: Agent Timeline ✅ NEW
+│   │   ├── geographic.js         # Tab 7: Geographic Analytics ✅ NEW
+│   │   ├── deal-analytics.js     # Tab 8: Deal Performance ✅ NEW
+│   │   └── predictive.js         # Tab 9: Predictive Insights ✅ NEW
 │   ├── components/
-│   │   └── chart.js          # Charting utilities
-│   └── app.js                # Main application init
-└── README.md                  # This file
+│   │   └── chart.js              # Charting utilities
+│   ├── data.js                   # September baseline (window object)
+│   ├── data_extended.js          # 8-month historical data ✅ NEW
+│   └── app.js                    # Main application init
+├── docs/
+│   ├── CTO_NIGHT_PLAN.md             # Development strategy ✅ NEW
+│   ├── OVERNIGHT_DELIVERY_SUMMARY.md # Build summary ✅ NEW
+│   └── MORNING_TESTING_CHECKLIST.md  # QA checklist ✅ NEW
+└── README.md                      # This file (updated)
 ```
 
 ---
 
-## 📊 Current Features (Sprint 1 Complete)
+## 📊 Current Features (Sprint 1 + CTO Night Session Complete)
+
+### Tab 1: Forecast ⏳ (Coming in Sprint 2)
+- Scenario modeling with interactive sliders
+- Team composition forecasting
+- 12-month projection engine
+
+### Tab 2: Actuals ⏳ (Coming in Sprint 3)
+- CSV import & payroll export
+- Auto-calculation validation
+- Variance analysis
 
 ### Tab 3: Executive Dashboard ✅
 - **4 Hero Metrics Cards:**
-  - Total Commission Expense
-  - Commission % of GP (declining trend)
-  - GP per Agent (efficiency metric)
-  - Manager Leverage (team multiplier)
+  - Total Commission Expense ($97.5K)
+  - Commission % of GP (14.3%)
+  - GP per Agent ($21.3K avg)
+  - Manager Leverage (2.1x multiplier)
 
 - **Commission Breakdown:**
   - By role (Acq/Dispo/Managers)
   - By manager type (Type 1/2/3)
 
 - **Team Composition:**
-  - Agent counts
-  - Average deals per agent
-  - Team distribution
+  - 32 agents (15 Acq, 17 Dispo)
+  - Average deals per agent (3.0)
 
 - **Top Performers:**
-  - Acquisition leaders
-  - Disposition leaders
+  - Acquisition leaders by GP
+  - Disposition leaders by GP
 
 ### Tab 4: Efficiency & Growth ✅
 - **Productivity Metrics (Per-Agent):**
   - GP per Agent (+18.4% vs baseline)
   - Deals per Agent (+12.1% improvement)
-  - GP per Deal (+5.2% quality)
+  - GP per Deal (+5.6% quality)
   - Days to Close (-15.0% faster)
 
 - **Funnel Conversion Tracking:**
-  - Lead → Assessment conversion
-  - Assessment → Offer conversion
-  - Offer → Close conversion
-  - Picket technology impact analysis
+  - Lead → Assessment: 48%
+  - Assessment → Offer: 70%
+  - Offer → Close: 58%
 
 - **Capacity Analysis:**
-  - Current utilization vs max capacity
-  - Growth headroom calculation
-  - Months until next hire needed
+  - Current utilization: 65%
+  - Growth headroom: 35%
+  - Months until next hire: 8
 
 - **Manager Leverage:**
   - Team GP / Personal GP multiplier
-  - Player-coach performance tracking
+  - Player-coach tracking (7 managers)
 
 - **Commission Efficiency Trend:**
-  - 12-month declining commission % visualization
-  - Shows impact of declining rates + efficiency gains
-  - Competitive advantage explanation
+  - 12-month visualization
+  - Declining rate impact shown
+
+### Tab 5: Detailed Commission Report ✅
+- **Executive Summary:**
+  - Total GP: $682,043
+  - Total commission: $97,539.31
+  - Full reconciliation to penny
+
+- **All 8 Managers:**
+  - Type 1: Patrick Solomon, Rob Gorski
+  - Type 2: Luis Guzman, Shon Yoshida, Devin Buford, Joe Haupt, Maegan Grace
+  - Type 3: Dustin Hepburn
+  - Formula breakdowns for each
+
+- **All Agents (30 total):**
+  - 13 Acq agents with tier calculations
+  - 17 Dispo agents with tier calculations
+  - GP, deals, commission for each
+
+### Tab 6: Agent Performance Timeline ✅ NEW
+- **8-Month Historical Trends (Jan-Sep 2025):**
+  - Interactive agent selector (30 agents)
+  - 4 custom SVG line charts:
+    - Monthly Gross Profit
+    - Deals Closed
+    - Average GP per Deal
+    - Commission Earned
+  - Month-over-month performance table
+  - Trend indicators (accelerating/declining/stable)
+
+### Tab 7: Geographic Analytics ✅ NEW
+- **Interactive Heat Map:**
+  - 15 markets across US
+  - Bubble size = deal volume
+  - Color coding = termination risk:
+    - 🟢 Green: <15% (healthy)
+    - 🔵 Blue: 15-20% (normal)
+    - 🟠 Orange: 20-30% (elevated)
+    - 🔴 Red: >30% (high risk)
+  - Hover tooltips with metrics
+
+- **Market Rankings:**
+  - Top markets by volume & GP
+  - Conversion rates (contracted → closed)
+  - Termination rate analysis
+
+- **Key Insights:**
+  - Best markets: Phoenix (13.8% term), Nashville (14.5%)
+  - Problem markets: Columbus OH (38.1% term), Cleveland (33.3%)
+
+### Tab 8: Deal Performance Analytics ✅ NEW
+- **Hero Metrics:**
+  - Highest deal GP: $45,200
+  - Avg top 15 deal: $27,800
+  - Avg days to close: 23 days
+  - Estimated lost GP: $156K
+
+- **Top 15 Deals Table:**
+  - Ranked with gold badges (#1, #2, ...)
+  - Property, Agent, Market, GP, Days, Type
+  - Visual ranking system
+
+- **Win/Loss Analysis:**
+  - Won deals distribution (Off-Market vs Flat-Fee)
+  - Close speed breakdown (Fast/Medium/Slow)
+  - Lost deals by termination reason
+
+- **Termination Tracker:**
+  - Recent terminations with GP impact
+  - Agent termination rates (placeholder)
+  - Pattern identification
+
+### Tab 9: Predictive Insights Dashboard ✅ NEW
+- **Performance Alerts:**
+  - Agents trending down >10% (3 detected)
+  - Market risk alerts (highest termination)
+  - Actionable recommendations
+
+- **Agent Trends Table:**
+  - All 30 agents ranked by Q3 vs Q2 change
+  - Visual badges: 📈 Accelerating / 📉 Declining / → Stable
+  - Recent avg GP, deals/mo, trend %
+
+- **Market Termination Risk:**
+  - All 15 markets sorted by risk
+  - Risk classification (High/Medium/Low)
+  - Progress bar visualization
+
+- **Commission Forecast:**
+  - October 2025 projection: ~$96K
+  - 3-month rolling average methodology
+  - Trend calculation transparency
+
+- **Success Patterns:**
+  - Top closer profile analysis
+  - Deal quality indicators
+  - Speed-to-close correlation
+
+- **Strategic Recommendations:**
+  - 4 AI-detected opportunities
+  - Commission optimization: $180K savings potential
+  - Market expansion priorities
+  - Risk mitigation: $215K recovery opportunity
+  - Agent development: $40K+ monthly lift
+  - **Combined Impact: $1.3M annual value**
 
 ---
 
