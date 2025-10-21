@@ -183,5 +183,141 @@ window.EXTENDED_DATA = {
     { property: "5678 Cedar Ln, Memphis TN", agent: "Terrell Johnson", market: "Memphis TN", estimated_gp: 13500, days_before_term: 38, reason: "Inspection Issues", contracted_date: "2025-07-25" },
     { property: "9012 Birch Way, Louisville KY", agent: "Tamara Humbolt", market: "Louisville KY", estimated_gp: 12800, days_before_term: 29, reason: "Buyer Backed Out", contracted_date: "2025-08-22" },
     { property: "2345 Walnut Ave, Albuquerque NM", agent: "Brittany Taylor", market: "Albuquerque NM", estimated_gp: 12100, days_before_term: 33, reason: "Financing Fell Through", contracted_date: "2025-08-05" }
-  ]
+  ],
+
+  // ⚠️ SYNTHETIC DATA - Agent Termination Tracking
+  // This data structure is a PLACEHOLDER for real CRM data
+  // Shows: deals contracted vs closed per agent (termination rate = problem agents)
+  agent_terminations: {
+    // Top acquisition agents with termination data
+    "Kyle Singer": {
+      ytd_contracted: 58,
+      ytd_closed: 52,
+      ytd_terminated: 6,
+      ytd_termination_rate: 0.103,  // 10.3% = 6/58
+      this_month_contracted: 7,
+      this_month_closed: 7,
+      this_month_terminated: 0,
+      this_month_termination_rate: 0.0,
+      last_3_months_contracted: 21,
+      last_3_months_closed: 19,
+      last_3_months_terminated: 2,
+      last_3_months_termination_rate: 0.095,
+      worst_month: "March (25% - 1 of 4 terminated)",
+      primary_termination_reasons: ["Financing Fell Through", "Inspection Issues"]
+    },
+    "Chris Chambers": {
+      ytd_contracted: 52,
+      ytd_closed: 42,
+      ytd_terminated: 10,
+      ytd_termination_rate: 0.192,  // 19.2% = 10/52 (PROBLEM AGENT)
+      this_month_contracted: 5,
+      this_month_closed: 4,
+      this_month_terminated: 1,
+      this_month_termination_rate: 0.20,
+      last_3_months_contracted: 15,
+      last_3_months_closed: 11,
+      last_3_months_terminated: 4,
+      last_3_months_termination_rate: 0.267,  // 26.7% (GETTING WORSE)
+      worst_month: "August (40% - 2 of 5 terminated)",
+      primary_termination_reasons: ["Inspection Issues", "Buyer Backed Out", "Appraisal Gap"]
+    },
+    "Devin Buford": {
+      ytd_contracted: 45,
+      ytd_closed: 39,
+      ytd_terminated: 6,
+      ytd_termination_rate: 0.133,  // 13.3%
+      this_month_contracted: 5,
+      this_month_closed: 5,
+      this_month_terminated: 0,
+      this_month_termination_rate: 0.0,
+      last_3_months_contracted: 14,
+      last_3_months_closed: 13,
+      last_3_months_terminated: 1,
+      last_3_months_termination_rate: 0.071,
+      worst_month: "February (25% - 1 of 4 terminated)",
+      primary_termination_reasons: ["Financing Fell Through", "Title Issues"]
+    },
+    "Joe Haupt": {
+      ytd_contracted: 62,
+      ytd_closed: 58,
+      ytd_terminated: 4,
+      ytd_termination_rate: 0.065,  // 6.5% (BEST IN CLASS)
+      this_month_contracted: 8,
+      this_month_closed: 8,
+      this_month_terminated: 0,
+      this_month_termination_rate: 0.0,
+      last_3_months_contracted: 23,
+      last_3_months_closed: 22,
+      last_3_months_terminated: 1,
+      last_3_months_termination_rate: 0.043,
+      worst_month: "April (14% - 1 of 7 terminated)",
+      primary_termination_reasons: ["Buyer Backed Out"]
+    },
+    "Maegan Grace": {
+      ytd_contracted: 48,
+      ytd_closed: 43,
+      ytd_terminated: 5,
+      ytd_termination_rate: 0.104,  // 10.4%
+      this_month_contracted: 6,
+      this_month_closed: 6,
+      this_month_terminated: 0,
+      this_month_termination_rate: 0.0,
+      last_3_months_contracted: 17,
+      last_3_months_closed: 16,
+      last_3_months_terminated: 1,
+      last_3_months_termination_rate: 0.059,
+      worst_month: "January (20% - 1 of 5 terminated)",
+      primary_termination_reasons: ["Inspection Issues", "Appraisal Gap"]
+    },
+    "Luis Guzman": {
+      ytd_contracted: 42,
+      ytd_closed: 36,
+      ytd_terminated: 6,
+      ytd_termination_rate: 0.143,  // 14.3%
+      this_month_contracted: 4,
+      this_month_closed: 4,
+      this_month_terminated: 0,
+      this_month_termination_rate: 0.0,
+      last_3_months_contracted: 12,
+      last_3_months_closed: 11,
+      last_3_months_terminated: 1,
+      last_3_months_termination_rate: 0.083,
+      worst_month: "May (28% - 2 of 7 terminated)",
+      primary_termination_reasons: ["Financing Fell Through", "Buyer Backed Out"]
+    },
+    // Additional agents with data
+    "Shon Yoshida": {
+      ytd_contracted: 38,
+      ytd_closed: 34,
+      ytd_terminated: 4,
+      ytd_termination_rate: 0.105,
+      this_month_contracted: 4,
+      this_month_closed: 4,
+      this_month_terminated: 0,
+      this_month_termination_rate: 0.0,
+      last_3_months_contracted: 11,
+      last_3_months_closed: 10,
+      last_3_months_terminated: 1,
+      last_3_months_termination_rate: 0.091,
+      worst_month: "June (20% - 1 of 5 terminated)",
+      primary_termination_reasons: ["Inspection Issues"]
+    },
+    "Steve Shelburne": {
+      ytd_contracted: 35,
+      ytd_closed: 28,
+      ytd_terminated: 7,
+      ytd_termination_rate: 0.200,  // 20% (PROBLEM AGENT)
+      this_month_contracted: 4,
+      this_month_closed: 3,
+      this_month_terminated: 1,
+      this_month_termination_rate: 0.25,
+      last_3_months_contracted: 10,
+      last_3_months_closed: 7,
+      last_3_months_terminated: 3,
+      last_3_months_termination_rate: 0.30,  // 30% (RED FLAG)
+      worst_month: "July (42% - 3 of 7 terminated)",
+      primary_termination_reasons: ["Buyer Backed Out", "Inspection Issues", "Financing Fell Through"]
+    }
+  }
 };

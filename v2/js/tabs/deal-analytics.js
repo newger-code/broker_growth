@@ -277,24 +277,277 @@ const DealAnalyticsTab = {
   },
 
   renderAgentTerminationRates() {
+    // ⚠️ SYNTHETIC DATA WARNING
+    if (!window.EXTENDED_DATA || !window.EXTENDED_DATA.agent_terminations) {
+      return `
+        <div style="padding: var(--space-4); background: rgba(148, 163, 184, 0.1); border: 1px solid var(--border-default); border-radius: var(--radius-md); text-align: center;">
+          <p style="font-size: var(--text-sm); color: var(--text-secondary);">Agent termination data not available</p>
+        </div>
+      `;
+    }
+
+    const agents = window.EXTENDED_DATA.agent_terminations;
+    const agentNames = Object.keys(agents);
+
+    // Calculate team averages
+    const totalContracted = agentNames.reduce((sum, name) => sum + agents[name].ytd_contracted, 0);
+    const totalTerminated = agentNames.reduce((sum, name) => sum + agents[name].ytd_terminated, 0);
+    const teamAvgRate = totalTerminated / totalContracted;
+
     return `
-      <div style="padding: var(--space-4); background: rgba(148, 163, 184, 0.1); border: 1px solid var(--border-default); border-radius: var(--radius-md); text-align: center;">
-        <div style="font-size: var(--text-4xl); opacity: 0.5; margin-bottom: var(--space-3);">📊</div>
-        <h4 style="font-size: var(--text-base); font-weight: var(--font-semibold); margin-bottom: var(--space-2);">
-          Agent Termination Tracking
-        </h4>
-        <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
-          Once full deal-level data is available, this section will show:<br/>
-          • Agent-specific termination rates (#deals and %)<br/>
-          • Comparison to team average<br/>
-          • Trend over time<br/>
-          • Pattern identification
-        </p>
-        <div style="margin-top: var(--space-4); padding: var(--space-3); background: rgba(59, 130, 246, 0.1); border-radius: var(--radius-sm);">
-          <strong style="color: var(--picket-blue-light);">Coming Soon:</strong>
-          <span style="font-size: var(--text-sm); color: var(--text-secondary);"> Connect deal tracking system to populate this analysis automatically.</span>
+      <!-- SYNTHETIC DATA WARNING -->
+      <div style="margin-bottom: var(--space-4); padding: var(--space-3); background: rgba(245, 158, 11, 0.15); border-left: 4px solid var(--warning); border-radius: var(--radius-sm);">
+        <div style="display: flex; align-items: center; gap: var(--space-2);">
+          <div style="font-size: var(--text-2xl);">⚠️</div>
+          <div>
+            <strong style="color: var(--warning);">SYNTHETIC DATA - Example Structure Only</strong>
+            <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-1);">
+              This data is extrapolated for demonstration purposes. Replace with actual CRM data showing deals contracted vs closed per agent.
+            </p>
+          </div>
         </div>
       </div>
+
+      <!-- Period Filter Tabs -->
+      <div class="card" style="margin-bottom: var(--space-4);">
+        <div style="display: flex; gap: var(--space-2); border-bottom: 1px solid var(--border-default); padding-bottom: var(--space-2);">
+          <button class="period-filter-btn active" data-period="ytd" onclick="DealAnalyticsTab.switchTerminationPeriod('ytd')" style="padding: var(--space-2) var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--picket-blue); color: white; cursor: pointer; font-size: var(--text-sm); font-weight: var(--font-semibold);">
+            Year to Date
+          </button>
+          <button class="period-filter-btn" data-period="last_3_months" onclick="DealAnalyticsTab.switchTerminationPeriod('last_3_months')" style="padding: var(--space-2) var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; font-size: var(--text-sm);">
+            Last 3 Months
+          </button>
+          <button class="period-filter-btn" data-period="this_month" onclick="DealAnalyticsTab.switchTerminationPeriod('this_month')" style="padding: var(--space-2) var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; font-size: var(--text-sm);">
+            This Month (Sep)
+          </button>
+        </div>
+        <div id="termination-period-display" style="padding: var(--space-4);">
+          ${this.renderTerminationPeriodData('ytd', agents, teamAvgRate)}
+        </div>
+      </div>
+    `;
+  },
+
+  switchTerminationPeriod(period) {
+    // Update active button
+    document.querySelectorAll('.period-filter-btn').forEach(btn => {
+      if (btn.dataset.period === period) {
+        btn.style.background = 'var(--picket-blue)';
+        btn.style.color = 'white';
+        btn.style.fontWeight = 'var(--font-semibold)';
+        btn.classList.add('active');
+      } else {
+        btn.style.background = 'var(--bg-card)';
+        btn.style.color = 'var(--text-secondary)';
+        btn.style.fontWeight = 'normal';
+        btn.classList.remove('active');
+      }
+    });
+
+    // Calculate team average for this period
+    const agents = window.EXTENDED_DATA.agent_terminations;
+    const agentNames = Object.keys(agents);
+    let totalContracted = 0;
+    let totalTerminated = 0;
+
+    if (period === 'ytd') {
+      totalContracted = agentNames.reduce((sum, name) => sum + agents[name].ytd_contracted, 0);
+      totalTerminated = agentNames.reduce((sum, name) => sum + agents[name].ytd_terminated, 0);
+    } else if (period === 'last_3_months') {
+      totalContracted = agentNames.reduce((sum, name) => sum + agents[name].last_3_months_contracted, 0);
+      totalTerminated = agentNames.reduce((sum, name) => sum + agents[name].last_3_months_terminated, 0);
+    } else {
+      totalContracted = agentNames.reduce((sum, name) => sum + agents[name].this_month_contracted, 0);
+      totalTerminated = agentNames.reduce((sum, name) => sum + agents[name].this_month_terminated, 0);
+    }
+
+    const teamAvgRate = totalContracted > 0 ? totalTerminated / totalContracted : 0;
+
+    // Update display
+    document.getElementById('termination-period-display').innerHTML =
+      this.renderTerminationPeriodData(period, agents, teamAvgRate);
+  },
+
+  renderTerminationPeriodData(period, agents, teamAvgRate) {
+    const agentNames = Object.keys(agents);
+
+    // Build data array for this period
+    const periodData = agentNames.map(name => {
+      const agent = agents[name];
+      let contracted, closed, terminated, rate;
+
+      if (period === 'ytd') {
+        contracted = agent.ytd_contracted;
+        closed = agent.ytd_closed;
+        terminated = agent.ytd_terminated;
+        rate = agent.ytd_termination_rate;
+      } else if (period === 'last_3_months') {
+        contracted = agent.last_3_months_contracted;
+        closed = agent.last_3_months_closed;
+        terminated = agent.last_3_months_terminated;
+        rate = agent.last_3_months_termination_rate;
+      } else {
+        contracted = agent.this_month_contracted;
+        closed = agent.this_month_closed;
+        terminated = agent.this_month_terminated;
+        rate = agent.this_month_termination_rate;
+      }
+
+      return {
+        name,
+        contracted,
+        closed,
+        terminated,
+        rate,
+        vs_team: rate - teamAvgRate,
+        worst_month: agent.worst_month,
+        reasons: agent.primary_termination_reasons
+      };
+    });
+
+    // Sort by termination rate (highest first - problem agents at top)
+    periodData.sort((a, b) => b.rate - a.rate);
+
+    // Render table + graph
+    return `
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-6);">
+        <!-- Data Table -->
+        <div>
+          <h4 style="font-size: var(--text-base); font-weight: var(--font-semibold); margin-bottom: var(--space-3);">
+            Agent Termination Rates
+            ${period === 'ytd' ? '(YTD 2025)' : period === 'last_3_months' ? '(Jul-Sep)' : '(September)'}
+          </h4>
+          <div style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: var(--space-3);">
+            Team Average: <strong>${(teamAvgRate * 100).toFixed(1)}%</strong> termination rate
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th class="numeric">Contracted</th>
+                <th class="numeric">Closed</th>
+                <th class="numeric">Lost</th>
+                <th class="numeric">Term %</th>
+                <th>vs Team</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${periodData.map(agent => {
+                const riskLevel = agent.rate > 0.20 ? 'high' : agent.rate > 0.15 ? 'medium' : agent.rate > 0.10 ? 'low' : 'minimal';
+                const riskColor = agent.rate > 0.20 ? 'var(--error)' : agent.rate > 0.15 ? 'var(--warning)' : 'var(--text-secondary)';
+                const vsTeamColor = agent.vs_team > 0.05 ? 'var(--error)' : agent.vs_team < -0.05 ? 'var(--success)' : 'var(--text-secondary)';
+
+                return `
+                  <tr>
+                    <td><strong>${agent.name}</strong></td>
+                    <td class="numeric">${agent.contracted}</td>
+                    <td class="numeric">${agent.closed}</td>
+                    <td class="numeric" style="color: ${riskColor};">${agent.terminated}</td>
+                    <td class="numeric" style="color: ${riskColor}; font-weight: var(--font-semibold);">
+                      ${(agent.rate * 100).toFixed(1)}%
+                    </td>
+                    <td class="numeric" style="color: ${vsTeamColor}; font-size: var(--text-sm);">
+                      ${agent.vs_team > 0 ? '+' : ''}${(agent.vs_team * 100).toFixed(1)}pp
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Bar Chart -->
+        <div>
+          <h4 style="font-size: var(--text-base); font-weight: var(--font-semibold); margin-bottom: var(--space-3);">
+            Termination Rate Comparison
+          </h4>
+          <div style="position: relative; height: ${Math.max(400, periodData.length * 40)}px;">
+            ${this.renderTerminationBarChart(periodData, teamAvgRate)}
+          </div>
+        </div>
+      </div>
+
+      <!-- Problem Agents Alert -->
+      ${periodData.filter(a => a.rate > 0.20).length > 0 ? `
+        <div style="margin-top: var(--space-6); padding: var(--space-4); background: rgba(244, 63, 94, 0.1); border-left: 4px solid var(--error); border-radius: var(--radius-md);">
+          <div style="display: flex; align-items-start; gap: var(--space-3);">
+            <div style="font-size: var(--text-3xl);">🚨</div>
+            <div style="flex: 1;">
+              <h4 style="font-size: var(--text-base); font-weight: var(--font-semibold); color: var(--error); margin-bottom: var(--space-2);">
+                High Termination Rate Alert
+              </h4>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
+                <strong>${periodData.filter(a => a.rate > 0.20).map(a => a.name).join(', ')}</strong>
+                ${periodData.filter(a => a.rate > 0.20).length === 1 ? 'has a' : 'have'} termination rate above 20% - significantly higher than team average.
+                <br/><br/>
+                <strong>Recommendation:</strong> Review deal qualification criteria and investigate if agents are accepting marginal deals to hit volume targets.
+              </p>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+    `;
+  },
+
+  renderTerminationBarChart(data, teamAvg) {
+    const maxRate = Math.max(...data.map(d => d.rate), 0.30);
+    const chartHeight = data.length * 40;
+
+    return `
+      <svg width="100%" height="${chartHeight}" viewBox="0 0 300 ${chartHeight}" style="overflow: visible;">
+        <!-- Team average line -->
+        <line
+          x1="${(teamAvg / maxRate) * 250}"
+          y1="0"
+          x2="${(teamAvg / maxRate) * 250}"
+          y2="${chartHeight}"
+          stroke="var(--picket-blue)"
+          stroke-width="2"
+          stroke-dasharray="4 4"
+          opacity="0.5"
+        />
+        <text
+          x="${(teamAvg / maxRate) * 250 + 5}"
+          y="15"
+          fill="var(--picket-blue)"
+          font-size="10"
+          font-weight="600"
+        >
+          Team Avg
+        </text>
+
+        <!-- Bars -->
+        ${data.map((agent, i) => {
+          const barWidth = (agent.rate / maxRate) * 250;
+          const y = i * 40 + 10;
+          const barColor = agent.rate > 0.20 ? '#f43f5e' :
+                          agent.rate > 0.15 ? '#f59e0b' :
+                          agent.rate > 0.10 ? '#64748b' : '#10b981';
+
+          return `
+            <!-- Bar -->
+            <rect
+              x="0"
+              y="${y}"
+              width="${barWidth}"
+              height="20"
+              fill="${barColor}"
+              opacity="0.7"
+              rx="2"
+            />
+            <!-- Percentage label -->
+            <text
+              x="${barWidth + 5}"
+              y="${y + 14}"
+              fill="var(--text-primary)"
+              font-size="11"
+              font-weight="600"
+            >
+              ${(agent.rate * 100).toFixed(1)}%
+            </text>
+          `;
+        }).join('')}
+      </svg>
     `;
   },
 
