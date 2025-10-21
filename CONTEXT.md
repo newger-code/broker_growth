@@ -1,7 +1,7 @@
 # Project Context - Commission Intelligence Platform
 
-**Last Updated:** 2025-10-21 (Auto-update this date whenever this file changes)
-**Current Phase:** Sprint 1 Complete + CTO Night Analytics Build Complete
+**Last Updated:** 2025-10-21 PM (Auto-update this date whenever this file changes)
+**Current Phase:** Sprint 1 Complete + CTO Night + Agent Termination Tracking
 **Status:** Production Demo Ready
 
 ---
@@ -430,7 +430,18 @@ A: Export CRM data to CSV, transform to match `data_extended.js` structure, repl
 
 ## 📝 Update Log (Recent Changes to This File)
 
-**2025-10-21:** Initial creation of living context document
+**2025-10-21 PM:** Agent Termination Tracking + UX Refinements
+- Added agent-level termination rate tracking feature (Tab 8 - Deals)
+- Period filters: YTD, Last 3 Months, This Month
+- Data table + horizontal bar chart showing termination rates per agent
+- Problem agents identified: Chris Chambers (19.2%), Steve Shelburne (20%)
+- Clear SYNTHETIC DATA warnings added
+- Tab names abbreviated to fit on one line (Timeline, Markets, Deals)
+- Renamed Tab 2: "Actuals" → "Commissions"
+- Added icon-only links between Financial Model ↔ Commission Intelligence
+- All changes committed to git
+
+**2025-10-21 AM:** Initial creation of living context document
 - Consolidated all project knowledge into single handoff file
 - Documented current state, data structure, file locations
 - Added technical details, known limitations, next steps
