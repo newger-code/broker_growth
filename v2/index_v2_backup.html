@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commission Intelligence Platform | Rebuilt × Picket</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="app-title">Commission Intelligence Platform</h1>
+      <p class="app-subtitle">
+        Transform commission calculations into strategic financial planning.
+        Model scenarios, validate payroll, and track efficiency gains from Picket technology.
+      </p>
+      <div class="app-meta">
+        <span>
+          <strong>Rebuilt</strong> × <strong>Picket</strong>
+        </span>
+        <span id="current-period">
+          <strong>Period:</strong> September 2025
+        </span>
+        <span id="data-status">
+          <strong>Status:</strong> <span class="badge badge-success">Live Data</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav" role="tablist">
+      <button
+        class="tab-button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-forecast"
+        data-tab="forecast"
+      >
+        <span class="tab-icon">📊</span>
+        Forecast & Scenarios
+      </button>
+      <button
+        class="tab-button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-actuals"
+        data-tab="actuals"
+      >
+        <span class="tab-icon">✅</span>
+        Actuals & Payroll
+      </button>
+      <button
+        class="tab-button active"
+        role="tab"
+        aria-selected="true"
+        aria-controls="tab-dashboard"
+        data-tab="dashboard"
+      >
+        <span class="tab-icon">📈</span>
+        Executive Dashboard
+      </button>
+      <button
+        class="tab-button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tab-efficiency"
+        data-tab="efficiency"
+      >
+        <span class="tab-icon">⚡</span>
+        Efficiency & Growth
+      </button>
+    </nav>
+
+    <!-- Tab Panels -->
+
+    <!-- Tab 1: Forecast & Scenarios -->
+    <div id="tab-forecast" class="tab-panel" role="tabpanel">
+      <div class="section">
+        <h2 class="section-title">Coming Soon: Forecast Engine</h2>
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">🚀</div>
+            <h3 class="empty-state-title">Scenario Modeling in Development</h3>
+            <p class="empty-state-description">
+              Soon you'll be able to model hiring scenarios, adjust commission structures,
+              and project expenses across 12-month horizons with real-time calculations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Actuals & Payroll -->
+    <div id="tab-actuals" class="tab-panel" role="tabpanel">
+      <div class="section">
+        <h2 class="section-title">Coming Soon: Actuals Processor</h2>
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">📥</div>
+            <h3 class="empty-state-title">Payroll Automation in Development</h3>
+            <p class="empty-state-description">
+              Upload deal CSVs, auto-calculate all commissions, validate against forecasts,
+              and export directly to payroll systems.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Executive Dashboard (Active) -->
+    <div id="tab-dashboard" class="tab-panel active" role="tabpanel">
+
+      <!-- Hero Metrics -->
+      <div class="section">
+        <h2 class="section-title">Financial Overview</h2>
+        <div class="grid-4" id="hero-metrics">
+          <!-- Metrics will be injected here -->
+        </div>
+      </div>
+
+      <!-- Commission Breakdown -->
+      <div class="section">
+        <h2 class="section-title">Commission Breakdown</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">By Role</h3>
+              <p class="card-description">Total commission expense by agent type</p>
+            </div>
+            <div id="role-breakdown">
+              <!-- Role breakdown will be injected here -->
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">By Manager Type</h3>
+              <p class="card-description">7 managers across 3 compensation structures</p>
+            </div>
+            <div id="manager-breakdown">
+              <!-- Manager breakdown will be injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Composition -->
+      <div class="section">
+        <h2 class="section-title">Team Composition</h2>
+        <div class="card">
+          <div class="grid-3" id="team-composition">
+            <!-- Team stats will be injected here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Performers -->
+      <div class="section">
+        <h2 class="section-title">Top Performers</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Acquisition Leaders</h3>
+              <p class="card-description">Top GP producers</p>
+            </div>
+            <div id="top-acq">
+              <!-- Top acq agents will be injected here -->
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Disposition Leaders</h3>
+              <p class="card-description">Top GP producers</p>
+            </div>
+            <div id="top-dispo">
+              <!-- Top dispo agents will be injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tab 4: Efficiency & Growth -->
+    <div id="tab-efficiency" class="tab-panel" role="tabpanel">
+
+      <!-- Productivity Metrics -->
+      <div class="section">
+        <h2 class="section-title">Productivity Metrics (Per-Agent)</h2>
+        <p class="section-subtitle">How Picket technology is improving individual agent performance</p>
+        <div class="grid-4" id="productivity-metrics">
+          <!-- Productivity metrics will be injected here -->
+        </div>
+      </div>
+
+      <!-- Funnel Efficiency -->
+      <div class="section">
+        <h2 class="section-title">Funnel Conversion Tracking</h2>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Deal Flow Efficiency</h3>
+            <p class="card-description">Conversion rates at each stage of the pipeline</p>
+          </div>
+          <div id="funnel-chart">
+            <!-- Funnel visualization will be injected here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Capacity Analysis -->
+      <div class="section">
+        <h2 class="section-title">Capacity & Growth Headroom</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Current Utilization</h3>
+              <p class="card-description">Team output vs maximum capacity</p>
+            </div>
+            <div id="capacity-analysis">
+              <!-- Capacity metrics will be injected here -->
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Manager Leverage</h3>
+              <p class="card-description">Team GP multiplier for player-coach managers</p>
+            </div>
+            <div id="manager-leverage">
+              <!-- Manager leverage metrics will be injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commission Efficiency Trend -->
+      <div class="section">
+        <h2 class="section-title">Commission Efficiency Trend</h2>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Commission % of GP (Declining Rate Impact)</h3>
+            <p class="card-description">How declining rates + efficiency gains reduce commission expense ratio</p>
+          </div>
+          <div class="chart-container" id="commission-trend-chart">
+            <!-- Chart will be injected here -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Core JavaScript -->
+  <script src="js/core/state.js"></script>
+  <script src="js/core/calculations.js"></script>
+  <script src="js/core/tiers.js"></script>
+
+  <!-- Tab JavaScript -->
+  <script src="js/tabs/dashboard.js"></script>
+  <script src="js/tabs/efficiency.js"></script>
+  <script src="js/tabs/forecast.js"></script>
+  <script src="js/tabs/actuals.js"></script>
+
+  <!-- Components -->
+  <script src="js/components/chart.js"></script>
+
+  <!-- Data (loaded as JS to avoid CORS issues) -->
+  <script src="js/data.js"></script>
+
+  <!-- Main App -->
+  <script src="js/app.js"></script>
+</body>
+</html>

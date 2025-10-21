@@ -1,0 +1,1609 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rebuilt Commission Calculator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #1a1a1a;
+      padding: 15px;
+      color: #e0e0e0;
+      font-size: 12px;
+    }
+    .container { max-width: 1800px; margin: 0 auto; }
+
+    /* Header */
+    h1 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    /* Main Grid Layout - 2 column sidebar + performance area */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 240px 200px 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    /* Sidebar Columns */
+    .sidebar-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Compact Tier Reference */
+    .tier-reference {
+      background: #2c2c2c;
+      border-radius: 6px;
+      padding: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border: 1px solid #404040;
+    }
+    .tier-reference h2 {
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    .tier-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    .tier-table th {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      padding: 5px 6px;
+      text-align: left;
+      font-weight: 600;
+      border: 1px solid #1e3a8a;
+      font-size: 10px;
+    }
+    .tier-table td {
+      padding: 4px 6px;
+      border: 1px solid #404040;
+      white-space: nowrap;
+      color: #e0e0e0;
+    }
+    .tier-table tbody tr:nth-child(odd) { background: #2a2a2a; }
+    .tier-table tbody tr:nth-child(even) { background: #333333; }
+    .tier-table tbody tr:hover { background: #3b82f6; color: white; }
+    .tier-active {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+      font-weight: 700;
+      color: #1a1a1a !important;
+      box-shadow: inset 0 0 0 2px #fbbf24;
+    }
+    .tier-num { font-weight: 700; color: #60a5fa; }
+
+    /* Agent Selector */
+    .agent-selector {
+      background: #2c2c2c;
+      border-radius: 6px;
+      padding: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border: 1px solid #404040;
+    }
+    .agent-selector.dispo-selector {
+      background: #1e3a5f;
+      border-left: 3px solid #3b82f6;
+    }
+    .agent-selector.acq-selector {
+      background: #3d2e1e;
+      border-left: 3px solid #f59e0b;
+    }
+    .agent-selector h2 {
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    .agent-checkbox {
+      display: flex;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 11px;
+      color: #e0e0e0;
+    }
+    .agent-checkbox input[type="checkbox"] {
+      margin-right: 6px;
+      width: 14px;
+      height: 14px;
+    }
+    .agent-checkbox label {
+      cursor: pointer;
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #e0e0e0;
+    }
+    .agent-checkbox-count {
+      font-size: 9px;
+      color: #9ca3af;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+    .select-controls {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .select-btn {
+      padding: 4px 8px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 500;
+    }
+    .select-btn:hover { background: #2563eb; }
+
+    /* Controls Section */
+    .controls-section {
+      background: #2c2c2c;
+      border-radius: 6px;
+      padding: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border: 1px solid #404040;
+      font-size: 11px;
+    }
+    .controls-section h3 {
+      font-size: 12px;
+      margin-bottom: 8px;
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    .control-group {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #404040;
+    }
+    .control-group:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .control-label {
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: block;
+      font-size: 10px;
+      color: #e0e0e0;
+    }
+    .radio-option, .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 3px;
+      font-size: 10px;
+    }
+    .radio-option input, .checkbox-option input {
+      margin: 0;
+    }
+    .number-input {
+      width: 100%;
+      padding: 4px 6px;
+      border: 1px solid #404040;
+      border-radius: 3px;
+      font-size: 11px;
+      background: #1a1a1a;
+      color: #e0e0e0;
+    }
+
+    /* Right Side - Agent Performance Grid */
+    .performance-container {
+      background: #2c2c2c;
+      border-radius: 6px;
+      padding: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border: 1px solid #404040;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+
+    /* Agent Cards - Two Column Layout */
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .agent-card {
+      border: 1px solid #404040;
+      border-radius: 4px;
+      padding: 10px;
+      background: #333333;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .agent-card.dispo-card {
+      background: #1e3a5f;
+      border-left: 3px solid #3b82f6;
+    }
+    .agent-card.acq-card {
+      background: #3d2e1e;
+      border-left: 3px solid #f59e0b;
+    }
+    .agent-card-header {
+      font-size: 13px;
+      font-weight: 700;
+      color: #60a5fa;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #3b82f6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .deal-count-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: #1e3a8a;
+      color: #93c5fd;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .agent-tier-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: #3d2e1e;
+      color: #fbbf24;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    /* Deals Table - Compact */
+    .deals-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 6px;
+      font-size: 10px;
+    }
+    .deals-table th {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 3px 4px;
+      text-align: left;
+      font-weight: 600;
+      border: 1px solid #1e3a8a;
+      font-size: 9px;
+      color: white;
+    }
+    .deals-table td {
+      padding: 3px 4px;
+      border: 1px solid #404040;
+      background: #2a2a2a;
+    }
+    .deals-table input[type="text"] {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-size: 10px;
+      padding: 2px;
+      color: #e0e0e0;
+    }
+    .deals-table input[type="number"] {
+      width: 100%;
+      border: 1px solid #404040;
+      background: #1a1a1a;
+      font-size: 11px;
+      padding: 3px 4px;
+      text-align: right;
+      border-radius: 2px;
+      font-weight: 600;
+      color: #fbbf24;
+    }
+    .deals-table input[type="number"]:focus {
+      outline: 2px solid #3b82f6;
+      background: #2c2c2c;
+    }
+    .deals-table select {
+      width: 100%;
+      border: 1px solid #404040;
+      background: #1a1a1a;
+      font-size: 10px;
+      padding: 3px;
+      border-radius: 2px;
+      color: #e0e0e0;
+    }
+    .deals-table select:focus {
+      outline: 2px solid #3b82f6;
+    }
+
+    /* Agent Summary - 2x2 GRID LIKE PICTURE */
+    .agent-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 0;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 2px solid #3b82f6;
+    }
+
+    /* Excel-style cells - COMPACT */
+    .summary-cell {
+      border: 2px solid #404040;
+      padding: 4px 8px;
+      background: #2a2a2a;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .cell-label {
+      font-size: 10px;
+      color: #60a5fa;
+      font-weight: 600;
+      line-height: 1.1;
+      margin-bottom: 1px;
+    }
+
+    .cell-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #e0e0e0;
+      font-family: Arial, sans-serif;
+      line-height: 1;
+    }
+
+    .calc-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      font-size: 11px;
+      line-height: 1.2;
+      color: #9ca3af;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Top cells with number + calc side-by-side */
+    .cell-top-left,
+    .cell-top-right {
+      flex-direction: row;
+    }
+
+    /* Bottom cells: just label + value vertically */
+    .cell-bottom-left,
+    .cell-bottom-right {
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .cell-bottom-left .cell-value,
+    .cell-bottom-right .cell-value {
+      font-size: 22px;
+    }
+
+    /* Bottom-right: Commission (green accent) */
+    .cell-bottom-right {
+      background: #1e3a2a;
+      border-color: #10b981;
+    }
+    .cell-bottom-right .cell-label {
+      color: #10b981;
+    }
+    .cell-bottom-right .cell-value {
+      color: #10b981;
+    }
+
+    /* Global Summary - 3 Rows */
+    .global-summary {
+      background: #2c2c2c;
+      border-radius: 6px;
+      padding: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border: 1px solid #404040;
+      font-size: 11px;
+    }
+    .summary-row {
+      display: grid;
+      grid-template-columns: 70px repeat(7, 1fr);
+      gap: 6px;
+      padding: 8px 6px;
+      border-bottom: 1px solid #404040;
+      align-items: center;
+    }
+    .summary-row.dispo,
+    .summary-row.acq {
+      grid-template-columns: 70px repeat(7, 1fr);
+    }
+    .summary-row:last-child {
+      grid-template-columns: 70px repeat(8, 1fr);
+    }
+    .summary-row:last-child {
+      border-bottom: none;
+      border-top: 3px solid #10b981;
+      background: #1e3a2a;
+    }
+    .summary-row.dispo {
+      background: #1e3a5f;
+    }
+    .summary-row.acq {
+      background: #3d2e1e;
+    }
+    .summary-row-label {
+      font-weight: 700;
+      font-size: 11px;
+      color: #60a5fa;
+    }
+    .summary-row.acq .summary-row-label {
+      color: #fbbf24;
+    }
+    .summary-row:last-child .summary-row-label {
+      color: #10b981;
+    }
+    .summary-cell-compact {
+      text-align: center;
+    }
+    .summary-cell-compact-label {
+      font-size: 9px;
+      color: #9ca3af;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .summary-cell-compact-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e0e0e0;
+      font-family: 'Courier New', monospace;
+    }
+    .summary-row:last-child .summary-cell-compact-value {
+      font-size: 16px;
+      color: #10b981;
+    }
+    .emp-input {
+      width: 50px;
+      padding: 2px 4px;
+      border: 1px solid #404040;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      font-family: 'Courier New', monospace;
+      background: #1a1a1a;
+      color: #fbbf24;
+    }
+    .emp-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      margin-top: 2px;
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h1 style="margin: 0;">🏢 Rebuilt Commission Calculator - September 2025</h1>
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <div style="display: flex; gap: 15px; align-items: center; background: #2c2c2c; padding: 8px 12px; border-radius: 6px; border: 1px solid #404040;">
+          <span style="font-size: 11px; font-weight: 600; color: #60a5fa;">View:</span>
+          <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; color: #e0e0e0;">
+            <input type="radio" id="view-both" name="view-mode" value="both" checked onchange="updateViewMode()">
+            Both
+          </label>
+          <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; color: #e0e0e0;">
+            <input type="radio" id="view-dispo" name="view-mode" value="dispo" onchange="updateViewMode()">
+            Dispo Only
+          </label>
+          <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; color: #e0e0e0;">
+            <input type="radio" id="view-acq" name="view-mode" value="acq" onchange="updateViewMode()">
+            Acq Only
+          </label>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; background: #2c2c2c; padding: 8px 12px; border-radius: 6px; border: 1px solid #404040;">
+          <span style="font-size: 11px; font-weight: 600; color: #60a5fa;">Sort:</span>
+          <select id="sort-by" onchange="updateSort()" style="border: 1px solid #404040; border-radius: 3px; padding: 4px 8px; font-size: 11px; background: #1a1a1a; color: #e0e0e0; cursor: pointer;">
+            <option value="default">Default</option>
+            <option value="a-z">A-Z</option>
+            <option value="z-a">Z-A</option>
+            <option value="gp-high">GP (High-Low)</option>
+            <option value="gp-low">GP (Low-High)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <!-- Column 1: Dispo Tier Table + Agents -->
+      <div class="sidebar-col">
+        <!-- Tier Reference -->
+        <div class="tier-reference">
+          <h2>Dispo Tiers</h2>
+          <table class="tier-table">
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>Range</th>
+                <th>Off-Mkt</th>
+                <th>Flat-Fee</th>
+              </tr>
+            </thead>
+            <tbody id="tier-tbody">
+              <tr data-tier="1">
+                <td class="tier-num">1</td>
+                <td>$0-25K</td>
+                <td>2.0%</td>
+                <td>1.33%</td>
+              </tr>
+              <tr data-tier="2">
+                <td class="tier-num">2</td>
+                <td>$25-50K</td>
+                <td>3.0%</td>
+                <td>2.00%</td>
+              </tr>
+              <tr data-tier="3">
+                <td class="tier-num">3</td>
+                <td>$50-75K</td>
+                <td>4.0%</td>
+                <td>2.67%</td>
+              </tr>
+              <tr data-tier="4">
+                <td class="tier-num">4</td>
+                <td>$75-100K</td>
+                <td>5.0%</td>
+                <td>3.33%</td>
+              </tr>
+              <tr data-tier="5">
+                <td class="tier-num">5</td>
+                <td>$100-125K</td>
+                <td>6.0%</td>
+                <td>4.00%</td>
+              </tr>
+              <tr data-tier="6">
+                <td class="tier-num">6</td>
+                <td>$125-150K</td>
+                <td>7.0%</td>
+                <td>4.67%</td>
+              </tr>
+              <tr data-tier="7">
+                <td class="tier-num">7</td>
+                <td>$150-175K</td>
+                <td>8.0%</td>
+                <td>5.33%</td>
+              </tr>
+              <tr data-tier="8">
+                <td class="tier-num">8</td>
+                <td>$175-200K</td>
+                <td>9.0%</td>
+                <td>6.00%</td>
+              </tr>
+              <tr data-tier="9">
+                <td class="tier-num">9</td>
+                <td>$200K+</td>
+                <td>10.0%</td>
+                <td>6.67%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Dispo Agent Selector -->
+        <div class="agent-selector dispo-selector">
+          <h2>Dispo Agents</h2>
+          <div class="select-controls">
+            <button class="select-btn" onclick="selectAllDispo()">All</button>
+            <button class="select-btn" onclick="selectNoneDispo()">None</button>
+          </div>
+          <div id="dispo-agent-checkboxes"></div>
+        </div>
+
+        <!-- Dispo Sprints -->
+        <div class="agent-selector dispo-selector" style="margin-top: 10px;">
+          <h2 style="font-size: 12px; margin-bottom: 6px;">Dispo Sprints</h2>
+          <div style="font-size: 10px; line-height: 1.4; margin-bottom: 6px; color: #9ca3af;">
+            Weekly purse for top achievers in KPI categories.
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+            <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Amount:</label>
+            <input type="number" id="dispo-sprint-amount" class="number-input" value="800" min="0" step="100" onchange="updateGlobalSummary()" style="width: 80px;">
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Frequency:</label>
+            <select id="dispo-sprint-frequency" class="number-input" onchange="updateGlobalSummary()" style="width: 90px; padding: 4px;">
+              <option value="4">Weekly</option>
+              <option value="1">Monthly</option>
+              <option value="0.33">Quarterly</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 2: Acq Tier Table + Agents -->
+      <div class="sidebar-col">
+        <div class="tier-reference">
+          <h2>Acq Tiers</h2>
+          <table class="tier-table" id="acq-tier-table">
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>Range</th>
+                <th>Rate</th>
+                <th>Organic</th>
+              </tr>
+            </thead>
+            <tbody id="acq-tier-tbody">
+              <tr data-tier="1">
+                <td class="tier-num">1</td>
+                <td>$0-25K</td>
+                <td>4.0%</td>
+                <td>20.0%</td>
+              </tr>
+              <tr data-tier="2">
+                <td class="tier-num">2</td>
+                <td>$25-50K</td>
+                <td>6.0%</td>
+                <td>20.0%</td>
+              </tr>
+              <tr data-tier="3">
+                <td class="tier-num">3</td>
+                <td>$50-100K</td>
+                <td>8.0%</td>
+                <td>20.0%</td>
+              </tr>
+              <tr data-tier="4">
+                <td class="tier-num">4</td>
+                <td>$100K+</td>
+                <td>10.0%</td>
+                <td>20.0%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Acq Agent Selector -->
+        <div class="agent-selector acq-selector">
+          <h2>Acq Agents</h2>
+          <div class="select-controls">
+            <button class="select-btn" onclick="selectAllAcq()">All</button>
+            <button class="select-btn" onclick="selectNoneAcq()">None</button>
+          </div>
+          <div id="acq-agent-checkboxes"></div>
+        </div>
+
+        <!-- Acq Sprints -->
+        <div class="agent-selector acq-selector" style="margin-top: 10px;">
+          <h2 style="font-size: 12px; margin-bottom: 6px;">Acq Sprints</h2>
+          <div style="font-size: 10px; line-height: 1.4; margin-bottom: 6px; color: #9ca3af;">
+            Weekly purse for top achievers in KPI categories.
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+            <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Amount:</label>
+            <input type="number" id="acq-sprint-amount" class="number-input" value="1000" min="0" step="100" onchange="updateGlobalSummary()" style="width: 80px;">
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Frequency:</label>
+            <select id="acq-sprint-frequency" class="number-input" onchange="updateGlobalSummary()" style="width: 90px; padding: 4px;">
+              <option value="4">Weekly</option>
+              <option value="1">Monthly</option>
+              <option value="0.33">Quarterly</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 3: Performance Grid -->
+      <div class="performance-container">
+        <div class="agents-grid" id="agents-grid"></div>
+      </div>
+    </div>
+
+    <!-- Manager Commissions -->
+    <div class="global-summary" style="margin-bottom: 12px;">
+      <div style="background: #3d2e1e; padding: 10px; border-radius: 6px; border: 2px solid #f59e0b;">
+        <h3 style="font-size: 13px; font-weight: 700; color: #fbbf24; margin-bottom: 8px;">💼 Manager / Team Lead Commissions</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <!-- Dispo Managers -->
+          <div style="background: #1e3a5f; padding: 8px; border-radius: 4px; border-left: 3px solid #3b82f6;">
+            <div style="font-size: 11px; font-weight: 700; color: #60a5fa; margin-bottom: 6px;">Dispo Managers</div>
+            <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; margin-bottom: 4px;">
+              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Method:</label>
+              <select id="dispo-mgr-method" class="number-input" onchange="updateGlobalSummary()" style="font-size: 10px; padding: 3px;">
+                <option value="gp">% of GP</option>
+                <option value="comm">% of Agent Comm</option>
+                <option value="fixed">Fixed Amount</option>
+              </select>
+              <span style="font-size: 9px; color: #9ca3af;">(TBD)</span>
+            </div>
+            <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: center;">
+              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Rate/Amt:</label>
+              <input type="number" id="dispo-mgr-rate" class="number-input" value="0" min="0" step="0.1" onchange="updateGlobalSummary()" style="width: 70px; font-size: 11px;">
+            </div>
+            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #404040;">
+              <div style="font-size: 9px; color: #9ca3af; font-weight: 600;">Calculated:</div>
+              <div style="font-size: 14px; font-weight: 700; color: #60a5fa;" id="dispo-mgr-total">$0</div>
+            </div>
+          </div>
+
+          <!-- Acq Managers -->
+          <div style="background: #3d2e1e; padding: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
+            <div style="font-size: 11px; font-weight: 700; color: #fbbf24; margin-bottom: 6px;">Acq Managers</div>
+            <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; margin-bottom: 4px;">
+              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Method:</label>
+              <select id="acq-mgr-method" class="number-input" onchange="updateGlobalSummary()" style="font-size: 10px; padding: 3px;">
+                <option value="gp">% of GP</option>
+                <option value="comm">% of Agent Comm</option>
+                <option value="fixed">Fixed Amount</option>
+              </select>
+              <span style="font-size: 9px; color: #9ca3af;">(TBD)</span>
+            </div>
+            <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: center;">
+              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Rate/Amt:</label>
+              <input type="number" id="acq-mgr-rate" class="number-input" value="0" min="0" step="0.1" onchange="updateGlobalSummary()" style="width: 70px; font-size: 11px;">
+            </div>
+            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #404040;">
+              <div style="font-size: 9px; color: #9ca3af; font-weight: 600;">Calculated:</div>
+              <div style="font-size: 14px; font-weight: 700; color: #fbbf24;" id="acq-mgr-total">$0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Summary - 3 Rows -->
+    <div class="global-summary">
+      <!-- Dispo Row -->
+      <div class="summary-row dispo">
+        <div class="summary-row-label">DISPO</div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Agents</div>
+          <div class="summary-cell-compact-value" id="dispo-agents">0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Deals</div>
+          <div class="summary-cell-compact-value" id="dispo-deals">0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Total Agents</div>
+          <input type="number" id="dispo-total-agents" class="emp-input" value="14" min="0" onchange="updateGlobalSummary()">
+          <div class="emp-checkbox">
+            <input type="checkbox" id="dispo-include-cost" onchange="updateGlobalSummary()">
+            <label for="dispo-include-cost">$1.5K/per</label>
+          </div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Total GP</div>
+          <div class="summary-cell-compact-value" id="dispo-gp">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Off-Mkt</div>
+          <div class="summary-cell-compact-value" id="dispo-offmarket">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Flat-Fee</div>
+          <div class="summary-cell-compact-value" id="dispo-flatfee">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Commission</div>
+          <div class="summary-cell-compact-value" id="dispo-commission">$0</div>
+        </div>
+      </div>
+
+      <!-- Acq Row -->
+      <div class="summary-row acq">
+        <div class="summary-row-label">ACQ</div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Agents</div>
+          <div class="summary-cell-compact-value" id="acq-agents">0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Deals</div>
+          <div class="summary-cell-compact-value" id="acq-deals">0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Total Agents</div>
+          <input type="number" id="acq-total-agents" class="emp-input" value="13" min="0" onchange="updateGlobalSummary()">
+          <div class="emp-checkbox">
+            <input type="checkbox" id="acq-include-cost" onchange="updateGlobalSummary()">
+            <label for="acq-include-cost">$1.5K/per</label>
+          </div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Total GP</div>
+          <div class="summary-cell-compact-value" id="acq-gp">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Off-Mkt</div>
+          <div class="summary-cell-compact-value" id="acq-offmarket">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Flat-Fee</div>
+          <div class="summary-cell-compact-value" id="acq-flatfee">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Commission</div>
+          <div class="summary-cell-compact-value" id="acq-commission">$0</div>
+        </div>
+      </div>
+
+      <!-- Grand Total Row -->
+      <div class="summary-row">
+        <div class="summary-row-label">TOTAL</div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Agents</div>
+          <div class="summary-cell-compact-value" id="total-agents">0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Deals</div>
+          <div class="summary-cell-compact-value" id="total-deals">0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Total Agents</div>
+          <div class="summary-cell-compact-value" id="total-all-agents">0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Agent Cost</div>
+          <div class="summary-cell-compact-value" id="employee-cost">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Agent Comm</div>
+          <div class="summary-cell-compact-value" id="total-commission">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Mgr Comm</div>
+          <div class="summary-cell-compact-value" id="manager-total">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Sprints</div>
+          <div class="summary-cell-compact-value" id="sprint-total">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Total Paid</div>
+          <div class="summary-cell-compact-value" id="net-total">$0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // September 2025 Disposition Data
+    const dispoData = {
+      'Alec Prieto': [
+        { addr: '514 N Madison Ave, Bay City, Mi', gp: 18370, ff: 'YES' },
+        { addr: '118 Cedar Pl, Ruidoso, Nm', gp: 13199, ff: 'YES' },
+        { addr: '108 Independence St, Cumberland, Md', gp: 3000, ff: 'NO' },
+        { addr: '32 Jenkins Dr, Fayetteville, Tn', gp: 26021, ff: 'NO' },
+        { addr: '164 Mcconnells Trce, Lexington, Ky', gp: 20000, ff: 'NO' },
+        { addr: '1339 Howard Ave, Muskegon, Mi', gp: 44382, ff: 'NO' }
+      ],
+      'Joe Haupt': [
+        { addr: '514 S College St, Covington, Tn', gp: 14186, ff: 'YES' },
+        { addr: '291 Pinewood Dr, Henderson, Nc', gp: 4687, ff: 'YES' },
+        { addr: '926 Morton St, New Castle, Pa', gp: 15900, ff: 'YES' },
+        { addr: '509 West St N, Talladega, Al', gp: 8885, ff: 'YES' },
+        { addr: '202 W White Horse Pike, Galloway, Nj', gp: 15475, ff: 'YES' },
+        { addr: '1011 Massengill St, Winchester, Tn', gp: 53212, ff: 'FF_APPROVED' },
+        { addr: '1311 E Garfield Ave, Decatur, Il', gp: 4978, ff: 'NO' }
+      ],
+      'Devin Cooper': [
+        { addr: '115 S La Huerta Cir, Carlsbad, Nm', gp: 18260, ff: 'YES' },
+        { addr: '538 E White Lake Dr, Twin Lake, Mi', gp: 4000, ff: 'YES' },
+        { addr: '830 Elm Ave Se, Roanoke, Va', gp: 8000, ff: 'FF_APPROVED' },
+        { addr: '612 31e Hwy Old, Bethpage, Tn', gp: 5000, ff: 'YES' },
+        { addr: '11658 Somerset Ave, Detroit, Mi', gp: 8500, ff: 'FF_APPROVED' },
+        { addr: '111 Burke St, River Rouge, Mi', gp: 2225, ff: 'NO' },
+        { addr: '202 Lura Ln Van Buren, Ar', gp: 15000, ff: 'NO' }
+      ],
+      'Maegan Grace': [
+        { addr: '33 Bon Haven Ave, Winchester, Ky', gp: 2715, ff: 'YES' },
+        { addr: '343 Barrett Pl, San Antonio, Tx', gp: 6900, ff: 'YES' },
+        { addr: '920 4th Ct W, Birmingham, Al', gp: 12300, ff: 'YES' },
+        { addr: '7406 Park Ave, Cleveland, Oh', gp: 4000, ff: 'YES' },
+        { addr: '870 Gardners Gin Rd, Cordova, Al', gp: 21950, ff: 'FF_APPROVED' },
+        { addr: '410 Wellington Way, Winchester, Ky', gp: 13500, ff: 'FF_APPROVED' },
+        { addr: '1109 Johnson Ave, Anniston, Al', gp: 3000, ff: 'NO' }
+      ],
+      'Christian Flasch': [
+        { addr: '617 County Line Church Rd, Haleyville, Al', gp: 2892, ff: 'YES' },
+        { addr: '1233 Considine Ave, Cincinnati, Oh', gp: 7107, ff: 'YES' },
+        { addr: '337 Tumbling Run Est, Maynardville, Tn', gp: 22125, ff: 'YES' },
+        { addr: '875 Perry Dr, Macon, Ga', gp: 5590, ff: 'YES' },
+        { addr: '406 Temple Ave S, Fayette, Al', gp: 2000, ff: 'FF_APPROVED' },
+        { addr: '516 W Dee St, Lebanon, Il', gp: 14582, ff: 'NO' }
+      ],
+      'Vincent Gnapi': [
+        { addr: '504 Peach St, Sweeny, Tx', gp: 4629, ff: 'YES' },
+        { addr: '5118 Reno St, Philadelphia, Pa', gp: 6000, ff: 'NO' },
+        { addr: '1922 Auth St, Philadelphia, Pa', gp: 13000, ff: 'NO' },
+        { addr: '1436 W Spencer Ave, Marion, In', gp: 3000, ff: 'FF_APPROVED' },
+        { addr: '206 N Bond St, West Memphis, Ar', gp: 9000, ff: 'NO' },
+        { addr: '2724 N Dover St Philadelphia, Pa', gp: 14503, ff: 'NO' }
+      ],
+      'Miguel Aguilar': [
+        { addr: '110 Woodford Dr, Lexington, Ky', gp: 14186, ff: 'NO' },
+        { addr: '1125 4th Ave, Freedom, Pa', gp: 4025, ff: 'NO' },
+        { addr: '1013 4th Ave N, Clanton, Al', gp: 5000, ff: 'NO' },
+        { addr: '1846 Lyons St, San Antonio, Tx', gp: 20000, ff: 'NO' },
+        { addr: '2024 Nw 17th Ave, Amarillo, Tx', gp: 2858, ff: 'NO' },
+        { addr: '1735 Parklane Dr, Cahokia, Il', gp: 2000, ff: 'NO' }
+      ],
+      'Brittany Taylor': [
+        { addr: '1632 Burrow St, Humboldt, Tn', gp: 5423, ff: 'YES' },
+        { addr: '893 York St, Marion, Oh', gp: 11117, ff: 'YES' },
+        { addr: '1004 W Main St, New Albany, In', gp: 2116, ff: 'FF_APPROVED' },
+        { addr: '3861 Andrews Dr, Macon, Ga', gp: 6750, ff: 'NO' }
+      ],
+      'Tamara Humbolt': [
+        { addr: '92 Briar Hill Loop, Wetumpka, Al', gp: 3325, ff: 'YES' },
+        { addr: '17 N Water St, Gloversville, Ny', gp: 9128, ff: 'FF_APPROVED' },
+        { addr: '504 Clark St, Pana, Il', gp: 5000, ff: 'FF_APPROVED' },
+        { addr: '518 N Indiana St, Greencastle, In', gp: 7000, ff: 'NO' }
+      ],
+      'Jack Webster': [
+        { addr: '50 Pine St, Beverly, Nj', gp: 41863, ff: 'YES' }
+      ],
+      'Leland Boyd': [
+        { addr: '978 Spring St, Macon, Ga', gp: 37244, ff: 'NO' }
+      ],
+      'Mel Grant': [
+        { addr: '1216 W King St, Decatur, Il', gp: 4000, ff: 'NO' }
+      ],
+      'Yoseph Israel': [
+        { addr: '202 Jackson St. Washington, Ga', gp: 11600, ff: 'NO' }
+      ],
+      'Devin Hoffman': [
+        { addr: '224 N Massachusetts St, Jackson, Tn', gp: 3235, ff: 'YES' }
+      ],
+      'Ex-Rebuilt (Dispo)': [
+        { addr: '1777 Old Frankfort Rd, Lawrenceburg, Ky', gp: 7500, ff: 'NO' }
+      ]
+    };
+
+    // September 2025 Acquisition Data
+    const acqData = {
+      'Kyle Singer': [
+        { addr: '893 York St, Marion, Oh', gp: 11117, ff: 'YES', organic: false },
+        { addr: '612 31e Hwy Old, Bethpage, Tn', gp: 5000, ff: 'YES', organic: false },
+        { addr: '17 N Water St, Gloversville, Ny', gp: 9128, ff: 'FF_APPROVED', organic: false },
+        { addr: '1339 Howard Ave, Muskegon, Mi', gp: 44382, ff: 'NO', organic: false },
+        { addr: '1735 Parklane Dr, Cahokia, Il', gp: 2000, ff: 'NO', organic: false },
+        { addr: '202 Jackson St. Washington, Ga', gp: 11600, ff: 'NO', organic: false }
+      ],
+      'Dominick Mazliah': [
+        { addr: '514 S College St, Covington, Tn', gp: 14186, ff: 'YES', organic: false },
+        { addr: '1233 Considine Ave, Cincinnati, Oh', gp: 7107, ff: 'YES', organic: false },
+        { addr: '11658 Somerset Ave, Detroit, Mi', gp: 8500, ff: 'FF_APPROVED', organic: false },
+        { addr: '3861 Andrews Dr, Macon, Ga', gp: 6750, ff: 'NO', organic: false },
+        { addr: '978 Spring St, Macon, Ga', gp: 37244, ff: 'NO', organic: false },
+        { addr: '1216 W King St, Decatur, Il', gp: 4000, ff: 'NO', organic: false }
+      ],
+      'Andrew Caceres': [
+        { addr: '337 Tumbling Run Est, Maynardville, Tn', gp: 22125, ff: 'YES', organic: false },
+        { addr: '870 Gardners Gin Rd, Cordova, Al', gp: 21950, ff: 'FF_APPROVED', organic: false },
+        { addr: '202 Lura Ln Van Buren, Ar', gp: 15000, ff: 'NO', organic: false },
+        { addr: '1311 E Garfield Ave, Decatur, Il', gp: 4978, ff: 'NO', organic: false },
+        { addr: '1922 Auth St, Philadelphia, Pa', gp: 13000, ff: 'NO', organic: false }
+      ],
+      'Shon Yoshida': [
+        { addr: '343 Barrett Pl, San Antonio, Tx', gp: 6900, ff: 'YES', organic: false },
+        { addr: '617 County Line Church Rd, Haleyville, Al', gp: 2892, ff: 'YES', organic: false },
+        { addr: '875 Perry Dr, Macon, Ga', gp: 5590, ff: 'YES', organic: false },
+        { addr: '1011 Massengill St, Winchester, Tn', gp: 53212, ff: 'FF_APPROVED', organic: false },
+        { addr: '2024 Nw 17th Ave, Amarillo, Tx', gp: 2858, ff: 'NO', organic: false }
+      ],
+      'Luis Guzman': [
+        { addr: '118 Cedar Pl, Ruidoso, Nm', gp: 13199, ff: 'YES', organic: false },
+        { addr: '504 Peach St, Sweeny, Tx', gp: 4629, ff: 'YES', organic: false },
+        { addr: '202 W White Horse Pike, Galloway, Nj', gp: 15475, ff: 'YES', organic: false },
+        { addr: '1846 Lyons St, San Antonio, Tx', gp: 20000, ff: 'NO', organic: false },
+        { addr: '518 N Indiana St, Greencastle, In', gp: 7000, ff: 'NO', organic: false }
+      ],
+      'Ashley Preston': [
+        { addr: '115 S La Huerta Cir, Carlsbad, Nm', gp: 18260, ff: 'YES', organic: false },
+        { addr: '50 Pine St, Beverly, Nj', gp: 41863, ff: 'YES', organic: false }
+      ],
+      'Jesse Sychowski': [
+        { addr: '291 Pinewood Dr, Henderson, Nc', gp: 4687, ff: 'YES', organic: false },
+        { addr: '920 4th Ct W, Birmingham, Al', gp: 12300, ff: 'YES', organic: false },
+        { addr: '509 West St N, Talladega, Al', gp: 8885, ff: 'YES', organic: false },
+        { addr: '7406 Park Ave, Cleveland, Oh', gp: 4000, ff: 'YES', organic: false },
+        { addr: '504 Clark St, Pana, Il', gp: 5000, ff: 'FF_APPROVED', organic: false },
+        { addr: '1436 W Spencer Ave, Marion, In', gp: 3000, ff: 'FF_APPROVED', organic: false },
+        { addr: '1013 4th Ave N, Clanton, Al', gp: 5000, ff: 'NO', organic: false },
+        { addr: '2724 N Dover St Philadelphia, Pa', gp: 14503, ff: 'NO', organic: false }
+      ],
+      'Warren Smith': [
+        { addr: '33 Bon Haven Ave, Winchester, Ky', gp: 2715, ff: 'YES', organic: false },
+        { addr: '410 Wellington Way, Winchester, Ky', gp: 13500, ff: 'FF_APPROVED', organic: false },
+        { addr: '164 Mcconnells Trce, Lexington, Ky', gp: 20000, ff: 'NO', organic: false },
+        { addr: '1777 Old Frankfort Rd, Lawrenceburg, Ky', gp: 7500, ff: 'NO', organic: false }
+      ],
+      'Chris Chambers': [
+        { addr: '926 Morton St, New Castle, Pa', gp: 15900, ff: 'YES', organic: false },
+        { addr: '92 Briar Hill Loop, Wetumpka, Al', gp: 3325, ff: 'YES', organic: false },
+        { addr: '406 Temple Ave S, Fayette, Al', gp: 2000, ff: 'FF_APPROVED', organic: false },
+        { addr: '830 Elm Ave Se, Roanoke, Va', gp: 8000, ff: 'FF_APPROVED', organic: false }
+      ],
+      'Devin Buford': [
+        { addr: '1632 Burrow St, Humboldt, Tn', gp: 5423, ff: 'YES', organic: false },
+        { addr: '516 W Dee St, Lebanon, Il', gp: 14582, ff: 'NO', organic: false },
+        { addr: '206 N Bond St, West Memphis, Ar', gp: 9000, ff: 'NO', organic: false }
+      ],
+      'Steve Shelburne': [
+        { addr: '5118 Reno St, Philadelphia, Pa', gp: 6000, ff: 'NO', organic: false }
+      ],
+      'Garrett Paschal': [
+        { addr: '224 N Massachusetts St, Jackson, Tn', gp: 3235, ff: 'YES', organic: false }
+      ],
+      'Ian Ross': [
+        { addr: '1109 Johnson Ave, Anniston, Al', gp: 3000, ff: 'NO', organic: false }
+      ],
+      'Ex-Rebuilt (Acq)': [
+        { addr: '514 N Madison Ave, Bay City, Mi', gp: 18370, ff: 'YES', organic: false },
+        { addr: '538 E White Lake Dr, Twin Lake, Mi', gp: 4000, ff: 'YES', organic: false },
+        { addr: '1004 W Main St, New Albany, In', gp: 2116, ff: 'FF_APPROVED', organic: false },
+        { addr: '111 Burke St, River Rouge, Mi', gp: 2225, ff: 'NO', organic: false },
+        { addr: '110 Woodford Dr, Lexington, Ky', gp: 14186, ff: 'NO', organic: false },
+        { addr: '1125 4th Ave, Freedom, Pa', gp: 4025, ff: 'NO', organic: false },
+        { addr: '108 Independence St, Cumberland, Md', gp: 3000, ff: 'NO', organic: false },
+        { addr: '32 Jenkins Dr, Fayetteville, Tn', gp: 26021, ff: 'NO', organic: false }
+      ]
+    };
+
+    let selectedDispoAgents = new Set(Object.keys(dispoData));
+    let selectedAcqAgents = new Set(Object.keys(acqData));
+    let viewMode = 'both';
+    let sortMode = 'default';
+
+    function formatCurrency(num) {
+      return '$' + Math.round(num).toLocaleString('en-US');
+    }
+
+    // Dispo Tier Rates (9 tiers, 2/3 for flat-fee)
+    function getDispoTier(gp) {
+      if (gp < 25000) return { tier: 1, offRate: 2.0, ffRate: 1.33 };
+      if (gp < 50000) return { tier: 2, offRate: 3.0, ffRate: 2.00 };
+      if (gp < 75000) return { tier: 3, offRate: 4.0, ffRate: 2.67 };
+      if (gp < 100000) return { tier: 4, offRate: 5.0, ffRate: 3.33 };
+      if (gp < 125000) return { tier: 5, offRate: 6.0, ffRate: 4.00 };
+      if (gp < 150000) return { tier: 6, offRate: 7.0, ffRate: 4.67 };
+      if (gp < 175000) return { tier: 7, offRate: 8.0, ffRate: 5.33 };
+      if (gp < 200000) return { tier: 8, offRate: 9.0, ffRate: 6.00 };
+      return { tier: 9, offRate: 10.0, ffRate: 6.67 };
+    }
+
+    // Acq Tier Rates (4 tiers, organic = 20%)
+    function getAcqTier(gp) {
+      if (gp < 25000) return { tier: 1, rate: 4.0, organicRate: 20.0 };
+      if (gp < 50000) return { tier: 2, rate: 6.0, organicRate: 20.0 };
+      if (gp < 100000) return { tier: 3, rate: 8.0, organicRate: 20.0 };
+      return { tier: 4, rate: 10.0, organicRate: 20.0 };
+    }
+
+    function highlightDispoTier(tier) {
+      document.querySelectorAll('#tier-tbody tr').forEach(row => {
+        row.classList.remove('tier-active');
+      });
+      if (tier) {
+        const tierRow = document.querySelector(`#tier-tbody [data-tier="${tier}"]`);
+        if (tierRow) tierRow.classList.add('tier-active');
+      }
+    }
+
+    function highlightAcqTier(tier) {
+      document.querySelectorAll('#acq-tier-tbody tr').forEach(row => {
+        row.classList.remove('tier-active');
+      });
+      if (tier) {
+        const tierRow = document.querySelector(`#acq-tier-tbody [data-tier="${tier}"]`);
+        if (tierRow) tierRow.classList.add('tier-active');
+      }
+    }
+
+    function renderDispoCheckboxes() {
+      const container = document.getElementById('dispo-agent-checkboxes');
+      container.innerHTML = '';
+
+      Object.keys(dispoData).sort().forEach(name => {
+        const dealCount = dispoData[name].length;
+        const div = document.createElement('div');
+        div.className = 'agent-checkbox';
+        div.innerHTML = `
+          <input type="checkbox" id="dispo-${name.replace(/\s+/g, '-')}" ${selectedDispoAgents.has(name) ? 'checked' : ''}
+                 onchange="toggleDispoAgent('${name}')">
+          <label for="dispo-${name.replace(/\s+/g, '-')}">
+            <span>${name}</span>
+            <span class="agent-checkbox-count">(${dealCount})</span>
+          </label>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderAcqCheckboxes() {
+      const container = document.getElementById('acq-agent-checkboxes');
+      container.innerHTML = '';
+
+      Object.keys(acqData).sort().forEach(name => {
+        const dealCount = acqData[name].length;
+        const div = document.createElement('div');
+        div.className = 'agent-checkbox';
+        div.innerHTML = `
+          <input type="checkbox" id="acq-${name.replace(/\s+/g, '-')}" ${selectedAcqAgents.has(name) ? 'checked' : ''}
+                 onchange="toggleAcqAgent('${name}')">
+          <label for="acq-${name.replace(/\s+/g, '-')}">
+            <span>${name}</span>
+            <span class="agent-checkbox-count">(${dealCount})</span>
+          </label>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function toggleDispoAgent(name) {
+      if (selectedDispoAgents.has(name)) {
+        selectedDispoAgents.delete(name);
+      } else {
+        selectedDispoAgents.add(name);
+      }
+      renderAgents();
+      updateGlobalSummary();
+    }
+
+    function toggleAcqAgent(name) {
+      if (selectedAcqAgents.has(name)) {
+        selectedAcqAgents.delete(name);
+      } else {
+        selectedAcqAgents.add(name);
+      }
+      renderAgents();
+      updateGlobalSummary();
+    }
+
+    function selectAllDispo() {
+      selectedDispoAgents = new Set(Object.keys(dispoData));
+      renderDispoCheckboxes();
+      renderAgents();
+      updateGlobalSummary();
+    }
+
+    function selectNoneDispo() {
+      selectedDispoAgents.clear();
+      renderDispoCheckboxes();
+      renderAgents();
+      updateGlobalSummary();
+    }
+
+    function selectAllAcq() {
+      selectedAcqAgents = new Set(Object.keys(acqData));
+      renderAcqCheckboxes();
+      renderAgents();
+      updateGlobalSummary();
+    }
+
+    function selectNoneAcq() {
+      selectedAcqAgents.clear();
+      renderAcqCheckboxes();
+      renderAgents();
+      updateGlobalSummary();
+    }
+
+    function updateViewMode() {
+      viewMode = document.querySelector('input[name="view-mode"]:checked').value;
+      renderAgents();
+      updateGlobalSummary();
+    }
+
+    function updateSort() {
+      sortMode = document.getElementById('sort-by').value;
+      renderAgents();
+    }
+
+    function sortAgents(agentList, dataSource) {
+      if (sortMode === 'a-z') {
+        return agentList.sort();
+      } else if (sortMode === 'z-a') {
+        return agentList.sort().reverse();
+      } else if (sortMode === 'gp-high' || sortMode === 'gp-low') {
+        const agentsWithGP = agentList.map(name => {
+          const deals = dataSource[name];
+          const totalGP = deals.reduce((sum, d) => sum + d.gp, 0);
+          return { name, totalGP };
+        });
+        agentsWithGP.sort((a, b) => sortMode === 'gp-high' ? b.totalGP - a.totalGP : a.totalGP - b.totalGP);
+        return agentsWithGP.map(a => a.name);
+      } else {
+        return agentList.sort(); // default
+      }
+    }
+
+    function updateDeal(agentName, dealIndex, field, value, type) {
+      const dataSource = type === 'acq' ? acqData : dispoData;
+      const agent = dataSource[agentName];
+      if (!agent || !agent[dealIndex]) return;
+
+      if (field === 'gp') {
+        agent[dealIndex].gp = parseFloat(value) || 0;
+      } else if (field === 'organic' && type === 'acq') {
+        agent[dealIndex].organic = value === 'true';
+      } else {
+        agent[dealIndex][field] = value;
+      }
+
+      renderAgents();
+      updateGlobalSummary();
+    }
+
+    function renderAgents() {
+      const grid = document.getElementById('agents-grid');
+      grid.innerHTML = '';
+
+      // Render Dispo Agents
+      if (viewMode === 'both' || viewMode === 'dispo') {
+        const sortedDispoAgents = sortAgents(Array.from(selectedDispoAgents), dispoData);
+        sortedDispoAgents.forEach(agentName => {
+          const deals = dispoData[agentName];
+
+        let totalGP = 0;
+        let offMarketGP = 0;
+        let flatFeeGP = 0;
+
+        deals.forEach(d => {
+          totalGP += d.gp;
+          if (d.ff === 'YES' || d.ff === 'FF_APPROVED') flatFeeGP += d.gp;
+          else offMarketGP += d.gp;
+        });
+
+          // Apply lowest tier for Ex-Rebuilt agents regardless of GP
+          const tierInfo = agentName === 'Ex-Rebuilt (Dispo)'
+            ? { tier: 1, offRate: 2.0, ffRate: 1.33 }
+            : getDispoTier(totalGP);
+          const offMarketComm = offMarketGP * (tierInfo.offRate / 100);
+          const flatFeeComm = flatFeeGP * (tierInfo.ffRate / 100);
+          const totalComm = offMarketComm + flatFeeComm;
+
+          const card = document.createElement('div');
+          card.className = 'agent-card dispo-card';
+          card.onmouseenter = () => highlightDispoTier(tierInfo.tier);
+          card.onmouseleave = () => highlightDispoTier(null);
+
+          card.innerHTML = `
+            <div class="agent-card-header">
+              <span>[D] ${agentName}</span>
+              <span class="deal-count-badge">${deals.length} deals</span>
+              <span class="agent-tier-badge">Tier ${tierInfo.tier} (${tierInfo.offRate.toFixed(1)}%)</span>
+            </div>
+
+            <table class="deals-table">
+              <thead>
+                <tr>
+                  <th style="width: 50%;">Property</th>
+                  <th style="width: 25%;">GP</th>
+                  <th style="width: 25%;">FF?</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${deals.map((d, idx) => `
+                  <tr>
+                    <td><input type="text" value="${d.addr}" onchange="updateDeal('${agentName}', ${idx}, 'addr', this.value, 'dispo')"></td>
+                    <td><input type="number" value="${d.gp}" step="0.01" onchange="updateDeal('${agentName}', ${idx}, 'gp', this.value, 'dispo')"></td>
+                    <td>
+                      <select onchange="updateDeal('${agentName}', ${idx}, 'ff', this.value, 'dispo')">
+                        <option value="NO" ${d.ff === 'NO' ? 'selected' : ''}>NO</option>
+                        <option value="FF_APPROVED" ${d.ff === 'FF_APPROVED' ? 'selected' : ''}>Approved for FF</option>
+                        <option value="YES" ${d.ff === 'YES' ? 'selected' : ''}>YES</option>
+                      </select>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="agent-summary">
+              <div class="summary-cell cell-top-left">
+                <div>
+                  <div class="cell-label">Off-Market</div>
+                  <div class="cell-value">${formatCurrency(offMarketGP).replace('$','')}</div>
+                </div>
+                <div class="calc-block">
+                  <div>${formatCurrency(offMarketGP)}</div>
+                  <div>x ${tierInfo.offRate.toFixed(1)}%</div>
+                  <div>= ${formatCurrency(offMarketComm).replace('$','')}</div>
+                </div>
+              </div>
+
+              <div class="summary-cell cell-top-right">
+                <div>
+                  <div class="cell-label">Flat-Fee</div>
+                  <div class="cell-value">${formatCurrency(flatFeeGP).replace('$','')}</div>
+                </div>
+                <div class="calc-block">
+                  <div>${formatCurrency(flatFeeGP)}</div>
+                  <div>x ${tierInfo.ffRate.toFixed(2)}%</div>
+                  <div>= ${formatCurrency(flatFeeComm).replace('$','')}</div>
+                </div>
+              </div>
+
+              <div class="summary-cell cell-bottom-left">
+                <div class="cell-label">Total GP</div>
+                <div class="cell-value">${formatCurrency(totalGP).replace('$','')}</div>
+              </div>
+
+              <div class="summary-cell cell-bottom-right">
+                <div class="cell-label">Total Commission</div>
+                <div class="cell-value">${formatCurrency(totalComm).replace('$','')}</div>
+              </div>
+            </div>
+          `;
+
+          grid.appendChild(card);
+        });
+      }
+
+      // Render Acq Agents
+      if (viewMode === 'both' || viewMode === 'acq') {
+        const sortedAcqAgents = sortAgents(Array.from(selectedAcqAgents), acqData);
+        sortedAcqAgents.forEach(agentName => {
+          const deals = acqData[agentName];
+
+          let totalGP = 0;
+          let organicGP = 0;
+          let nonOrganicGP = 0;
+
+          deals.forEach(d => {
+            totalGP += d.gp;
+            if (d.organic) organicGP += d.gp;
+            else nonOrganicGP += d.gp;
+          });
+
+          // Apply lowest tier for Ex-Rebuilt agents regardless of GP
+          const tierInfo = agentName === 'Ex-Rebuilt (Acq)'
+            ? { tier: 1, rate: 4.0, organicRate: 20.0 }
+            : getAcqTier(totalGP);
+          const organicComm = organicGP * (tierInfo.organicRate / 100);
+          const nonOrganicComm = nonOrganicGP * (tierInfo.rate / 100);
+          const totalComm = organicComm + nonOrganicComm;
+
+          const card = document.createElement('div');
+          card.className = 'agent-card acq-card';
+          card.onmouseenter = () => highlightAcqTier(tierInfo.tier);
+          card.onmouseleave = () => highlightAcqTier(null);
+
+          card.innerHTML = `
+            <div class="agent-card-header">
+              <span>[A] ${agentName}</span>
+              <span class="deal-count-badge">${deals.length} deals</span>
+              <span class="agent-tier-badge">Tier ${tierInfo.tier} (${tierInfo.rate.toFixed(1)}%)</span>
+            </div>
+
+            <table class="deals-table">
+              <thead>
+                <tr>
+                  <th style="width: 43%;">Property</th>
+                  <th style="width: 22%;">GP</th>
+                  <th style="width: 22%;">FF?</th>
+                  <th style="width: 13%;">Org?</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${deals.map((d, idx) => `
+                  <tr>
+                    <td><input type="text" value="${d.addr}" onchange="updateDeal('${agentName}', ${idx}, 'addr', this.value, 'acq')"></td>
+                    <td><input type="number" value="${d.gp}" step="0.01" onchange="updateDeal('${agentName}', ${idx}, 'gp', this.value, 'acq')"></td>
+                    <td>
+                      <select onchange="updateDeal('${agentName}', ${idx}, 'ff', this.value, 'acq')">
+                        <option value="NO" ${d.ff === 'NO' ? 'selected' : ''}>NO</option>
+                        <option value="FF_APPROVED" ${d.ff === 'FF_APPROVED' ? 'selected' : ''}>Appr FF</option>
+                        <option value="YES" ${d.ff === 'YES' ? 'selected' : ''}>YES</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select onchange="updateDeal('${agentName}', ${idx}, 'organic', this.value, 'acq')">
+                        <option value="false" ${!d.organic ? 'selected' : ''}>NO</option>
+                        <option value="true" ${d.organic ? 'selected' : ''}>YES</option>
+                      </select>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="agent-summary">
+              <div class="summary-cell cell-top-left">
+                <div>
+                  <div class="cell-label">Standard</div>
+                  <div class="cell-value">${formatCurrency(nonOrganicGP).replace('$','')}</div>
+                </div>
+                <div class="calc-block">
+                  <div>${formatCurrency(nonOrganicGP)}</div>
+                  <div>x ${tierInfo.rate.toFixed(1)}%</div>
+                  <div>= ${formatCurrency(nonOrganicComm).replace('$','')}</div>
+                </div>
+              </div>
+
+              <div class="summary-cell cell-top-right">
+                <div>
+                  <div class="cell-label">Organic</div>
+                  <div class="cell-value">${formatCurrency(organicGP).replace('$','')}</div>
+                </div>
+                <div class="calc-block">
+                  <div>${formatCurrency(organicGP)}</div>
+                  <div>x ${tierInfo.organicRate.toFixed(1)}%</div>
+                  <div>= ${formatCurrency(organicComm).replace('$','')}</div>
+                </div>
+              </div>
+
+              <div class="summary-cell cell-bottom-left">
+                <div class="cell-label">Total GP</div>
+                <div class="cell-value">${formatCurrency(totalGP).replace('$','')}</div>
+              </div>
+
+              <div class="summary-cell cell-bottom-right">
+                <div class="cell-label">Total Commission</div>
+                <div class="cell-value">${formatCurrency(totalComm).replace('$','')}</div>
+              </div>
+            </div>
+          `;
+
+          grid.appendChild(card);
+        });
+      }
+    }
+
+    function updateGlobalSummary() {
+      // Count unique deals across all data (same deals appear in both Dispo and Acq)
+      const uniqueAddresses = new Set();
+      Object.values(dispoData).flat().forEach(d => uniqueAddresses.add(d.addr));
+      Object.values(acqData).flat().forEach(d => uniqueAddresses.add(d.addr));
+      const totalUniqueDeals = uniqueAddresses.size;
+
+      // Dispo Totals
+      let dispoGP = 0, dispoOffMarket = 0, dispoFlatFee = 0, dispoCommission = 0;
+
+      selectedDispoAgents.forEach(agentName => {
+        const deals = dispoData[agentName];
+        let agentGP = 0, agentOffMarket = 0, agentFlatFee = 0;
+
+        deals.forEach(d => {
+          agentGP += d.gp;
+          if (d.ff === 'YES' || d.ff === 'FF_APPROVED') agentFlatFee += d.gp;
+          else agentOffMarket += d.gp;
+        });
+
+        dispoGP += agentGP;
+        dispoOffMarket += agentOffMarket;
+        dispoFlatFee += agentFlatFee;
+
+        // Apply lowest tier for Ex-Rebuilt agents regardless of GP
+        const tierInfo = agentName === 'Ex-Rebuilt (Dispo)'
+          ? { tier: 1, offRate: 2.0, ffRate: 1.33 }
+          : getDispoTier(agentGP);
+        dispoCommission += (agentOffMarket * tierInfo.offRate / 100) + (agentFlatFee * tierInfo.ffRate / 100);
+      });
+
+      // Acq Totals
+      let acqGP = 0, acqOffMarket = 0, acqFlatFee = 0, acqCommission = 0;
+
+      selectedAcqAgents.forEach(agentName => {
+        const deals = acqData[agentName];
+        let agentGP = 0, agentOrganic = 0, agentNonOrganic = 0;
+
+        deals.forEach(d => {
+          agentGP += d.gp;
+          if (d.organic) agentOrganic += d.gp;
+          else agentNonOrganic += d.gp;
+
+          // Track offmarket vs flatfee for display
+          if (d.ff === 'YES' || d.ff === 'FF_APPROVED') acqFlatFee += d.gp;
+          else acqOffMarket += d.gp;
+        });
+
+        acqGP += agentGP;
+
+        // Apply lowest tier for Ex-Rebuilt agents regardless of GP
+        const tierInfo = agentName === 'Ex-Rebuilt (Acq)'
+          ? { tier: 1, rate: 4.0, organicRate: 20.0 }
+          : getAcqTier(agentGP);
+        acqCommission += (agentNonOrganic * tierInfo.rate / 100) + (agentOrganic * tierInfo.organicRate / 100);
+      });
+
+      // Update Dispo Row (show total unique deals for both)
+      document.getElementById('dispo-agents').textContent = selectedDispoAgents.size;
+      document.getElementById('dispo-deals').textContent = totalUniqueDeals;
+      document.getElementById('dispo-gp').textContent = formatCurrency(dispoGP);
+      document.getElementById('dispo-offmarket').textContent = formatCurrency(dispoOffMarket);
+      document.getElementById('dispo-flatfee').textContent = formatCurrency(dispoFlatFee);
+      document.getElementById('dispo-commission').textContent = formatCurrency(dispoCommission);
+
+      // Update Acq Row (show total unique deals for both)
+      document.getElementById('acq-agents').textContent = selectedAcqAgents.size;
+      document.getElementById('acq-deals').textContent = totalUniqueDeals;
+      document.getElementById('acq-gp').textContent = formatCurrency(acqGP);
+      document.getElementById('acq-offmarket').textContent = formatCurrency(acqOffMarket);
+      document.getElementById('acq-flatfee').textContent = formatCurrency(acqFlatFee);
+      document.getElementById('acq-commission').textContent = formatCurrency(acqCommission);
+
+      // Grand Totals
+      const totalSelectedAgents = selectedDispoAgents.size + selectedAcqAgents.size;
+      const totalDeals = totalUniqueDeals;
+      const totalCommission = dispoCommission + acqCommission;
+
+      // Total Agents (from input fields)
+      const dispoTotalAgents = parseInt(document.getElementById('dispo-total-agents').value) || 0;
+      const acqTotalAgents = parseInt(document.getElementById('acq-total-agents').value) || 0;
+      const totalAllAgents = dispoTotalAgents + acqTotalAgents;
+
+      // Agent Cost (based on individual checkboxes)
+      const dispoIncludeCost = document.getElementById('dispo-include-cost').checked;
+      const acqIncludeCost = document.getElementById('acq-include-cost').checked;
+      const dispoCost = dispoIncludeCost ? dispoTotalAgents * 1500 : 0;
+      const acqCost = acqIncludeCost ? acqTotalAgents * 1500 : 0;
+      const totalAgentCost = dispoCost + acqCost;
+
+      // Sprints (Dispo + Acq) - frequency converts to monthly amount
+      const dispoSprintAmount = parseInt(document.getElementById('dispo-sprint-amount').value) || 0;
+      const dispoSprintFrequency = parseFloat(document.getElementById('dispo-sprint-frequency').value) || 4;
+      const dispoSprintMonthly = dispoSprintAmount * dispoSprintFrequency;
+
+      const acqSprintAmount = parseInt(document.getElementById('acq-sprint-amount').value) || 0;
+      const acqSprintFrequency = parseFloat(document.getElementById('acq-sprint-frequency').value) || 4;
+      const acqSprintMonthly = acqSprintAmount * acqSprintFrequency;
+
+      const sprintTotal = dispoSprintMonthly + acqSprintMonthly;
+
+      // Manager Commissions
+      const dispoMgrMethod = document.getElementById('dispo-mgr-method').value;
+      const dispoMgrRate = parseFloat(document.getElementById('dispo-mgr-rate').value) || 0;
+      let dispoMgrComm = 0;
+      if (dispoMgrMethod === 'gp') {
+        dispoMgrComm = dispoGP * (dispoMgrRate / 100);
+      } else if (dispoMgrMethod === 'comm') {
+        dispoMgrComm = dispoCommission * (dispoMgrRate / 100);
+      } else if (dispoMgrMethod === 'fixed') {
+        dispoMgrComm = dispoMgrRate;
+      }
+
+      const acqMgrMethod = document.getElementById('acq-mgr-method').value;
+      const acqMgrRate = parseFloat(document.getElementById('acq-mgr-rate').value) || 0;
+      let acqMgrComm = 0;
+      if (acqMgrMethod === 'gp') {
+        acqMgrComm = acqGP * (acqMgrRate / 100);
+      } else if (acqMgrMethod === 'comm') {
+        acqMgrComm = acqCommission * (acqMgrRate / 100);
+      } else if (acqMgrMethod === 'fixed') {
+        acqMgrComm = acqMgrRate;
+      }
+
+      const managerTotal = dispoMgrComm + acqMgrComm;
+
+      // Update manager displays
+      document.getElementById('dispo-mgr-total').textContent = formatCurrency(dispoMgrComm);
+      document.getElementById('acq-mgr-total').textContent = formatCurrency(acqMgrComm);
+
+      const netTotal = totalCommission + totalAgentCost + sprintTotal + managerTotal;
+
+      document.getElementById('total-agents').textContent = totalSelectedAgents;
+      document.getElementById('total-deals').textContent = totalDeals;
+      document.getElementById('total-all-agents').textContent = totalAllAgents;
+      document.getElementById('employee-cost').textContent = formatCurrency(totalAgentCost);
+      document.getElementById('total-commission').textContent = formatCurrency(totalCommission);
+      document.getElementById('manager-total').textContent = formatCurrency(managerTotal);
+      document.getElementById('sprint-total').textContent = formatCurrency(sprintTotal);
+      document.getElementById('net-total').textContent = formatCurrency(netTotal);
+    }
+
+    // Initialize
+    renderDispoCheckboxes();
+    renderAcqCheckboxes();
+    renderAgents();
+    updateGlobalSummary();
+  </script>
+</body>
+</html>

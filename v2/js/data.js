@@ -1,0 +1,129 @@
+/**
+ * Commission Intelligence Platform - Data
+ * September 2025 baseline data (loaded as JS to avoid CORS)
+ */
+
+window.COMMISSION_DATA = {
+  "metadata": {
+    "month": "September 2025",
+    "total_gp": 682043,
+    "total_transactions": 59,
+    "total_commission_paid": 97539.31,
+    "commission_pct_of_gp": 14.3,
+    "team_count": {
+      "acq_agents": 15,
+      "dispo_agents": 17,
+      "acq_managers": 3,
+      "dispo_managers": 2,
+      "leadership": 2
+    }
+  },
+  "agent_summary": {
+    "acq_agents": {
+      "count": 15,
+      "total_gp": 471988,
+      "total_commission": 35491.0,
+      "avg_gp_per_agent": 31466,
+      "avg_deals_per_agent": 3.9
+    },
+    "dispo_agents": {
+      "count": 17,
+      "total_gp": 210055,
+      "total_commission": 21078.85,
+      "avg_gp_per_agent": 12356,
+      "avg_deals_per_agent": 2.1
+    }
+  },
+  "manager_summary": {
+    "total_commission": 40969.81,
+    "breakdown": [
+      {
+        "name": "Patrick Solomon",
+        "type": "Type 1: Company/ISA Split",
+        "role": "Acq Manager",
+        "total": 6043.56,
+        "company_gp": 682043,
+        "isa_gp": 682043
+      },
+      {
+        "name": "Rob Gorski",
+        "type": "Type 1: Company/ISA Split",
+        "role": "Dispo Manager",
+        "total": 3672.31,
+        "company_gp": 682043,
+        "isa_gp": 682043
+      },
+      {
+        "name": "Luis Guzman",
+        "type": "Type 2: Agent + Team",
+        "role": "Acq Manager",
+        "total": 8780.43,
+        "personal_gp": 60303,
+        "team_gp": 126873,
+        "personal_deals": 5,
+        "team_members": ["Kyle Singer", "Dominick Mazliah", "Andrew Caceres"]
+      },
+      {
+        "name": "Shon Yoshida",
+        "type": "Type 2: Agent + Team",
+        "role": "Acq Manager",
+        "total": 7513.40,
+        "personal_gp": 71552,
+        "team_gp": 89462,
+        "personal_deals": 6,
+        "team_members": ["Jesse Sychowski", "Ashley Preston"]
+      },
+      {
+        "name": "Devin Buford",
+        "type": "Type 2: Agent + Team",
+        "role": "Acq Manager",
+        "total": 1900.30,
+        "personal_gp": 29005,
+        "team_gp": 6000,
+        "personal_deals": 3,
+        "team_members": ["Steve Shelburne"]
+      },
+      {
+        "name": "Joe Haupt",
+        "type": "Type 2: Agent + Team",
+        "role": "Dispo Manager",
+        "total": 8452.81,
+        "personal_gp": 117323,
+        "team_gp": 107759,
+        "personal_deals": 8,
+        "team_members": ["Christian Flasch", "Jack Webster", "Yoseph Israel"]
+      },
+      {
+        "name": "Maegan Grace",
+        "type": "Type 2: Agent + Team",
+        "role": "Dispo Manager",
+        "total": 3260.74,
+        "personal_gp": 59965,
+        "team_gp": 81585,
+        "personal_deals": 5,
+        "team_members": ["Vincent Gnapi", "Tamara Humbolt"]
+      },
+      {
+        "name": "Dustin Hepburn",
+        "type": "Type 3: % of Goal",
+        "role": "UW Director",
+        "total": 1346.26,
+        "trx_actual": 59,
+        "trx_target": 97,
+        "gp_actual": 682043,
+        "gp_target": 1455000
+      }
+    ]
+  },
+  "efficiency_baseline": {
+    "avg_gp_per_agent": 21310,
+    "avg_deals_per_agent": 3.0,
+    "avg_gp_per_deal": 11560,
+    "avg_days_to_close": 28,
+    "funnel": {
+      "lead_to_assessment": 0.48,
+      "assessment_to_offer": 0.70,
+      "offer_to_close": 0.58
+    }
+  }
+};
