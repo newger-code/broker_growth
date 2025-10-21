@@ -96,6 +96,18 @@ const App = {
       case 'details':
         DetailsTab.init();
         break;
+      case 'agent-timeline':
+        AgentTimelineTab.init();
+        break;
+      case 'geographic':
+        GeographicTab.init();
+        break;
+      case 'deal-analytics':
+        DealAnalyticsTab.init();
+        break;
+      case 'predictive':
+        PredictiveTab.init();
+        break;
     }
   },
 

@@ -69,6 +69,22 @@
           <span class="tab-icon">📋</span>
           Details
         </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-agent-timeline" data-tab="agent-timeline">
+          <span class="tab-icon">📅</span>
+          Agent Timeline
+        </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-geographic" data-tab="geographic">
+          <span class="tab-icon">🗺️</span>
+          Geographic
+        </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-deal-analytics" data-tab="deal-analytics">
+          <span class="tab-icon">💰</span>
+          Deal Analytics
+        </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-predictive" data-tab="predictive">
+          <span class="tab-icon">🔮</span>
+          Predictive
+        </button>
       </nav>
     </div>
 
@@ -219,10 +235,38 @@
       <div class="section">
         <h2 class="section-title">Detailed Commission Report - September 2025</h2>
         <p class="section-subtitle">Complete agent-by-agent and manager breakdown with formulas</p>
-        
+
         <div id="detailed-report">
           <!-- Will be populated by details.js -->
         </div>
+      </div>
+    </div>
+
+    <!-- Tab 6: Agent Performance Timeline -->
+    <div id="tab-agent-timeline" class="tab-panel" role="tabpanel">
+      <div id="agent-timeline-content">
+        <!-- Will be populated by agent-timeline.js -->
+      </div>
+    </div>
+
+    <!-- Tab 7: Geographic Analytics -->
+    <div id="tab-geographic" class="tab-panel" role="tabpanel">
+      <div id="geographic-content">
+        <!-- Will be populated by geographic.js -->
+      </div>
+    </div>
+
+    <!-- Tab 8: Deal Performance Analytics -->
+    <div id="tab-deal-analytics" class="tab-panel" role="tabpanel">
+      <div id="deal-analytics-content">
+        <!-- Will be populated by deal-analytics.js -->
+      </div>
+    </div>
+
+    <!-- Tab 9: Predictive Insights -->
+    <div id="tab-predictive" class="tab-panel" role="tabpanel">
+      <div id="predictive-content">
+        <!-- Will be populated by predictive.js -->
       </div>
     </div>
 
@@ -239,12 +283,17 @@
   <script src="js/tabs/forecast.js"></script>
   <script src="js/tabs/actuals.js"></script>
   <script src="js/tabs/details.js"></script>
+  <script src="js/tabs/agent-timeline.js"></script>
+  <script src="js/tabs/geographic.js"></script>
+  <script src="js/tabs/deal-analytics.js"></script>
+  <script src="js/tabs/predictive.js"></script>
 
   <!-- Components -->
   <script src="js/components/chart.js"></script>
 
   <!-- Data -->
   <script src="js/data.js"></script>
+  <script src="js/data_extended.js"></script>
 
   <!-- Main App -->
   <script src="js/app.js"></script>
