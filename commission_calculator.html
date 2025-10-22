@@ -1600,12 +1600,31 @@
           else offMarketGP += d.gp;
         });
 
-          // Apply lowest tier for Ex-Rebuilt agents regardless of GP
-          const tierInfo = agentName === 'Ex-Rebuilt (Dispo)'
-            ? { tier: 1, offRate: 2.0, ffRate: 1.33 }
-            : getDispoTier(totalGP);
-          const offMarketComm = offMarketGP * (tierInfo.offRate / 100);
-          const flatFeeComm = flatFeeGP * (tierInfo.ffRate / 100);
+          // Get tier info with special cases
+          let tierInfo;
+          if (agentName === 'Ex Rebuilt') {
+            tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
+          } else if (agentName === 'Alec Prieto' && document.getElementById('alec-tier-override').checked) {
+            // Alec gets +1 tier bonus when checkbox is checked
+            const normalTier = getDispoTier(totalGP);
+            const bonusTier = Math.min(normalTier.tier + 1, 9);
+            // Get the rates for the bonus tier
+            if (bonusTier <= 1) tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
+            else if (bonusTier === 2) tierInfo = { tier: 2, offRate: 0.03, ffRate: 0.02 };
+            else if (bonusTier === 3) tierInfo = { tier: 3, offRate: 0.04, ffRate: 0.0267 };
+            else if (bonusTier === 4) tierInfo = { tier: 4, offRate: 0.05, ffRate: 0.0333 };
+            else if (bonusTier === 5) tierInfo = { tier: 5, offRate: 0.06, ffRate: 0.04 };
+            else if (bonusTier === 6) tierInfo = { tier: 6, offRate: 0.07, ffRate: 0.0467 };
+            else if (bonusTier === 7) tierInfo = { tier: 7, offRate: 0.08, ffRate: 0.0533 };
+            else if (bonusTier === 8) tierInfo = { tier: 8, offRate: 0.09, ffRate: 0.06 };
+            else tierInfo = { tier: 9, offRate: 0.10, ffRate: 0.0667 };
+          } else {
+            tierInfo = getDispoTier(totalGP);
+          }
+
+          // Rates are already in decimal form (0.07 = 7%), do NOT divide by 100
+          const offMarketComm = offMarketGP * tierInfo.offRate;
+          const flatFeeComm = flatFeeGP * tierInfo.ffRate;
           const totalComm = offMarketComm + flatFeeComm;
 
           const card = document.createElement('div');
@@ -1703,11 +1722,12 @@
           });
 
           // Apply lowest tier for Ex-Rebuilt agents regardless of GP
-          const tierInfo = agentName === 'Ex-Rebuilt (Acq)'
-            ? { tier: 1, rate: 4.0, organicRate: 20.0 }
+          const tierInfo = agentName === 'Ex Rebuilt'
+            ? { tier: 1, rate: 0.04, organicRate: 0.20 }
             : getAcqTier(totalGP);
-          const organicComm = organicGP * (tierInfo.organicRate / 100);
-          const nonOrganicComm = nonOrganicGP * (tierInfo.rate / 100);
+          // Rates are already in decimal form (0.08 = 8%), do NOT divide by 100
+          const organicComm = organicGP * tierInfo.organicRate;
+          const nonOrganicComm = nonOrganicGP * tierInfo.rate;
           const totalComm = organicComm + nonOrganicComm;
 
           const card = document.createElement('div');
