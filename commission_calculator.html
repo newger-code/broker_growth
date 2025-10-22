@@ -639,9 +639,9 @@
             <input type="checkbox" id="include-sprints" onchange="updateTotals()" checked>
             <span>Include Sprints in Total</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; color: #fbbf24;" title="Alec has a special deal: +1 tier bonus">
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; color: #fbbf24;" title="Alec is Tier 6 by default. Check for Tier 7">
             <input type="checkbox" id="alec-tier-override" onchange="updateTotals()">
-            <span>Alec +1 Tier</span>
+            <span>Alec Tier 7</span>
           </label>
         </div>
       </div>
@@ -1604,19 +1604,22 @@
           let tierInfo;
           if (agentName === 'Ex Rebuilt') {
             tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
-          } else if (agentName === 'Alec Prieto' && document.getElementById('alec-tier-override').checked) {
-            // Alec gets +1 tier bonus when checkbox is checked
-            const normalTier = getDispoTier(totalGP);
-            const bonusTier = Math.min(normalTier.tier + 1, 9);
-            // Get the rates for the bonus tier
-            if (bonusTier <= 1) tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
-            else if (bonusTier === 2) tierInfo = { tier: 2, offRate: 0.03, ffRate: 0.02 };
-            else if (bonusTier === 3) tierInfo = { tier: 3, offRate: 0.04, ffRate: 0.0267 };
-            else if (bonusTier === 4) tierInfo = { tier: 4, offRate: 0.05, ffRate: 0.0333 };
-            else if (bonusTier === 5) tierInfo = { tier: 5, offRate: 0.06, ffRate: 0.04 };
-            else if (bonusTier === 6) tierInfo = { tier: 6, offRate: 0.07, ffRate: 0.0467 };
-            else if (bonusTier === 7) tierInfo = { tier: 7, offRate: 0.08, ffRate: 0.0533 };
-            else if (bonusTier === 8) tierInfo = { tier: 8, offRate: 0.09, ffRate: 0.06 };
+          } else if (agentName === 'Alec Prieto') {
+            // Alec ALWAYS gets +1 tier (Tier 6 by default for his GP of $124,972)
+            // With checkbox, he gets +2 (Tier 7)
+            const normalTier = getDispoTier(totalGP); // This returns Tier 5 for $124,972
+            const extraBonus = document.getElementById('alec-tier-override').checked ? 2 : 1;
+            const finalTier = Math.min(normalTier.tier + extraBonus, 9);
+
+            // Get the rates for the final tier
+            if (finalTier === 1) tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
+            else if (finalTier === 2) tierInfo = { tier: 2, offRate: 0.03, ffRate: 0.02 };
+            else if (finalTier === 3) tierInfo = { tier: 3, offRate: 0.04, ffRate: 0.0267 };
+            else if (finalTier === 4) tierInfo = { tier: 4, offRate: 0.05, ffRate: 0.0333 };
+            else if (finalTier === 5) tierInfo = { tier: 5, offRate: 0.06, ffRate: 0.04 };
+            else if (finalTier === 6) tierInfo = { tier: 6, offRate: 0.07, ffRate: 0.0467 };
+            else if (finalTier === 7) tierInfo = { tier: 7, offRate: 0.08, ffRate: 0.0533 };
+            else if (finalTier === 8) tierInfo = { tier: 8, offRate: 0.09, ffRate: 0.06 };
             else tierInfo = { tier: 9, offRate: 0.10, ffRate: 0.0667 };
           } else {
             tierInfo = getDispoTier(totalGP);
@@ -1842,23 +1845,25 @@
 
         // Get tier info with special cases
         let tierInfo;
-        if (agentName === 'Ex-Rebuilt (Dispo)') {
+        if (agentName === 'Ex Rebuilt') {
           // Ex-Rebuilt always uses Tier 1
           tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
-        } else if (agentName === 'Alec Prieto' && document.getElementById('alec-tier-override').checked) {
-          // Alec Prieto: +1 tier bonus if checkbox is checked
-          const normalTier = getDispoTier(agentGP);
-          const bonusTierNum = Math.min(normalTier.tier + 1, 9); // Cap at tier 9
-          tierInfo = getDispoTier(999999); // Get tier 9 rates
-          // Now get the actual rates for the bonus tier
-          if (bonusTierNum === 1) tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
-          else if (bonusTierNum === 2) tierInfo = { tier: 2, offRate: 0.03, ffRate: 0.02 };
-          else if (bonusTierNum === 3) tierInfo = { tier: 3, offRate: 0.04, ffRate: 0.0267 };
-          else if (bonusTierNum === 4) tierInfo = { tier: 4, offRate: 0.05, ffRate: 0.0333 };
-          else if (bonusTierNum === 5) tierInfo = { tier: 5, offRate: 0.06, ffRate: 0.04 };
-          else if (bonusTierNum === 6) tierInfo = { tier: 6, offRate: 0.07, ffRate: 0.0467 };
-          else if (bonusTierNum === 7) tierInfo = { tier: 7, offRate: 0.08, ffRate: 0.0533 };
-          else if (bonusTierNum === 8) tierInfo = { tier: 8, offRate: 0.09, ffRate: 0.06 };
+        } else if (agentName === 'Alec Prieto') {
+          // Alec ALWAYS gets +1 tier (Tier 6 by default for his GP of $124,972)
+          // With checkbox, he gets +2 (Tier 7)
+          const normalTier = getDispoTier(agentGP); // This returns Tier 5 for $124,972
+          const extraBonus = document.getElementById('alec-tier-override').checked ? 2 : 1;
+          const finalTier = Math.min(normalTier.tier + extraBonus, 9);
+
+          // Get the rates for the final tier
+          if (finalTier === 1) tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
+          else if (finalTier === 2) tierInfo = { tier: 2, offRate: 0.03, ffRate: 0.02 };
+          else if (finalTier === 3) tierInfo = { tier: 3, offRate: 0.04, ffRate: 0.0267 };
+          else if (finalTier === 4) tierInfo = { tier: 4, offRate: 0.05, ffRate: 0.0333 };
+          else if (finalTier === 5) tierInfo = { tier: 5, offRate: 0.06, ffRate: 0.04 };
+          else if (finalTier === 6) tierInfo = { tier: 6, offRate: 0.07, ffRate: 0.0467 };
+          else if (finalTier === 7) tierInfo = { tier: 7, offRate: 0.08, ffRate: 0.0533 };
+          else if (finalTier === 8) tierInfo = { tier: 8, offRate: 0.09, ffRate: 0.06 };
           else tierInfo = { tier: 9, offRate: 0.10, ffRate: 0.0667 };
         } else {
           tierInfo = getDispoTier(agentGP);
