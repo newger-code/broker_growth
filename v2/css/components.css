@@ -380,3 +380,123 @@
   font-size: var(--text-sm);
   color: var(--text-tertiary);
 }
+
+/* Navigation Bar */
+.nav-bar {
+  background: linear-gradient(135deg, var(--picket-blue-dark) 0%, var(--picket-blue) 100%);
+  padding: 12px 24px;
+  margin: -24px -24px 24px -24px;
+  border-bottom: 2px solid var(--picket-blue-light);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.nav-bar a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.nav-bar a:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.nav-bar a.active {
+  background: var(--picket-blue-light);
+  font-weight: 600;
+  color: var(--bg-primary);
+}
+
+.nav-brand {
+  font-weight: 700;
+  font-size: var(--text-base);
+  color: var(--picket-blue-light);
+  margin-right: auto;
+}
+
+/* Password Protection Overlay */
+.password-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-primary);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-box {
+  background: var(--bg-card);
+  border: 2px solid var(--picket-blue);
+  border-radius: var(--radius-xl);
+  padding: 48px;
+  text-align: center;
+  box-shadow: var(--shadow-2xl);
+  max-width: 420px;
+  width: 90%;
+}
+
+.password-box h2 {
+  color: var(--picket-blue-light);
+  margin-bottom: 12px;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+}
+
+.password-box p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.password-box input {
+  width: 100%;
+  padding: 14px;
+  font-size: var(--text-base);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.password-box input:focus {
+  outline: none;
+  border-color: var(--picket-blue);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.password-box button {
+  width: 100%;
+  padding: 14px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--picket-blue) 0%, var(--picket-blue-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.password-box button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+}
+
+.password-error {
+  color: #ef4444;
+  font-size: var(--text-xs);
+  margin-top: 12px;
+  display: none;
+}

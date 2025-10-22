@@ -19,8 +19,26 @@
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.0/dist/apexcharts.min.js"></script>
 </head>
 <body>
+  <!-- Password Protection -->
+  <div id="password-overlay" class="password-overlay">
+    <div class="password-box">
+      <h2>🔒 Secure Access</h2>
+      <p>This dashboard contains sensitive commission data.<br>Please enter the access code to continue.</p>
+      <input type="password" id="password-input" placeholder="Enter access code" onkeypress="if(event.key==='Enter') checkPassword()">
+      <button onclick="checkPassword()">Access Dashboard</button>
+      <div class="password-error" id="password-error">Incorrect password. Please try again.</div>
+    </div>
+  </div>
+
   <div class="app-container">
-    
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+      <span class="nav-brand">📊 Rebuilt Intelligence Suite</span>
+      <a href="../commission_calculator.html">Commission Calculator</a>
+      <a href="../sensitivity/index.html">Sensitivity Model</a>
+      <a href="index.html" class="active">Dashboard Analytics</a>
+    </nav>
+
     <!-- Sticky Header (scrolls up then freezes) -->
     <div class="sticky-header" id="sticky-header">
       <!-- Header -->
@@ -301,6 +319,37 @@
   <!-- Main App -->
   <script src="js/app.js"></script>
   
+  <!-- Password Protection Script -->
+  <script>
+    // Password Protection (Session-based)
+    function checkPassword() {
+      const input = document.getElementById('password-input');
+      const error = document.getElementById('password-error');
+      const overlay = document.getElementById('password-overlay');
+
+      if (input.value === 'picket') {
+        // Store auth in sessionStorage (cleared when browser/tab closes)
+        sessionStorage.setItem('rebuilt_auth', 'true');
+        overlay.style.display = 'none';
+        error.style.display = 'none';
+      } else {
+        error.style.display = 'block';
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    // Check if already authenticated this session
+    window.addEventListener('DOMContentLoaded', function() {
+      if (sessionStorage.getItem('rebuilt_auth') === 'true') {
+        document.getElementById('password-overlay').style.display = 'none';
+      } else {
+        // Focus password input
+        document.getElementById('password-input').focus();
+      }
+    });
+  </script>
+
   <!-- Sticky Header Script -->
   <script>
     // Add scrolled class to sticky header on scroll

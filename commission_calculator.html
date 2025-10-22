@@ -486,9 +486,125 @@
       font-weight: 600;
       color: #e0e0e0;
     }
+
+    /* Navigation Bar */
+    .nav-bar {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      padding: 10px 20px;
+      margin: -15px -15px 15px -15px;
+      border-bottom: 2px solid #3b82f6;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-bar a {
+      color: #e0e0e0;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    .nav-bar a:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .nav-bar a.active {
+      background: #3b82f6;
+      font-weight: 600;
+    }
+    .nav-brand {
+      font-weight: 700;
+      font-size: 14px;
+      color: #60a5fa;
+      margin-right: auto;
+    }
+
+    /* Password Protection Overlay */
+    .password-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #1a1a1a;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .password-box {
+      background: #2c2c2c;
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      max-width: 400px;
+    }
+    .password-box h2 {
+      color: #60a5fa;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+    .password-box p {
+      color: #9ca3af;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .password-box input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #404040;
+      border-radius: 6px;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      margin-bottom: 15px;
+    }
+    .password-box button {
+      width: 100%;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .password-box button:hover {
+      transform: translateY(-1px);
+    }
+    .password-error {
+      color: #ef4444;
+      font-size: 12px;
+      margin-top: 10px;
+      display: none;
+    }
   </style>
 </head>
 <body>
+  <!-- Password Protection -->
+  <div id="password-overlay" class="password-overlay">
+    <div class="password-box">
+      <h2>🔒 Secure Access</h2>
+      <p>This tool contains sensitive commission data.<br>Please enter the access code to continue.</p>
+      <input type="password" id="password-input" placeholder="Enter access code" onkeypress="if(event.key==='Enter') checkPassword()">
+      <button onclick="checkPassword()">Access Dashboard</button>
+      <div class="password-error" id="password-error">Incorrect password. Please try again.</div>
+    </div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <nav class="nav-bar">
+    <span class="nav-brand">📊 Rebuilt Intelligence Suite</span>
+    <a href="commission_calculator.html" class="active">Commission Calculator</a>
+    <a href="sensitivity/index.html">Sensitivity Model</a>
+    <a href="v2/index.html">Dashboard Analytics</a>
+  </nav>
+
   <div class="container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <h1 style="margin: 0;">🏢 Rebuilt Commission Calculator - September 2025</h1>
@@ -873,6 +989,34 @@
   </div>
 
   <script>
+    // Password Protection (Session-based)
+    function checkPassword() {
+      const input = document.getElementById('password-input');
+      const error = document.getElementById('password-error');
+      const overlay = document.getElementById('password-overlay');
+
+      if (input.value === 'picket') {
+        // Store auth in sessionStorage (cleared when browser/tab closes)
+        sessionStorage.setItem('rebuilt_auth', 'true');
+        overlay.style.display = 'none';
+        error.style.display = 'none';
+      } else {
+        error.style.display = 'block';
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    // Check if already authenticated this session
+    window.addEventListener('DOMContentLoaded', function() {
+      if (sessionStorage.getItem('rebuilt_auth') === 'true') {
+        document.getElementById('password-overlay').style.display = 'none';
+      } else {
+        // Focus password input
+        document.getElementById('password-input').focus();
+      }
+    });
+
     // September 2025 Disposition Data
     const dispoData = {
       'Alec Prieto': [

@@ -53,9 +53,24 @@
     .info-icon .info-tooltip{visibility:hidden;background:#1f1f1f;color:#e0e0e0;border-radius:6px;padding:8px 12px;position:absolute;z-index:60;bottom:130%;left:50%;transform:translateX(-50%);width:max-content;max-width:220px;text-align:left;opacity:0;transition:opacity 0.3s,visibility 0.3s;box-shadow:0 4px 12px rgba(0,0,0,0.7);border:1px solid #3b82f6;font-size:11px;line-height:1.5;font-weight:normal;white-space:normal}
     .info-icon .info-tooltip::after{content:'';position:absolute;top:100%;left:50%;margin-left:-4px;border-width:4px;border-style:solid;border-color:#1f1f1f transparent transparent transparent}
     .info-icon:hover .info-tooltip{visibility:visible;opacity:1}
+
+    /* Navigation Bar */
+    .nav-bar{background:linear-gradient(135deg,#1e3a8a 0%,#1e40af 100%);padding:12px 24px;border-bottom:2px solid #3b82f6;display:flex;align-items:center;gap:24px;box-shadow:0 4px 12px rgba(0,0,0,0.5)}
+    .nav-bar a{color:#e0e0e0;text-decoration:none;font-size:13px;font-weight:500;padding:8px 16px;border-radius:6px;transition:all 0.2s}
+    .nav-bar a:hover{background:rgba(255,255,255,0.1)}
+    .nav-bar a.active{background:#3b82f6;font-weight:600}
+    .nav-brand{font-weight:700;font-size:14px;color:#60a5fa;margin-right:auto}
   </style>
 </head>
 <body>
+  <!-- Navigation Bar -->
+  <nav class="nav-bar">
+    <span class="nav-brand">📊 Rebuilt Intelligence Suite</span>
+    <a href="../commission_calculator.html">Commission Calculator</a>
+    <a href="index.html" class="active">Sensitivity Model</a>
+    <a href="../v2/index.html">Dashboard Analytics</a>
+  </nav>
+
   <div id="root"></div>
 
   <script type="text/babel" data-presets="react,typescript">
