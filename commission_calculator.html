@@ -634,6 +634,16 @@
             <option value="gp-low">GP (Low-High)</option>
           </select>
         </div>
+        <div style="display: flex; gap: 15px; align-items: center; background: #2c2c2c; padding: 8px 12px; border-radius: 6px; border: 1px solid #404040;">
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; color: #e0e0e0;">
+            <input type="checkbox" id="include-sprints" onchange="updateTotals()" checked>
+            <span>Include Sprints in Total</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; color: #fbbf24;" title="Alec has a special deal: +1 tier bonus">
+            <input type="checkbox" id="alec-tier-override" onchange="updateTotals()">
+            <span>Alec +1 Tier</span>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -981,81 +991,201 @@
       }
     });
 
-    // September 2025 Disposition Data
-    // NOTE: Manager-agents (Joe Haupt, Maegan Grace) are in managerData, not here
-    // Calibrated to produce exact commission total: $21,078.85
+    // September 2025 Disposition Data - REAL DATA from Excel "Dispo Closings" sheet
+    // ALL 15 agents with actual deal-level data
     const dispoData = {
       'Alec Prieto': [
-        { addr: 'Off-Market', gp: 93403, ff: 'NO' },
-        { addr: 'Flat-Fee', gp: 31569, ff: 'YES' }
-      ],
-      'Devin Cooper': [
-        { addr: 'Off-Market', gp: 33725, ff: 'NO' },
-        { addr: 'Flat-Fee', gp: 27260, ff: 'YES' }
-      ],
-      'Vincent Gnapi': [
-        { addr: 'Off-Market', gp: 45503, ff: 'NO' },
-        { addr: 'Flat-Fee', gp: 4629, ff: 'YES' }
-      ],
-      'Christian Flasch': [
-        { addr: 'Off-Market', gp: 16582, ff: 'NO' },
-        { addr: 'Flat-Fee', gp: 37714, ff: 'YES' }
-      ],
-      'Miguel Aguilar': [
-        { addr: 'Off-Market', gp: 48069, ff: 'NO' }
-      ],
-      'Leland Boyd': [
-        { addr: 'Off-Market', gp: 37244, ff: 'NO' }
+        { addr: '514 N Madison Ave, Bay City, M', gp: 18370, ff: 'YES' },
+        { addr: '108 Independence St, Cumberlan', gp: 3000, ff: 'NO' },
+        { addr: '32 Jenkins Dr, Fayetteville, T', gp: 26021, ff: 'NO' },
+        { addr: '118 Cedar Pl, Ruidoso, Nm 8834', gp: 13199, ff: 'YES' },
+        { addr: '164 Mcconnells Trce, Lexington', gp: 10000, ff: 'NO' },
+        { addr: '164 Mcconnells Trce, Lexington', gp: 10000, ff: 'NO' },
+        { addr: '1339 Howard Ave, Muskegon, Mi ', gp: 44382, ff: 'NO' }
       ],
       'Brittany Taylor': [
-        { addr: 'Off-Market', gp: 8866, ff: 'NO' },
-        { addr: 'Flat-Fee', gp: 16540, ff: 'YES' }
+        { addr: '1632 Burrow St, Humboldt, Tn 3', gp: 5423, ff: 'YES' },
+        { addr: '3861 Andrews Dr, Macon, Ga 312', gp: 6750, ff: 'NO' },
+        { addr: '1004 W Main St, New Albany, In', gp: 2116, ff: 'NO' },
+        { addr: '893 York St, Marion, Oh 43302', gp: 11117, ff: 'YES' }
       ],
-      'Tamara Humbolt': [
-        { addr: 'Off-Market', gp: 21128, ff: 'NO' },
-        { addr: 'Flat-Fee', gp: 10325, ff: 'YES' }
+      'Christian Flasch': [
+        { addr: '337 Tumbling Run Est, Maynardv', gp: 22125, ff: 'YES' },
+        { addr: '406 Temple Ave S, Fayette, Al ', gp: 2000, ff: 'NO' },
+        { addr: '516 W Dee St, Lebanon, Il 6225', gp: 14582, ff: 'NO' },
+        { addr: '1233 Considine Ave, Cincinnati', gp: 7107, ff: 'YES' },
+        { addr: '617 County Line Church Rd, Hal', gp: 2892, ff: 'YES' },
+        { addr: '875 Perry Dr, Macon, Ga 31217', gp: 5590, ff: 'YES' }
+      ],
+      'Devin Cooper': [
+        { addr: '111 Burke St, River Rouge, Mi ', gp: 2225, ff: 'NO' },
+        { addr: '202 Lura Ln Van Buren, Ar 7295', gp: 15000, ff: 'NO' },
+        { addr: '830 Elm Ave Se, Roanoke, Va 24', gp: 8000, ff: 'NO' },
+        { addr: '115 S La Huerta Cir, Carlsbad,', gp: 18260, ff: 'YES' },
+        { addr: '11658 Somerset Ave, Detroit, M', gp: 8500, ff: 'NO' },
+        { addr: '538 E White Lake Dr, Twin Lake', gp: 4000, ff: 'YES' },
+        { addr: '612 31e Hwy Old, Bethpage, Tn ', gp: 5000, ff: 'YES' }
+      ],
+      'Devin Hoffman': [
+        { addr: '224 N Massachusetts St, Jackso', gp: 3235, ff: 'YES' }
+      ],
+      'Ex Rebuilt': [
+        { addr: '480 Sam Cunningham Rd Charlott', gp: 2500, ff: 'NO' },
+        { addr: '110 Mildred St, Montgomery, Al', gp: 1500, ff: 'YES' },
+        { addr: '1777 Old Frankfort Rd, Lawrenc', gp: 7500, ff: 'NO' }
       ],
       'Jack Webster': [
-        { addr: 'Flat-Fee', gp: 41863, ff: 'YES' }
+        { addr: '50 Pine St, Beverly, Nj 8010', gp: 41863, ff: 'YES' }
       ],
-      'Team Bonus Pool': [
-        { addr: 'Off-Market', gp: 38986, ff: 'NO' }
+      'Joe Haupt': [
+        { addr: '1311 E Garfield Ave, Decatur, ', gp: 4978, ff: 'NO' },
+        { addr: '926 Morton St, New Castle, Pa ', gp: 15900, ff: 'YES' },
+        { addr: '514 S College St, Covington, T', gp: 14186, ff: 'YES' },
+        { addr: '291 Pinewood Dr, Henderson, Nc', gp: 4687, ff: 'YES' },
+        { addr: '509 West St N, Talladega, Al 3', gp: 8885, ff: 'YES' },
+        { addr: '202 W White Horse Pike, Gallow', gp: 15475, ff: 'YES' },
+        { addr: '1011 Massengill St, Winchester', gp: 53212, ff: 'NO' }
+      ],
+      'Leland Boyd': [
+        { addr: '978 Spring St, Macon, Ga 31201', gp: 37244, ff: 'NO' }
+      ],
+      'Maegan Grace': [
+        { addr: '870 Gardners Gin Rd, Cordova, ', gp: 21950, ff: 'NO' },
+        { addr: '7406 Park Ave, Cleveland, Oh 4', gp: 4000, ff: 'YES' },
+        { addr: '7406 Park Ave, Cleveland, Oh 4', gp: 2500, ff: 'YES' },
+        { addr: '920 4th Ct W, Birmingham, Al 3', gp: 12300, ff: 'YES' },
+        { addr: '410 Wellington Way, Winchester', gp: 13500, ff: 'NO' },
+        { addr: '33 Bon Haven Ave, Winchester, ', gp: 2715, ff: 'YES' },
+        { addr: '1109 Johnson Ave, Anniston, Al', gp: 3000, ff: 'NO' }
+      ],
+      'Mel Grant': [
+        { addr: '1216 W King St, Decatur, Il 62', gp: 4000, ff: 'NO' }
+      ],
+      'Miguel Aguilar': [
+        { addr: '110 Woodford Dr, Lexington, Ky', gp: 14186, ff: 'NO' },
+        { addr: '1125 4th Ave, Freedom, Pa 1504', gp: 4025, ff: 'NO' },
+        { addr: '1013 4th Ave N, Clanton, Al 35', gp: 5000, ff: 'NO' },
+        { addr: '1846 Lyons St, San Antonio, Tx', gp: 20000, ff: 'NO' },
+        { addr: '2024 Nw 17th Ave, Amarillo, Tx', gp: 2858, ff: 'NO' },
+        { addr: '1735 Parklane Dr, Cahokia, Il ', gp: 2000, ff: 'NO' }
+      ],
+      'Tamara Humbolt': [
+        { addr: '92 Briar Hill Loop, Wetumpka, ', gp: 3325, ff: 'YES' },
+        { addr: '504 Clark St, Pana, Il 62557', gp: 5000, ff: 'NO' },
+        { addr: '518 N Indiana St, Greencastle,', gp: 7000, ff: 'NO' },
+        { addr: '343 Barrett Pl, San Antonio, T', gp: 6900, ff: 'YES' },
+        { addr: '343 Barrett Pl, San Antonio, T', gp: 100, ff: 'YES' },
+        { addr: '17 N Water St, Gloversville, N', gp: 9128, ff: 'NO' }
+      ],
+      'Vincent Gnapi': [
+        { addr: '5118 Reno St, Philadelphia, Pa', gp: 6000, ff: 'NO' },
+        { addr: '1922 Auth St, Philadelphia, Pa', gp: 13000, ff: 'NO' },
+        { addr: '206 N Bond St, West Memphis, A', gp: 9000, ff: 'NO' },
+        { addr: '1436 W Spencer Ave, Marion, In', gp: 3000, ff: 'NO' },
+        { addr: '2724 N Dover St Philadelphia, ', gp: 14503, ff: 'NO' },
+        { addr: '504 Peach St, Sweeny, Tx 77480', gp: 4629, ff: 'YES' }
+      ],
+      'Yoseph Israel': [
+        { addr: '202 Jackson St. Washington, Ga', gp: 11600, ff: 'NO' }
       ]
     };
 
-    // September 2025 Acquisition Data
-    // NOTE: Manager-agents (Luis, Shon, Devin) are in managerData, not here
-    // Calibrated to produce exact commission total: $35,491.00
+    // September 2025 Acquisition Data - REAL DATA from Excel "Dispo Closings" sheet
+    // ALL 15 agents with actual deal-level data
     const acqData = {
-      'Kyle Singer': [
-        { addr: 'September Deals', gp: 83227, ff: 'NO', organic: false }
-      ],
-      'Dominick Mazliah': [
-        { addr: 'September Deals', gp: 77787, ff: 'NO', organic: false }
-      ],
       'Andrew Caceres': [
-        { addr: 'September Deals', gp: 77053, ff: 'NO', organic: false }
-      ],
-      'Jesse Sychowski': [
-        { addr: 'September Deals', gp: 61375, ff: 'NO', organic: false }
+        { addr: '337 Tumbling Run Est, Maynardv', gp: 22125, ff: 'YES', organic: false },
+        { addr: '202 Lura Ln Van Buren, Ar 7295', gp: 15000, ff: 'NO', organic: false },
+        { addr: '1311 E Garfield Ave, Decatur, ', gp: 4978, ff: 'NO', organic: false },
+        { addr: '870 Gardners Gin Rd, Cordova, ', gp: 21950, ff: 'NO', organic: false },
+        { addr: '1922 Auth St, Philadelphia, Pa', gp: 13000, ff: 'NO', organic: false }
       ],
       'Ashley Preston': [
-        { addr: 'September Deals', gp: 60123, ff: 'NO', organic: false }
-      ],
-      'Warren Smith': [
-        { addr: 'September Deals', gp: 33715, ff: 'NO', organic: false }
+        { addr: '115 S La Huerta Cir, Carlsbad,', gp: 18260, ff: 'YES', organic: false },
+        { addr: '50 Pine St, Beverly, Nj 8010', gp: 41863, ff: 'YES', organic: false }
       ],
       'Chris Chambers': [
-        { addr: 'September Deals', gp: 29225, ff: 'NO', organic: false }
+        { addr: '406 Temple Ave S, Fayette, Al ', gp: 2000, ff: 'NO', organic: false },
+        { addr: '830 Elm Ave Se, Roanoke, Va 24', gp: 8000, ff: 'NO', organic: false },
+        { addr: '926 Morton St, New Castle, Pa ', gp: 15900, ff: 'YES', organic: false },
+        { addr: '92 Briar Hill Loop, Wetumpka, ', gp: 3325, ff: 'YES', organic: false }
+      ],
+      'Devin Buford': [
+        { addr: '1632 Burrow St, Humboldt, Tn 3', gp: 5423, ff: 'YES', organic: false },
+        { addr: '516 W Dee St, Lebanon, Il 6225', gp: 14582, ff: 'NO', organic: false },
+        { addr: '206 N Bond St, West Memphis, A', gp: 9000, ff: 'NO', organic: false }
+      ],
+      'Dominick Mazliah': [
+        { addr: '3861 Andrews Dr, Macon, Ga 312', gp: 6750, ff: 'NO', organic: false },
+        { addr: '1233 Considine Ave, Cincinnati', gp: 7107, ff: 'YES', organic: false },
+        { addr: '11658 Somerset Ave, Detroit, M', gp: 8500, ff: 'NO', organic: false },
+        { addr: '514 S College St, Covington, T', gp: 14186, ff: 'YES', organic: false },
+        { addr: '978 Spring St, Macon, Ga 31201', gp: 37244, ff: 'NO', organic: false },
+        { addr: '1216 W King St, Decatur, Il 62', gp: 4000, ff: 'NO', organic: false }
+      ],
+      'Ex Rebuilt': [
+        { addr: '111 Burke St, River Rouge, Mi ', gp: 2225, ff: 'NO', organic: false },
+        { addr: '480 Sam Cunningham Rd Charlott', gp: 2500, ff: 'NO', organic: false },
+        { addr: '110 Woodford Dr, Lexington, Ky', gp: 14186, ff: 'NO', organic: false },
+        { addr: '1125 4th Ave, Freedom, Pa 1504', gp: 4025, ff: 'NO', organic: false },
+        { addr: '514 N Madison Ave, Bay City, M', gp: 18370, ff: 'YES', organic: false },
+        { addr: '108 Independence St, Cumberlan', gp: 3000, ff: 'NO', organic: false },
+        { addr: '32 Jenkins Dr, Fayetteville, T', gp: 26021, ff: 'NO', organic: false },
+        { addr: '1004 W Main St, New Albany, In', gp: 2116, ff: 'NO', organic: false },
+        { addr: '538 E White Lake Dr, Twin Lake', gp: 4000, ff: 'YES', organic: false }
       ],
       'Garrett Paschal': [
-        { addr: 'September Deals', gp: 3235, ff: 'NO', organic: false }
+        { addr: '224 N Massachusetts St, Jackso', gp: 3235, ff: 'YES', organic: false }
       ],
       'Ian Ross': [
-        { addr: 'September Deals', gp: 3000, ff: 'NO', organic: false }
+        { addr: '1109 Johnson Ave, Anniston, Al', gp: 3000, ff: 'NO', organic: false }
       ],
-      'Team Reserve': [
-        { addr: 'September Deals', gp: 44438, ff: 'NO', organic: false }
+      'Jesse Sychowski': [
+        { addr: '110 Mildred St, Montgomery, Al', gp: 1500, ff: 'YES', organic: false },
+        { addr: '291 Pinewood Dr, Henderson, Nc', gp: 4687, ff: 'YES', organic: false },
+        { addr: '509 West St N, Talladega, Al 3', gp: 8885, ff: 'YES', organic: false },
+        { addr: '7406 Park Ave, Cleveland, Oh 4', gp: 4000, ff: 'YES', organic: false },
+        { addr: '7406 Park Ave, Cleveland, Oh 4', gp: 2500, ff: 'YES', organic: false },
+        { addr: '920 4th Ct W, Birmingham, Al 3', gp: 12300, ff: 'YES', organic: false },
+        { addr: '1013 4th Ave N, Clanton, Al 35', gp: 5000, ff: 'NO', organic: false },
+        { addr: '504 Clark St, Pana, Il 62557', gp: 5000, ff: 'NO', organic: false },
+        { addr: '1436 W Spencer Ave, Marion, In', gp: 3000, ff: 'NO', organic: false },
+        { addr: '2724 N Dover St Philadelphia, ', gp: 14503, ff: 'NO', organic: false }
+      ],
+      'Kyle Singer': [
+        { addr: '1339 Howard Ave, Muskegon, Mi ', gp: 44382, ff: 'NO', organic: false },
+        { addr: '893 York St, Marion, Oh 43302', gp: 11117, ff: 'YES', organic: false },
+        { addr: '612 31e Hwy Old, Bethpage, Tn ', gp: 5000, ff: 'YES', organic: false },
+        { addr: '1735 Parklane Dr, Cahokia, Il ', gp: 2000, ff: 'NO', organic: false },
+        { addr: '17 N Water St, Gloversville, N', gp: 9128, ff: 'NO', organic: false },
+        { addr: '202 Jackson St. Washington, Ga', gp: 11600, ff: 'NO', organic: false }
+      ],
+      'Luis Guzman': [
+        { addr: '118 Cedar Pl, Ruidoso, Nm 8834', gp: 13199, ff: 'YES', organic: false },
+        { addr: '202 W White Horse Pike, Gallow', gp: 15475, ff: 'YES', organic: false },
+        { addr: '1846 Lyons St, San Antonio, Tx', gp: 20000, ff: 'NO', organic: false },
+        { addr: '518 N Indiana St, Greencastle,', gp: 7000, ff: 'NO', organic: false },
+        { addr: '504 Peach St, Sweeny, Tx 77480', gp: 4629, ff: 'YES', organic: false }
+      ],
+      'Scott Pennebaker': [
+        { addr: '164 Mcconnells Trce, Lexington', gp: 10000, ff: 'NO', organic: false }
+      ],
+      'Shon Yoshida': [
+        { addr: '617 County Line Church Rd, Hal', gp: 2892, ff: 'YES', organic: false },
+        { addr: '875 Perry Dr, Macon, Ga 31217', gp: 5590, ff: 'YES', organic: false },
+        { addr: '1011 Massengill St, Winchester', gp: 53212, ff: 'NO', organic: false },
+        { addr: '2024 Nw 17th Ave, Amarillo, Tx', gp: 2858, ff: 'NO', organic: false },
+        { addr: '343 Barrett Pl, San Antonio, T', gp: 6900, ff: 'YES', organic: false },
+        { addr: '343 Barrett Pl, San Antonio, T', gp: 100, ff: 'YES', organic: false }
+      ],
+      'Steve Shelburne': [
+        { addr: '5118 Reno St, Philadelphia, Pa', gp: 6000, ff: 'NO', organic: false }
+      ],
+      'Warren Smith': [
+        { addr: '164 Mcconnells Trce, Lexington', gp: 10000, ff: 'NO', organic: false },
+        { addr: '1777 Old Frankfort Rd, Lawrenc', gp: 7500, ff: 'NO', organic: false },
+        { addr: '410 Wellington Way, Winchester', gp: 13500, ff: 'NO', organic: false },
+        { addr: '33 Bon Haven Ave, Winchester, ', gp: 2715, ff: 'YES', organic: false }
       ]
     };
 
@@ -1133,8 +1263,13 @@
       }
     };
 
-    let selectedDispoAgents = new Set(Object.keys(dispoData));
-    let selectedAcqAgents = new Set(Object.keys(acqData));
+    // Manager-agents should NOT be counted in agent totals (only in manager section)
+    const managerAgentsAcq = ['Luis Guzman', 'Shon Yoshida', 'Devin Buford'];
+    const managerAgentsDispo = ['Joe Haupt', 'Maegan Grace'];
+
+    // Initialize with all agents EXCEPT manager-agents
+    let selectedDispoAgents = new Set(Object.keys(dispoData).filter(name => !managerAgentsDispo.includes(name)));
+    let selectedAcqAgents = new Set(Object.keys(acqData).filter(name => !managerAgentsAcq.includes(name)));
     let selectedManagers = new Set(Object.keys(managerData));
     let viewMode = 'both';
     let sortMode = 'default';
@@ -1143,25 +1278,27 @@
       return '$' + Math.round(num).toLocaleString('en-US');
     }
 
-    // Dispo Tier Rates (9 tiers, 2/3 for flat-fee)
+    // Dispo Tier Rates (9 tiers) - FROM EXCEL ALLPayOut2 $AA$4:$AE$12
+    // Rates are in decimal form (0.02 = 2%, 0.0667 = 6.67%)
     function getDispoTier(gp) {
-      if (gp < 25000) return { tier: 1, offRate: 2.0, ffRate: 1.33 };
-      if (gp < 50000) return { tier: 2, offRate: 3.0, ffRate: 2.00 };
-      if (gp < 60000) return { tier: 3, offRate: 4.0, ffRate: 2.67 };
-      if (gp < 75000) return { tier: 4, offRate: 5.0, ffRate: 3.33 };
-      if (gp < 100000) return { tier: 5, offRate: 6.0, ffRate: 4.00 };
-      if (gp < 125000) return { tier: 6, offRate: 7.0, ffRate: 4.67 };
-      if (gp < 150000) return { tier: 7, offRate: 8.0, ffRate: 5.33 };
-      if (gp < 175000) return { tier: 8, offRate: 9.0, ffRate: 6.00 };
-      return { tier: 9, offRate: 10.0, ffRate: 6.67 };
+      if (gp < 25000) return { tier: 1, offRate: 0.02, ffRate: 0.0133 };
+      if (gp < 50000) return { tier: 2, offRate: 0.03, ffRate: 0.02 };
+      if (gp < 75000) return { tier: 3, offRate: 0.04, ffRate: 0.0267 };
+      if (gp < 100000) return { tier: 4, offRate: 0.05, ffRate: 0.0333 };
+      if (gp < 125000) return { tier: 5, offRate: 0.06, ffRate: 0.04 };
+      if (gp < 150000) return { tier: 6, offRate: 0.07, ffRate: 0.0467 };
+      if (gp < 175000) return { tier: 7, offRate: 0.08, ffRate: 0.0533 };
+      if (gp < 200000) return { tier: 8, offRate: 0.09, ffRate: 0.06 };
+      return { tier: 9, offRate: 0.10, ffRate: 0.0667 };
     }
 
-    // Acq Tier Rates (4 tiers, organic = 20%)
+    // Acq Tier Rates (4 tiers) - FROM EXCEL PayoutChart $B$12:$D$15
+    // Rates are in decimal form (0.04 = 4%, 0.10 = 10%)
     function getAcqTier(gp) {
-      if (gp < 25000) return { tier: 1, rate: 4.0, organicRate: 20.0 };
-      if (gp < 50000) return { tier: 2, rate: 6.0, organicRate: 20.0 };
-      if (gp < 100000) return { tier: 3, rate: 8.0, organicRate: 20.0 };
-      return { tier: 4, rate: 10.0, organicRate: 20.0 };
+      if (gp <= 24999) return { tier: 1, rate: 0.04, organicRate: 0.20 };
+      if (gp <= 50000) return { tier: 2, rate: 0.06, organicRate: 0.20 };
+      if (gp <= 100000) return { tier: 3, rate: 0.08, organicRate: 0.20 };
+      return { tier: 4, rate: 0.10, organicRate: 0.20 };
     }
 
     // Acq Team Override Tier (for Type 2 managers)
@@ -1356,7 +1493,8 @@
     }
 
     function selectAllDispo() {
-      selectedDispoAgents = new Set(Object.keys(dispoData));
+      // Select all EXCEPT manager-agents
+      selectedDispoAgents = new Set(Object.keys(dispoData).filter(name => !managerAgentsDispo.includes(name)));
       renderDispoCheckboxes();
       renderAgents();
       updateGlobalSummary();
@@ -1370,7 +1508,8 @@
     }
 
     function selectAllAcq() {
-      selectedAcqAgents = new Set(Object.keys(acqData));
+      // Select all EXCEPT manager-agents
+      selectedAcqAgents = new Set(Object.keys(acqData).filter(name => !managerAgentsAcq.includes(name)));
       renderAcqCheckboxes();
       renderAgents();
       updateGlobalSummary();
@@ -1681,11 +1820,30 @@
         dispoOffMarket += agentOffMarket;
         dispoFlatFee += agentFlatFee;
 
-        // Apply lowest tier for Ex-Rebuilt agents regardless of GP
-        const tierInfo = agentName === 'Ex-Rebuilt (Dispo)'
-          ? { tier: 1, offRate: 2.0, ffRate: 1.33 }
-          : getDispoTier(agentGP);
-        dispoCommission += (agentOffMarket * tierInfo.offRate / 100) + (agentFlatFee * tierInfo.ffRate / 100);
+        // Get tier info with special cases
+        let tierInfo;
+        if (agentName === 'Ex-Rebuilt (Dispo)') {
+          // Ex-Rebuilt always uses Tier 1
+          tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
+        } else if (agentName === 'Alec Prieto' && document.getElementById('alec-tier-override').checked) {
+          // Alec Prieto: +1 tier bonus if checkbox is checked
+          const normalTier = getDispoTier(agentGP);
+          const bonusTierNum = Math.min(normalTier.tier + 1, 9); // Cap at tier 9
+          tierInfo = getDispoTier(999999); // Get tier 9 rates
+          // Now get the actual rates for the bonus tier
+          if (bonusTierNum === 1) tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
+          else if (bonusTierNum === 2) tierInfo = { tier: 2, offRate: 0.03, ffRate: 0.02 };
+          else if (bonusTierNum === 3) tierInfo = { tier: 3, offRate: 0.04, ffRate: 0.0267 };
+          else if (bonusTierNum === 4) tierInfo = { tier: 4, offRate: 0.05, ffRate: 0.0333 };
+          else if (bonusTierNum === 5) tierInfo = { tier: 5, offRate: 0.06, ffRate: 0.04 };
+          else if (bonusTierNum === 6) tierInfo = { tier: 6, offRate: 0.07, ffRate: 0.0467 };
+          else if (bonusTierNum === 7) tierInfo = { tier: 7, offRate: 0.08, ffRate: 0.0533 };
+          else if (bonusTierNum === 8) tierInfo = { tier: 8, offRate: 0.09, ffRate: 0.06 };
+          else tierInfo = { tier: 9, offRate: 0.10, ffRate: 0.0667 };
+        } else {
+          tierInfo = getDispoTier(agentGP);
+        }
+        dispoCommission += (agentOffMarket * tierInfo.offRate) + (agentFlatFee * tierInfo.ffRate);
       });
 
       // Acq Totals
@@ -1708,10 +1866,10 @@
         acqGP += agentGP;
 
         // Apply lowest tier for Ex-Rebuilt agents regardless of GP
-        const tierInfo = agentName === 'Ex-Rebuilt (Acq)'
-          ? { tier: 1, rate: 4.0, organicRate: 20.0 }
+        const tierInfo = agentName === 'Ex Rebuilt'
+          ? { tier: 1, rate: 0.04, organicRate: 0.20 }
           : getAcqTier(agentGP);
-        acqCommission += (agentNonOrganic * tierInfo.rate / 100) + (agentOrganic * tierInfo.organicRate / 100);
+        acqCommission += (agentNonOrganic * tierInfo.rate) + (agentOrganic * tierInfo.organicRate);
       });
 
       // Update Dispo Row (show total unique deals for both)
@@ -1764,9 +1922,10 @@
         managerTotal += calculateManagerCommission(managerName);
       });
 
-      // Net Total = Commission payouts only (agents + managers)
-      // Excludes overhead costs (employee costs, sprints)
-      const netTotal = totalCommission + managerTotal;
+      // Net Total = Commission payouts (agents + managers) + optional sprints
+      // Excludes overhead costs (employee costs)
+      const includeSprints = document.getElementById('include-sprints').checked;
+      const netTotal = totalCommission + managerTotal + (includeSprints ? sprintTotal : 0);
 
       document.getElementById('total-agents').textContent = totalSelectedAgents;
       document.getElementById('total-deals').textContent = totalDeals;

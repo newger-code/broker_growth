@@ -80,9 +80,11 @@ Total_Commission = Commission_OffMarket + Commission_FlatFee
 
 ### Special Cases
 - **Alec Prieto**: Tier is HARDCODED as 6 (special deal), not calculated from GP
-  - GP_Total: $124,972 (would normally be Tier 5)
-  - Actual Tier: 6 (one tier higher)
+  - GP_Total: $124,972 (would normally be Tier 5: $100K-$124,999)
+  - Actual Tier: 6 (appears to be "+1 tier bonus" or "locked at Tier 6")
+  - **Clarification needed**: Unknown if this is "current tier + 1" or "fixed at Tier 6 regardless of GP"
   - Commission: $93,403 × 7% + $31,569 × 4.67% = $8,361.44
+  - **NOTE**: This is hardcoded in Excel cell O3, not backend data - must be handled in calculator UI
 
 ### Notes
 - Manager-agents (Joe Haupt, Maegan Grace) appear in agent list BUT their commissions go to manager sheets
