@@ -625,17 +625,23 @@
                   </div>
                 </div>
                 <div className="p-6 dark-card rounded-2xl shadow-sm border border-neutral-700">
-                  <h3 className="text-sm font-semibold">Infrastructure Modeling</h3>
-                  <div className="mt-3 flex items-center gap-3">
-                    <div className="text-sm flex-shrink-0">Total markets: <span className="font-medium">{economics.licensedAgent.totalMarkets.toLocaleString()}</span></div>
-                    <input className="flex-1" type="range" min={0} max={15} step={1} value={additionalMarkets} onChange={e=>setAdditionalMarkets(parseInt(e.target.value))} />
+                  <h3 className="text-sm font-semibold mb-3">Infrastructure Modeling</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-sm flex-shrink-0">Total markets: <span className="font-medium">{economics.licensedAgent.totalMarkets.toLocaleString()}</span></div>
+                        <input className="flex-1" type="range" min={0} max={15} step={1} value={additionalMarkets} onChange={e=>setAdditionalMarkets(parseInt(e.target.value))} />
+                      </div>
+                      <div className="mt-1 text-xs text-neutral-500">Selected: {activeMarkets.length.toLocaleString()} • Additional: {additionalMarkets.toLocaleString()}</div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-sm flex-shrink-0">Per-market / month: <span className="font-medium">{formatUSD(infraPerMarketPerMonth)}</span></div>
+                        <input className="flex-1" type="range" min={1000} max={5000} step={100} value={infraPerMarketPerMonth} onChange={e=>setInfraPerMarketPerMonth(parseInt(e.target.value))} />
+                      </div>
+                      <div className="mt-1 text-xs text-neutral-500">Annual infrastructure spend: {formatUSD(economics.infra)}</div>
+                    </div>
                   </div>
-                  <div className="mt-1 text-xs text-neutral-500">Selected: {activeMarkets.length.toLocaleString()} • Additional: {additionalMarkets.toLocaleString()}</div>
-                  <div className="mt-3 flex items-center gap-3">
-                    <div className="text-sm flex-shrink-0">Per-market / month: <span className="font-medium">{formatUSD(infraPerMarketPerMonth)}</span></div>
-                    <input className="flex-1" type="range" min={1000} max={5000} step={100} value={infraPerMarketPerMonth} onChange={e=>setInfraPerMarketPerMonth(parseInt(e.target.value))} />
-                  </div>
-                  <div className="mt-2 text-xs text-neutral-500">Annual infrastructure spend: {formatUSD(economics.infra)}</div>
                 </div>
               </div>
 
@@ -647,7 +653,7 @@
                   <div>
                     <div className="text-sm">
                       Off-Market Share: <span className="font-medium">{Math.round(offMarketShare*100)}%</span>
-                      <InfoIcon text="% of closed deals that are off-market assignments vs MLS-listed properties (90% in Sept 2025)" />
+                      <InfoIcon text="% of closed deals that are off-market assignments vs MLS-listed properties" />
                     </div>
                     <input type="range" min={0} max={1} step={0.01} value={offMarketShare} onChange={e=>setOffMarketShare(parseFloat(e.target.value))}/>
                     <div className="mt-1 text-xs text-neutral-500">Off-Mkt: {economics.offMktAnnual.toLocaleString()} • MLS: {economics.mlsAnnual.toLocaleString()}</div>
@@ -659,7 +665,6 @@
                         <InfoIcon text="% of off-market deals where Rebuilt captures the assignment fee (vs seller backing out or deal falling through)" />
                       </div>
                       <input type="range" min={0.4} max={1} step={0.01} value={offMarketCapture} onChange={e=>setOffMarketCapture(parseFloat(e.target.value))}/>
-                      <div className="mt-1 text-xs text-neutral-500">Assignment fee collection rate</div>
                     </div>
                     <div>
                       <div>
@@ -667,21 +672,38 @@
                         <InfoIcon text="Gross profit per off-market deal (assignment fee after transaction costs)" />
                       </div>
                       <input type="range" min={0} max={20000} step={500} value={offMarketFee} onChange={e=>setOffMarketFee(parseInt(e.target.value))}/>
-                      <div className="mt-1 text-xs text-neutral-500">GP per deal</div>
                     </div>
                     <div>
                       <div>
                         Title Direct Capture: <span className="font-medium">{Math.round(titleDirectCaptureRate*100)}%</span>
-                        <InfoIcon text="% of Rebuilt off-market deals where we also close title through National Title Service (90% in Sept)" />
+                        <InfoIcon text="% of Rebuilt off-market deals where we also close title through National Title Service" />
                       </div>
                       <input type="range" min={0.5} max={1} step={0.01} value={titleDirectCaptureRate} onChange={e=>setTitleDirectCaptureRate(parseFloat(e.target.value))}/>
-                      <div className="mt-1 text-xs text-neutral-500">Rebuilt off-market only (National Title Service)</div>
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div><div>MLS Avg Price: <span className="font-medium">{formatUSD(mlsAvgPrice)}</span></div><input type="range" min={100000} max={300000} step={5000} value={mlsAvgPrice} onChange={e=>setMlsAvgPrice(parseInt(e.target.value))}/></div>
                     <div><div>MLS Commission: <span className="font-medium">{(mlsCommissionRate*100).toFixed(1)}%</span></div><input type="range" min={0.01} max={0.04} step={0.001} value={mlsCommissionRate} onChange={e=>setMlsCommissionRate(parseFloat(e.target.value))}/></div>
                     <div><div>Title Profit/Deal: <span className="font-medium">{formatUSD(titleProfitPerDeal)}</span></div><input type="range" min={200} max={800} step={25} value={titleProfitPerDeal} onChange={e=>setTitleProfitPerDeal(parseInt(e.target.value))}/></div>
+                  </div>
+
+                  {/* MLS Metrics Summary */}
+                  <div className="mt-6 p-4 bg-neutral-800 rounded-lg border border-neutral-700">
+                    <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">MLS Deal Metrics</h4>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <div className="text-xs text-neutral-500 mb-1">Annual MLS Units</div>
+                        <div className="text-lg font-semibold text-blue-300">{economics.mlsAnnual.toLocaleString()}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-neutral-500 mb-1">Total MLS Revenue</div>
+                        <div className="text-lg font-semibold text-blue-300">{formatUSD(economics.mlsCommission)}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-neutral-500 mb-1">Avg Revenue/Deal</div>
+                        <div className="text-lg font-semibold text-blue-300">{formatUSD(economics.mlsCommission / Math.max(economics.mlsAnnual, 1))}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
