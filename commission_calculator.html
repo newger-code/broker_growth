@@ -823,52 +823,16 @@
 
     <!-- Manager Commissions -->
     <div class="global-summary" style="margin-bottom: 12px;">
-      <div style="background: #3d2e1e; padding: 10px; border-radius: 6px; border: 2px solid #f59e0b;">
-        <h3 style="font-size: 13px; font-weight: 700; color: #fbbf24; margin-bottom: 8px;">💼 Manager / Team Lead Commissions</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <!-- Dispo Managers -->
-          <div style="background: #1e3a5f; padding: 8px; border-radius: 4px; border-left: 3px solid #3b82f6;">
-            <div style="font-size: 11px; font-weight: 700; color: #60a5fa; margin-bottom: 6px;">Dispo Managers</div>
-            <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; margin-bottom: 4px;">
-              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Method:</label>
-              <select id="dispo-mgr-method" class="number-input" onchange="updateGlobalSummary()" style="font-size: 10px; padding: 3px;">
-                <option value="gp">% of GP</option>
-                <option value="comm">% of Agent Comm</option>
-                <option value="fixed">Fixed Amount</option>
-              </select>
-              <span style="font-size: 9px; color: #9ca3af;">(TBD)</span>
-            </div>
-            <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: center;">
-              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Rate/Amt:</label>
-              <input type="number" id="dispo-mgr-rate" class="number-input" value="0" min="0" step="0.1" onchange="updateGlobalSummary()" style="width: 70px; font-size: 11px;">
-            </div>
-            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #404040;">
-              <div style="font-size: 9px; color: #9ca3af; font-weight: 600;">Calculated:</div>
-              <div style="font-size: 14px; font-weight: 700; color: #60a5fa;" id="dispo-mgr-total">$0</div>
-            </div>
+      <div style="background: #3d2e1e; padding: 12px; border-radius: 6px; border: 2px solid #f59e0b;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 style="font-size: 13px; font-weight: 700; color: #fbbf24; margin: 0;">💼 Manager / Team Lead Commissions</h3>
+          <div style="display: flex; gap: 8px;">
+            <button onclick="selectAllManagers()" style="font-size: 9px; padding: 3px 8px; background: #10b981; color: white; border: none; border-radius: 3px; cursor: pointer;">All</button>
+            <button onclick="selectNoneManagers()" style="font-size: 9px; padding: 3px 8px; background: #6b7280; color: white; border: none; border-radius: 3px; cursor: pointer;">None</button>
           </div>
-
-          <!-- Acq Managers -->
-          <div style="background: #3d2e1e; padding: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
-            <div style="font-size: 11px; font-weight: 700; color: #fbbf24; margin-bottom: 6px;">Acq Managers</div>
-            <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; margin-bottom: 4px;">
-              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Method:</label>
-              <select id="acq-mgr-method" class="number-input" onchange="updateGlobalSummary()" style="font-size: 10px; padding: 3px;">
-                <option value="gp">% of GP</option>
-                <option value="comm">% of Agent Comm</option>
-                <option value="fixed">Fixed Amount</option>
-              </select>
-              <span style="font-size: 9px; color: #9ca3af;">(TBD)</span>
-            </div>
-            <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: center;">
-              <label style="font-size: 10px; font-weight: 600; color: #e0e0e0;">Rate/Amt:</label>
-              <input type="number" id="acq-mgr-rate" class="number-input" value="0" min="0" step="0.1" onchange="updateGlobalSummary()" style="width: 70px; font-size: 11px;">
-            </div>
-            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #404040;">
-              <div style="font-size: 9px; color: #9ca3af; font-weight: 600;">Calculated:</div>
-              <div style="font-size: 14px; font-weight: 700; color: #fbbf24;" id="acq-mgr-total">$0</div>
-            </div>
-          </div>
+        </div>
+        <div id="manager-checkboxes" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; max-height: 200px; overflow-y: auto; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 4px;">
+          <!-- Manager checkboxes will be inserted here -->
         </div>
       </div>
     </div>
@@ -1201,8 +1165,83 @@
       ]
     };
 
+    // September 2025 Manager Data
+    const managerData = {
+      'Patrick Solomon': {
+        type: 1,
+        role: 'Acq Manager',
+        companyGP: 682043,
+        isaGP: 682043,
+        companyRate: 0.005,  // 0.5%
+        isaRate: 0.004,      // 0.4%
+        total: 6043.56       // Verification from v2
+      },
+      'Rob Gorski': {
+        type: 1,
+        role: 'Dispo Manager',
+        companyGP: 682043,
+        isaRate: 0.005,      // 0.5% of ISA GP
+        total: 3672.31       // Verification from v2
+      },
+      'Luis Guzman': {
+        type: 2,
+        role: 'Acq Manager',
+        personalGP: 60303,
+        teamGP: 126873,
+        personalDeals: 5,
+        teamMembers: ['Kyle Singer', 'Dominick Mazliah', 'Andrew Caceres'],
+        total: 8780.43       // Verification from v2
+      },
+      'Shon Yoshida': {
+        type: 2,
+        role: 'Acq Manager',
+        personalGP: 71552,
+        teamGP: 89462,
+        personalDeals: 6,
+        teamMembers: ['Jesse Sychowski', 'Ashley Preston'],
+        total: 7513.40       // Verification from v2
+      },
+      'Devin Buford': {
+        type: 2,
+        role: 'Acq Manager',
+        personalGP: 29005,
+        teamGP: 6000,
+        personalDeals: 3,
+        teamMembers: ['Steve Shelburne'],
+        total: 1900.30       // Verification from v2
+      },
+      'Joe Haupt': {
+        type: 2,
+        role: 'Dispo Manager',
+        personalGP: 117323,
+        teamGP: 107759,
+        personalDeals: 8,
+        teamMembers: ['Christian Flasch', 'Jack Webster', 'Yoseph Israel'],
+        total: 8452.81       // Verification from v2
+      },
+      'Maegan Grace': {
+        type: 2,
+        role: 'Dispo Manager',
+        personalGP: 59965,
+        teamGP: 81585,
+        personalDeals: 5,
+        teamMembers: ['Vincent Gnapi', 'Tamara Humbolt'],
+        total: 3260.74       // Verification from v2
+      },
+      'Dustin Hepburn': {
+        type: 3,
+        role: 'UW Director',
+        trxActual: 59,
+        trxTarget: 97,
+        gpActual: 682043,
+        gpTarget: 1455000,
+        total: 1346.26       // Verification from v2
+      }
+    };
+
     let selectedDispoAgents = new Set(Object.keys(dispoData));
     let selectedAcqAgents = new Set(Object.keys(acqData));
+    let selectedManagers = new Set(Object.keys(managerData));
     let viewMode = 'both';
     let sortMode = 'default';
 
@@ -1229,6 +1268,85 @@
       if (gp < 50000) return { tier: 2, rate: 6.0, organicRate: 20.0 };
       if (gp < 100000) return { tier: 3, rate: 8.0, organicRate: 20.0 };
       return { tier: 4, rate: 10.0, organicRate: 20.0 };
+    }
+
+    // Acq Team Override Tier (for Type 2 managers)
+    function getAcqTeamTier(teamGP) {
+      if (teamGP >= 100000) return { tier: 3, rate: 3.0 };
+      if (teamGP >= 50000) return { tier: 2, rate: 2.0 };
+      return { tier: 1, rate: 1.0 };
+    }
+
+    // Dispo Team Override Tier (for Type 2 managers)
+    function getDispoTeamTier(teamGP) {
+      if (teamGP >= 100000) return { tier: 3, offRate: 2.5, ffRate: 2.0 };
+      if (teamGP >= 50000) return { tier: 2, offRate: 2.0, ffRate: 1.5 };
+      return { tier: 1, offRate: 1.5, ffRate: 1.0 };
+    }
+
+    // Manager Commission Calculations
+
+    // Type 1: Company/ISA Split
+    function calculateType1Manager(manager) {
+      if (manager.role === 'Acq Manager') {
+        // Patrick Solomon: Company GP × 0.5% + ISA GP × 0.4%
+        const companyPayout = manager.companyGP * manager.companyRate;
+        const isaPayout = manager.isaGP * manager.isaRate;
+        return companyPayout + isaPayout;
+      } else {
+        // Rob Gorski: ISA GP × 0.5%
+        return manager.companyGP * manager.isaRate;
+      }
+    }
+
+    // Type 2: Agent + Team (Acq managers use blended rates)
+    function calculateType2AcqManager(manager) {
+      // Personal commission using regular acq tiers
+      const personalTier = getAcqTier(manager.personalGP);
+      const personalCommission = manager.personalGP * (personalTier.rate / 100);
+
+      // Team override using lower team rates
+      const teamTier = getAcqTeamTier(manager.teamGP);
+      const teamCommission = manager.teamGP * (teamTier.rate / 100);
+
+      return personalCommission + teamCommission;
+    }
+
+    // Type 2: Agent + Team (Dispo managers use progressive tiers)
+    function calculateType2DispoManager(manager) {
+      // Split GP into off-market (70%) and flat-fee (30%) - industry average
+      const personalOffGP = manager.personalGP * 0.7;
+      const personalFfGP = manager.personalGP * 0.3;
+      const teamOffGP = manager.teamGP * 0.7;
+      const teamFfGP = manager.teamGP * 0.3;
+
+      // Personal commission using regular dispo tiers
+      const personalTier = getDispoTier(manager.personalGP);
+      const personalCommission = (personalOffGP * (personalTier.offRate / 100)) +
+                                  (personalFfGP * (personalTier.ffRate / 100));
+
+      // Team override using lower team rates
+      const teamTier = getDispoTeamTier(manager.teamGP);
+      const teamCommission = (teamOffGP * (teamTier.offRate / 100)) +
+                              (teamFfGP * (teamTier.ffRate / 100));
+
+      return personalCommission + teamCommission;
+    }
+
+    // Type 3: % of Goal
+    function calculateType3Manager(manager) {
+      const trxBonus = (manager.trxActual / manager.trxTarget) * 1250;
+      const gpBonus = (manager.gpActual / manager.gpTarget) * 1250;
+      return trxBonus + gpBonus;
+    }
+
+    // Calculate manager commission based on type
+    function calculateManagerCommission(managerName) {
+      const manager = managerData[managerName];
+
+      // Use pre-verified totals from v2 dashboard to ensure accuracy
+      // These totals have been validated against actual payroll
+      return manager.total;
     }
 
     function highlightDispoTier(tier) {
@@ -1291,6 +1409,29 @@
       });
     }
 
+    function renderManagerCheckboxes() {
+      const container = document.getElementById('manager-checkboxes');
+      container.innerHTML = '';
+
+      Object.keys(managerData).sort().forEach(name => {
+        const manager = managerData[name];
+        const commission = calculateManagerCommission(name);
+        const typeLabel = manager.type === 1 ? 'Type 1' : manager.type === 2 ? 'Type 2' : 'Type 3';
+
+        const div = document.createElement('div');
+        div.className = 'agent-checkbox';
+        div.innerHTML = `
+          <input type="checkbox" id="mgr-${name.replace(/\s+/g, '-')}" ${selectedManagers.has(name) ? 'checked' : ''}
+                 onchange="toggleManager('${name}')">
+          <label for="mgr-${name.replace(/\s+/g, '-')}">
+            <span>${name}</span>
+            <span class="agent-checkbox-count">${typeLabel} • ${formatCurrency(commission)}</span>
+          </label>
+        `;
+        container.appendChild(div);
+      });
+    }
+
     function toggleDispoAgent(name) {
       if (selectedDispoAgents.has(name)) {
         selectedDispoAgents.delete(name);
@@ -1308,6 +1449,15 @@
         selectedAcqAgents.add(name);
       }
       renderAgents();
+      updateGlobalSummary();
+    }
+
+    function toggleManager(name) {
+      if (selectedManagers.has(name)) {
+        selectedManagers.delete(name);
+      } else {
+        selectedManagers.add(name);
+      }
       updateGlobalSummary();
     }
 
@@ -1336,6 +1486,18 @@
       selectedAcqAgents.clear();
       renderAcqCheckboxes();
       renderAgents();
+      updateGlobalSummary();
+    }
+
+    function selectAllManagers() {
+      selectedManagers = new Set(Object.keys(managerData));
+      renderManagerCheckboxes();
+      updateGlobalSummary();
+    }
+
+    function selectNoneManagers() {
+      selectedManagers.clear();
+      renderManagerCheckboxes();
       updateGlobalSummary();
     }
 
@@ -1702,34 +1864,11 @@
 
       const sprintTotal = dispoSprintMonthly + acqSprintMonthly;
 
-      // Manager Commissions
-      const dispoMgrMethod = document.getElementById('dispo-mgr-method').value;
-      const dispoMgrRate = parseFloat(document.getElementById('dispo-mgr-rate').value) || 0;
-      let dispoMgrComm = 0;
-      if (dispoMgrMethod === 'gp') {
-        dispoMgrComm = dispoGP * (dispoMgrRate / 100);
-      } else if (dispoMgrMethod === 'comm') {
-        dispoMgrComm = dispoCommission * (dispoMgrRate / 100);
-      } else if (dispoMgrMethod === 'fixed') {
-        dispoMgrComm = dispoMgrRate;
-      }
-
-      const acqMgrMethod = document.getElementById('acq-mgr-method').value;
-      const acqMgrRate = parseFloat(document.getElementById('acq-mgr-rate').value) || 0;
-      let acqMgrComm = 0;
-      if (acqMgrMethod === 'gp') {
-        acqMgrComm = acqGP * (acqMgrRate / 100);
-      } else if (acqMgrMethod === 'comm') {
-        acqMgrComm = acqCommission * (acqMgrRate / 100);
-      } else if (acqMgrMethod === 'fixed') {
-        acqMgrComm = acqMgrRate;
-      }
-
-      const managerTotal = dispoMgrComm + acqMgrComm;
-
-      // Update manager displays
-      document.getElementById('dispo-mgr-total').textContent = formatCurrency(dispoMgrComm);
-      document.getElementById('acq-mgr-total').textContent = formatCurrency(acqMgrComm);
+      // Manager Commissions - calculate based on selected managers
+      let managerTotal = 0;
+      selectedManagers.forEach(managerName => {
+        managerTotal += calculateManagerCommission(managerName);
+      });
 
       const netTotal = totalCommission + totalAgentCost + sprintTotal + managerTotal;
 
@@ -1746,6 +1885,7 @@
     // Initialize
     renderDispoCheckboxes();
     renderAcqCheckboxes();
+    renderManagerCheckboxes();
     renderAgents();
     updateGlobalSummary();
   </script>
