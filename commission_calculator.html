@@ -981,187 +981,94 @@
       }
     });
 
-    // September 2025 Disposition Data
+    // September 2025 Disposition Data (from v2 - exact GP splits)
     const dispoData = {
-      'Alec Prieto': [
-        { addr: '514 N Madison Ave, Bay City, Mi', gp: 18370, ff: 'YES' },
-        { addr: '118 Cedar Pl, Ruidoso, Nm', gp: 13199, ff: 'YES' },
-        { addr: '108 Independence St, Cumberland, Md', gp: 3000, ff: 'NO' },
-        { addr: '32 Jenkins Dr, Fayetteville, Tn', gp: 26021, ff: 'NO' },
-        { addr: '164 Mcconnells Trce, Lexington, Ky', gp: 20000, ff: 'NO' },
-        { addr: '1339 Howard Ave, Muskegon, Mi', gp: 44382, ff: 'NO' }
-      ],
       'Joe Haupt': [
-        { addr: '514 S College St, Covington, Tn', gp: 14186, ff: 'YES' },
-        { addr: '291 Pinewood Dr, Henderson, Nc', gp: 4687, ff: 'YES' },
-        { addr: '926 Morton St, New Castle, Pa', gp: 15900, ff: 'YES' },
-        { addr: '509 West St N, Talladega, Al', gp: 8885, ff: 'YES' },
-        { addr: '202 W White Horse Pike, Galloway, Nj', gp: 15475, ff: 'YES' },
-        { addr: '1011 Massengill St, Winchester, Tn', gp: 53212, ff: 'FF_APPROVED' },
-        { addr: '1311 E Garfield Ave, Decatur, Il', gp: 4978, ff: 'NO' }
+        { addr: 'Off-Market Deals', gp: 58190, ff: 'NO' },
+        { addr: 'Flat-Fee Deals', gp: 59133, ff: 'YES' }
       ],
-      'Devin Cooper': [
-        { addr: '115 S La Huerta Cir, Carlsbad, Nm', gp: 18260, ff: 'YES' },
-        { addr: '538 E White Lake Dr, Twin Lake, Mi', gp: 4000, ff: 'YES' },
-        { addr: '830 Elm Ave Se, Roanoke, Va', gp: 8000, ff: 'FF_APPROVED' },
-        { addr: '612 31e Hwy Old, Bethpage, Tn', gp: 5000, ff: 'YES' },
-        { addr: '11658 Somerset Ave, Detroit, Mi', gp: 8500, ff: 'FF_APPROVED' },
-        { addr: '111 Burke St, River Rouge, Mi', gp: 2225, ff: 'NO' },
-        { addr: '202 Lura Ln Van Buren, Ar', gp: 15000, ff: 'NO' }
+      'Alec Prieto': [
+        { addr: 'Off-Market Deals', gp: 93403, ff: 'NO' },
+        { addr: 'Flat-Fee Deals', gp: 31569, ff: 'YES' }
       ],
       'Maegan Grace': [
-        { addr: '33 Bon Haven Ave, Winchester, Ky', gp: 2715, ff: 'YES' },
-        { addr: '343 Barrett Pl, San Antonio, Tx', gp: 6900, ff: 'YES' },
-        { addr: '920 4th Ct W, Birmingham, Al', gp: 12300, ff: 'YES' },
-        { addr: '7406 Park Ave, Cleveland, Oh', gp: 4000, ff: 'YES' },
-        { addr: '870 Gardners Gin Rd, Cordova, Al', gp: 21950, ff: 'FF_APPROVED' },
-        { addr: '410 Wellington Way, Winchester, Ky', gp: 13500, ff: 'FF_APPROVED' },
-        { addr: '1109 Johnson Ave, Anniston, Al', gp: 3000, ff: 'NO' }
+        { addr: 'Off-Market Deals', gp: 38450, ff: 'NO' },
+        { addr: 'Flat-Fee Deals', gp: 21515, ff: 'YES' }
       ],
-      'Christian Flasch': [
-        { addr: '617 County Line Church Rd, Haleyville, Al', gp: 2892, ff: 'YES' },
-        { addr: '1233 Considine Ave, Cincinnati, Oh', gp: 7107, ff: 'YES' },
-        { addr: '337 Tumbling Run Est, Maynardville, Tn', gp: 22125, ff: 'YES' },
-        { addr: '875 Perry Dr, Macon, Ga', gp: 5590, ff: 'YES' },
-        { addr: '406 Temple Ave S, Fayette, Al', gp: 2000, ff: 'FF_APPROVED' },
-        { addr: '516 W Dee St, Lebanon, Il', gp: 14582, ff: 'NO' }
+      'Devin Cooper': [
+        { addr: 'Off-Market Deals', gp: 33725, ff: 'NO' },
+        { addr: 'Flat-Fee Deals', gp: 27260, ff: 'YES' }
       ],
       'Vincent Gnapi': [
-        { addr: '504 Peach St, Sweeny, Tx', gp: 4629, ff: 'YES' },
-        { addr: '5118 Reno St, Philadelphia, Pa', gp: 6000, ff: 'NO' },
-        { addr: '1922 Auth St, Philadelphia, Pa', gp: 13000, ff: 'NO' },
-        { addr: '1436 W Spencer Ave, Marion, In', gp: 3000, ff: 'FF_APPROVED' },
-        { addr: '206 N Bond St, West Memphis, Ar', gp: 9000, ff: 'NO' },
-        { addr: '2724 N Dover St Philadelphia, Pa', gp: 14503, ff: 'NO' }
+        { addr: 'Off-Market Deals', gp: 45503, ff: 'NO' },
+        { addr: 'Flat-Fee Deals', gp: 4629, ff: 'YES' }
+      ],
+      'Christian Flasch': [
+        { addr: 'Off-Market Deals', gp: 16582, ff: 'NO' },
+        { addr: 'Flat-Fee Deals', gp: 37714, ff: 'YES' }
       ],
       'Miguel Aguilar': [
-        { addr: '110 Woodford Dr, Lexington, Ky', gp: 14186, ff: 'NO' },
-        { addr: '1125 4th Ave, Freedom, Pa', gp: 4025, ff: 'NO' },
-        { addr: '1013 4th Ave N, Clanton, Al', gp: 5000, ff: 'NO' },
-        { addr: '1846 Lyons St, San Antonio, Tx', gp: 20000, ff: 'NO' },
-        { addr: '2024 Nw 17th Ave, Amarillo, Tx', gp: 2858, ff: 'NO' },
-        { addr: '1735 Parklane Dr, Cahokia, Il', gp: 2000, ff: 'NO' }
-      ],
-      'Brittany Taylor': [
-        { addr: '1632 Burrow St, Humboldt, Tn', gp: 5423, ff: 'YES' },
-        { addr: '893 York St, Marion, Oh', gp: 11117, ff: 'YES' },
-        { addr: '1004 W Main St, New Albany, In', gp: 2116, ff: 'FF_APPROVED' },
-        { addr: '3861 Andrews Dr, Macon, Ga', gp: 6750, ff: 'NO' }
-      ],
-      'Tamara Humbolt': [
-        { addr: '92 Briar Hill Loop, Wetumpka, Al', gp: 3325, ff: 'YES' },
-        { addr: '17 N Water St, Gloversville, Ny', gp: 9128, ff: 'FF_APPROVED' },
-        { addr: '504 Clark St, Pana, Il', gp: 5000, ff: 'FF_APPROVED' },
-        { addr: '518 N Indiana St, Greencastle, In', gp: 7000, ff: 'NO' }
-      ],
-      'Jack Webster': [
-        { addr: '50 Pine St, Beverly, Nj', gp: 41863, ff: 'YES' }
+        { addr: 'Off-Market Deals', gp: 48069, ff: 'NO' }
       ],
       'Leland Boyd': [
-        { addr: '978 Spring St, Macon, Ga', gp: 37244, ff: 'NO' }
+        { addr: 'Off-Market Deals', gp: 37244, ff: 'NO' }
       ],
-      'Mel Grant': [
-        { addr: '1216 W King St, Decatur, Il', gp: 4000, ff: 'NO' }
+      'Brittany Taylor': [
+        { addr: 'Off-Market Deals', gp: 8866, ff: 'NO' },
+        { addr: 'Flat-Fee Deals', gp: 16540, ff: 'YES' }
       ],
-      'Yoseph Israel': [
-        { addr: '202 Jackson St. Washington, Ga', gp: 11600, ff: 'NO' }
+      'Tamara Humbolt': [
+        { addr: 'Off-Market Deals', gp: 21128, ff: 'NO' },
+        { addr: 'Flat-Fee Deals', gp: 10325, ff: 'YES' }
       ],
-      'Devin Hoffman': [
-        { addr: '224 N Massachusetts St, Jackson, Tn', gp: 3235, ff: 'YES' }
-      ],
-      'Ex-Rebuilt (Dispo)': [
-        { addr: '1777 Old Frankfort Rd, Lawrenceburg, Ky', gp: 7500, ff: 'NO' }
+      'Jack Webster': [
+        { addr: 'Flat-Fee Deals', gp: 41863, ff: 'YES' }
       ]
     };
 
-    // September 2025 Acquisition Data
+    // September 2025 Acquisition Data (from v2 - exact GP per agent)
     const acqData = {
       'Kyle Singer': [
-        { addr: '893 York St, Marion, Oh', gp: 11117, ff: 'YES', organic: false },
-        { addr: '612 31e Hwy Old, Bethpage, Tn', gp: 5000, ff: 'YES', organic: false },
-        { addr: '17 N Water St, Gloversville, Ny', gp: 9128, ff: 'FF_APPROVED', organic: false },
-        { addr: '1339 Howard Ave, Muskegon, Mi', gp: 44382, ff: 'NO', organic: false },
-        { addr: '1735 Parklane Dr, Cahokia, Il', gp: 2000, ff: 'NO', organic: false },
-        { addr: '202 Jackson St. Washington, Ga', gp: 11600, ff: 'NO', organic: false }
+        { addr: 'September Deals', gp: 83227, ff: 'NO', organic: false }
       ],
       'Dominick Mazliah': [
-        { addr: '514 S College St, Covington, Tn', gp: 14186, ff: 'YES', organic: false },
-        { addr: '1233 Considine Ave, Cincinnati, Oh', gp: 7107, ff: 'YES', organic: false },
-        { addr: '11658 Somerset Ave, Detroit, Mi', gp: 8500, ff: 'FF_APPROVED', organic: false },
-        { addr: '3861 Andrews Dr, Macon, Ga', gp: 6750, ff: 'NO', organic: false },
-        { addr: '978 Spring St, Macon, Ga', gp: 37244, ff: 'NO', organic: false },
-        { addr: '1216 W King St, Decatur, Il', gp: 4000, ff: 'NO', organic: false }
+        { addr: 'September Deals', gp: 77787, ff: 'NO', organic: false }
       ],
       'Andrew Caceres': [
-        { addr: '337 Tumbling Run Est, Maynardville, Tn', gp: 22125, ff: 'YES', organic: false },
-        { addr: '870 Gardners Gin Rd, Cordova, Al', gp: 21950, ff: 'FF_APPROVED', organic: false },
-        { addr: '202 Lura Ln Van Buren, Ar', gp: 15000, ff: 'NO', organic: false },
-        { addr: '1311 E Garfield Ave, Decatur, Il', gp: 4978, ff: 'NO', organic: false },
-        { addr: '1922 Auth St, Philadelphia, Pa', gp: 13000, ff: 'NO', organic: false }
+        { addr: 'September Deals', gp: 77053, ff: 'NO', organic: false }
       ],
       'Shon Yoshida': [
-        { addr: '343 Barrett Pl, San Antonio, Tx', gp: 6900, ff: 'YES', organic: false },
-        { addr: '617 County Line Church Rd, Haleyville, Al', gp: 2892, ff: 'YES', organic: false },
-        { addr: '875 Perry Dr, Macon, Ga', gp: 5590, ff: 'YES', organic: false },
-        { addr: '1011 Massengill St, Winchester, Tn', gp: 53212, ff: 'FF_APPROVED', organic: false },
-        { addr: '2024 Nw 17th Ave, Amarillo, Tx', gp: 2858, ff: 'NO', organic: false }
-      ],
-      'Luis Guzman': [
-        { addr: '118 Cedar Pl, Ruidoso, Nm', gp: 13199, ff: 'YES', organic: false },
-        { addr: '504 Peach St, Sweeny, Tx', gp: 4629, ff: 'YES', organic: false },
-        { addr: '202 W White Horse Pike, Galloway, Nj', gp: 15475, ff: 'YES', organic: false },
-        { addr: '1846 Lyons St, San Antonio, Tx', gp: 20000, ff: 'NO', organic: false },
-        { addr: '518 N Indiana St, Greencastle, In', gp: 7000, ff: 'NO', organic: false }
-      ],
-      'Ashley Preston': [
-        { addr: '115 S La Huerta Cir, Carlsbad, Nm', gp: 18260, ff: 'YES', organic: false },
-        { addr: '50 Pine St, Beverly, Nj', gp: 41863, ff: 'YES', organic: false }
+        { addr: 'September Deals', gp: 71552, ff: 'NO', organic: false }
       ],
       'Jesse Sychowski': [
-        { addr: '291 Pinewood Dr, Henderson, Nc', gp: 4687, ff: 'YES', organic: false },
-        { addr: '920 4th Ct W, Birmingham, Al', gp: 12300, ff: 'YES', organic: false },
-        { addr: '509 West St N, Talladega, Al', gp: 8885, ff: 'YES', organic: false },
-        { addr: '7406 Park Ave, Cleveland, Oh', gp: 4000, ff: 'YES', organic: false },
-        { addr: '504 Clark St, Pana, Il', gp: 5000, ff: 'FF_APPROVED', organic: false },
-        { addr: '1436 W Spencer Ave, Marion, In', gp: 3000, ff: 'FF_APPROVED', organic: false },
-        { addr: '1013 4th Ave N, Clanton, Al', gp: 5000, ff: 'NO', organic: false },
-        { addr: '2724 N Dover St Philadelphia, Pa', gp: 14503, ff: 'NO', organic: false }
+        { addr: 'September Deals', gp: 61375, ff: 'NO', organic: false }
+      ],
+      'Luis Guzman': [
+        { addr: 'September Deals', gp: 60303, ff: 'NO', organic: false }
+      ],
+      'Ashley Preston': [
+        { addr: 'September Deals', gp: 60123, ff: 'NO', organic: false }
       ],
       'Warren Smith': [
-        { addr: '33 Bon Haven Ave, Winchester, Ky', gp: 2715, ff: 'YES', organic: false },
-        { addr: '410 Wellington Way, Winchester, Ky', gp: 13500, ff: 'FF_APPROVED', organic: false },
-        { addr: '164 Mcconnells Trce, Lexington, Ky', gp: 20000, ff: 'NO', organic: false },
-        { addr: '1777 Old Frankfort Rd, Lawrenceburg, Ky', gp: 7500, ff: 'NO', organic: false }
+        { addr: 'September Deals', gp: 33715, ff: 'NO', organic: false }
       ],
       'Chris Chambers': [
-        { addr: '926 Morton St, New Castle, Pa', gp: 15900, ff: 'YES', organic: false },
-        { addr: '92 Briar Hill Loop, Wetumpka, Al', gp: 3325, ff: 'YES', organic: false },
-        { addr: '406 Temple Ave S, Fayette, Al', gp: 2000, ff: 'FF_APPROVED', organic: false },
-        { addr: '830 Elm Ave Se, Roanoke, Va', gp: 8000, ff: 'FF_APPROVED', organic: false }
+        { addr: 'September Deals', gp: 29225, ff: 'NO', organic: false }
       ],
       'Devin Buford': [
-        { addr: '1632 Burrow St, Humboldt, Tn', gp: 5423, ff: 'YES', organic: false },
-        { addr: '516 W Dee St, Lebanon, Il', gp: 14582, ff: 'NO', organic: false },
-        { addr: '206 N Bond St, West Memphis, Ar', gp: 9000, ff: 'NO', organic: false }
+        { addr: 'September Deals', gp: 29005, ff: 'NO', organic: false }
       ],
       'Steve Shelburne': [
-        { addr: '5118 Reno St, Philadelphia, Pa', gp: 6000, ff: 'NO', organic: false }
+        { addr: 'September Deals', gp: 6000, ff: 'NO', organic: false }
       ],
       'Garrett Paschal': [
-        { addr: '224 N Massachusetts St, Jackson, Tn', gp: 3235, ff: 'YES', organic: false }
+        { addr: 'September Deals', gp: 3235, ff: 'NO', organic: false }
       ],
       'Ian Ross': [
-        { addr: '1109 Johnson Ave, Anniston, Al', gp: 3000, ff: 'NO', organic: false }
+        { addr: 'September Deals', gp: 3000, ff: 'NO', organic: false }
       ],
       'Ex-Rebuilt (Acq)': [
-        { addr: '514 N Madison Ave, Bay City, Mi', gp: 18370, ff: 'YES', organic: false },
-        { addr: '538 E White Lake Dr, Twin Lake, Mi', gp: 4000, ff: 'YES', organic: false },
-        { addr: '1004 W Main St, New Albany, In', gp: 2116, ff: 'FF_APPROVED', organic: false },
-        { addr: '111 Burke St, River Rouge, Mi', gp: 2225, ff: 'NO', organic: false },
-        { addr: '110 Woodford Dr, Lexington, Ky', gp: 14186, ff: 'NO', organic: false },
-        { addr: '1125 4th Ave, Freedom, Pa', gp: 4025, ff: 'NO', organic: false },
-        { addr: '108 Independence St, Cumberland, Md', gp: 3000, ff: 'NO', organic: false },
-        { addr: '32 Jenkins Dr, Fayetteville, Tn', gp: 26021, ff: 'NO', organic: false }
+        { addr: 'September Deals', gp: 5388, ff: 'NO', organic: false }
       ]
     };
 
