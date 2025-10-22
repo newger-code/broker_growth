@@ -10,6 +10,7 @@ const DetailsTab = {
     setTimeout(() => {
       this.initSparklines();
       this.initTableSparklines();
+      this.initDispoSparklines();
     }, 100);
   },
 
@@ -257,11 +258,13 @@ const DetailsTab = {
             <th class="numeric">Tier</th>
             <th class="numeric">Commission</th>
             <th class="numeric">Total</th>
+            <th style="width: 100px;">Trend</th>
           </tr>
         </thead>
         <tbody>
           ${agents.map(agent => {
             const totalGP = agent.offGP + agent.ffGP;
+            const agentId = agent.name.replace(/\s+/g, '-').toLowerCase();
             return `
               <tr>
                 <td>${agent.name}</td>
@@ -271,12 +274,109 @@ const DetailsTab = {
                 <td class="numeric">Tier ${agent.tier}</td>
                 <td class="numeric">${Utils.formatCurrency(agent.commission)}</td>
                 <td class="numeric highlight">${Utils.formatCurrency(agent.total)}</td>
+                <td><div id="sparkline-dispo-${agentId}" style="height: 30px;"></div></td>
               </tr>
             `;
           }).join('')}
         </tbody>
       </table>
     `;
+  },
+
+  // Initialize sparklines for disposition agents table
+  initDispoSparklines() {
+    const dispoAgents = [
+      'Joe Haupt', 'Alec Prieto', 'Maegan Grace', 'Devin Cooper', 'Vincent Gnapi',
+      'Christian Flasch', 'Miguel Aguilar', 'Leland Boyd', 'Brittany Taylor',
+      'Tamara Humbolt', 'Jack Webster'
+    ];
+
+    // Get last 12 months for labels
+    const months = [];
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = d.toLocaleString('default', { month: 'short' });
+      const year = String(d.getFullYear()).slice(-2);
+      months.push(`${monthName} ${year}`);
+    }
+
+    dispoAgents.forEach(agentName => {
+      const agentId = agentName.replace(/\s+/g, '-').toLowerCase();
+      const container = document.getElementById(`sparkline-dispo-${agentId}`);
+
+      if (!container) return;
+
+      const data = this.generateSparklineData(agentName);
+
+      // Find min and max values and their indices
+      const minValue = Math.min(...data);
+      const maxValue = Math.max(...data);
+      const minIndex = data.indexOf(minValue);
+      const maxIndex = data.indexOf(maxValue);
+
+      // Create colors array: red for min, green for max, gray for others
+      const colors = data.map((value, index) => {
+        if (index === minIndex) return '#EF4444';
+        if (index === maxIndex) return '#10B981';
+        return '#6B7280';
+      });
+
+      const options = {
+        series: [{
+          name: 'Commission',
+          data: data
+        }],
+        chart: {
+          type: 'bar',
+          height: 30,
+          sparkline: {
+            enabled: true
+          },
+          animations: {
+            enabled: false
+          }
+        },
+        plotOptions: {
+          bar: {
+            columnWidth: '80%',
+            distributed: true
+          }
+        },
+        colors: colors,
+        xaxis: {
+          categories: months
+        },
+        tooltip: {
+          enabled: true,
+          custom: function({ series, seriesIndex, dataPointIndex, w }) {
+            const value = series[seriesIndex][dataPointIndex];
+            const month = months[dataPointIndex];
+            return `<div style="background: #1f2937; padding: 6px 10px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+              <div style="font-size: 10px; color: #9ca3af; margin-bottom: 2px;">${month}</div>
+              <div style="font-size: 13px; font-weight: 600; color: #fff;">${Utils.formatCurrency(value)}</div>
+            </div>`;
+          },
+          fixed: {
+            enabled: true,
+            position: 'topLeft',
+            offsetX: 0,
+            offsetY: -60
+          }
+        },
+        states: {
+          hover: {
+            filter: {
+              type: 'lighten',
+              value: 0.1
+            }
+          }
+        }
+      };
+
+      const chart = new ApexCharts(container, options);
+      chart.render();
+    });
   },
 
   // Generate 12-month commission trend data for sparklines

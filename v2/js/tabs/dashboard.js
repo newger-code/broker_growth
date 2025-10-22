@@ -13,6 +13,8 @@ const DashboardTab = {
     this.renderManagerBreakdown();
     this.renderTeamComposition();
     this.renderTopPerformers();
+    // Initialize sparklines after DOM is ready
+    setTimeout(() => this.initTopPerformerSparklines(), 100);
   },
 
   /**
@@ -249,28 +251,148 @@ const DashboardTab = {
       { name: 'Devin Cooper', gp: 60985, commission: 2176 }
     ];
 
-    const renderTable = (agents) => `
+    const renderTable = (agents, type) => `
       <table class="data-table">
         <thead>
           <tr>
             <th>Agent</th>
             <th class="numeric">GP</th>
             <th class="numeric">Commission</th>
+            <th style="width: 100px;">Trend</th>
           </tr>
         </thead>
         <tbody>
-          ${agents.map(agent => `
-            <tr>
-              <td>${agent.name}</td>
-              <td class="numeric">${Utils.formatCurrency(agent.gp)}</td>
-              <td class="numeric highlight">${Utils.formatCurrency(agent.commission)}</td>
-            </tr>
-          `).join('')}
+          ${agents.map(agent => {
+            const agentId = agent.name.replace(/\s+/g, '-').toLowerCase();
+            return `
+              <tr>
+                <td>${agent.name}</td>
+                <td class="numeric">${Utils.formatCurrency(agent.gp)}</td>
+                <td class="numeric highlight">${Utils.formatCurrency(agent.commission)}</td>
+                <td><div id="sparkline-${type}-${agentId}" style="height: 30px;"></div></td>
+              </tr>
+            `;
+          }).join('')}
         </tbody>
       </table>
     `;
 
-    document.getElementById('top-acq').innerHTML = renderTable(topAcq);
-    document.getElementById('top-dispo').innerHTML = renderTable(topDispo);
+    document.getElementById('top-acq').innerHTML = renderTable(topAcq, 'acq');
+    document.getElementById('top-dispo').innerHTML = renderTable(topDispo, 'dispo');
+  },
+
+  // Generate 12-month commission trend data for sparklines
+  generateSparklineData(agentName) {
+    // Mock data - in production this would come from historical data
+    const baseValue = Math.random() * 5000 + 3000; // $3k-$8k base
+    const trend = Math.random() > 0.5 ? 1 : -1; // Growing or declining
+
+    return Array.from({ length: 12 }, (_, i) => {
+      const seasonality = Math.sin(i / 12 * Math.PI * 2) * 500; // Seasonal variation
+      const growth = trend * i * 150; // Trend component
+      const noise = (Math.random() - 0.5) * 800; // Random variation
+      return Math.round(baseValue + seasonality + growth + noise);
+    });
+  },
+
+  // Initialize sparklines for top performers tables
+  initTopPerformerSparklines() {
+    // Get last 12 months for labels (abbreviated format: "Feb 25")
+    const months = [];
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = d.toLocaleString('default', { month: 'short' });
+      const year = String(d.getFullYear()).slice(-2);
+      months.push(`${monthName} ${year}`);
+    }
+
+    // Top Acq agents
+    const topAcq = [
+      'Kyle Singer', 'Dominick Mazliah', 'Andrew Caceres', 'Shon Yoshida', 'Jesse Sychowski'
+    ];
+
+    // Top Dispo agents
+    const topDispo = [
+      'Joe Haupt', 'Alec Prieto', 'Maegan Grace', 'Miguel Aguilar', 'Devin Cooper'
+    ];
+
+    // Render sparklines for both tables
+    [...topAcq.map(name => ({name, type: 'acq'})), ...topDispo.map(name => ({name, type: 'dispo'}))].forEach(({name, type}) => {
+      const agentId = name.replace(/\s+/g, '-').toLowerCase();
+      const container = document.getElementById(`sparkline-${type}-${agentId}`);
+
+      if (!container) return;
+
+      const data = this.generateSparklineData(name);
+
+      // Find min and max values and their indices
+      const minValue = Math.min(...data);
+      const maxValue = Math.max(...data);
+      const minIndex = data.indexOf(minValue);
+      const maxIndex = data.indexOf(maxValue);
+
+      // Create colors array: red for min, green for max, gray for others
+      const colors = data.map((value, index) => {
+        if (index === minIndex) return '#EF4444'; // Red for minimum
+        if (index === maxIndex) return '#10B981'; // Green for maximum
+        return '#6B7280'; // Gray for others
+      });
+
+      const options = {
+        series: [{
+          name: 'Commission',
+          data: data
+        }],
+        chart: {
+          type: 'bar',
+          height: 30,
+          sparkline: {
+            enabled: true
+          },
+          animations: {
+            enabled: false
+          }
+        },
+        plotOptions: {
+          bar: {
+            columnWidth: '80%',
+            distributed: true
+          }
+        },
+        colors: colors,
+        xaxis: {
+          categories: months
+        },
+        tooltip: {
+          enabled: true,
+          custom: function({ series, seriesIndex, dataPointIndex, w }) {
+            const value = series[seriesIndex][dataPointIndex];
+            const month = months[dataPointIndex];
+            return `<div style="background: #1f2937; padding: 6px 10px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+              <div style="font-size: 10px; color: #9ca3af; margin-bottom: 2px;">${month}</div>
+              <div style="font-size: 13px; font-weight: 600; color: #fff;">${Utils.formatCurrency(value)}</div>
+            </div>`;
+          },
+          fixed: {
+            enabled: true,
+            position: 'topLeft',
+            offsetX: 0,
+            offsetY: -60
+          }
+        },
+        states: {
+          hover: {
+            filter: {
+              type: 'lighten',
+              value: 0.1
+            }
+          }
+        }
+      };
+
+      const chart = new ApexCharts(container, options);
+      chart.render();
+    });
   }
 };
