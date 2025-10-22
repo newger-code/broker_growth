@@ -667,43 +667,43 @@
               </tr>
               <tr data-tier="3">
                 <td class="tier-num">3</td>
-                <td>$50-75K</td>
+                <td>$50-60K</td>
                 <td>4.0%</td>
                 <td>2.67%</td>
               </tr>
               <tr data-tier="4">
                 <td class="tier-num">4</td>
-                <td>$75-100K</td>
+                <td>$60-75K</td>
                 <td>5.0%</td>
                 <td>3.33%</td>
               </tr>
               <tr data-tier="5">
                 <td class="tier-num">5</td>
-                <td>$100-125K</td>
+                <td>$75-100K</td>
                 <td>6.0%</td>
                 <td>4.00%</td>
               </tr>
               <tr data-tier="6">
                 <td class="tier-num">6</td>
-                <td>$125-150K</td>
+                <td>$100-125K</td>
                 <td>7.0%</td>
                 <td>4.67%</td>
               </tr>
               <tr data-tier="7">
                 <td class="tier-num">7</td>
-                <td>$150-175K</td>
+                <td>$125-150K</td>
                 <td>8.0%</td>
                 <td>5.33%</td>
               </tr>
               <tr data-tier="8">
                 <td class="tier-num">8</td>
-                <td>$175-200K</td>
+                <td>$150-175K</td>
                 <td>9.0%</td>
                 <td>6.00%</td>
               </tr>
               <tr data-tier="9">
                 <td class="tier-num">9</td>
-                <td>$200K+</td>
+                <td>$175K+</td>
                 <td>10.0%</td>
                 <td>6.67%</td>
               </tr>
@@ -1214,12 +1214,12 @@
     function getDispoTier(gp) {
       if (gp < 25000) return { tier: 1, offRate: 2.0, ffRate: 1.33 };
       if (gp < 50000) return { tier: 2, offRate: 3.0, ffRate: 2.00 };
-      if (gp < 75000) return { tier: 3, offRate: 4.0, ffRate: 2.67 };
-      if (gp < 100000) return { tier: 4, offRate: 5.0, ffRate: 3.33 };
-      if (gp < 125000) return { tier: 5, offRate: 6.0, ffRate: 4.00 };
-      if (gp < 150000) return { tier: 6, offRate: 7.0, ffRate: 4.67 };
-      if (gp < 175000) return { tier: 7, offRate: 8.0, ffRate: 5.33 };
-      if (gp < 200000) return { tier: 8, offRate: 9.0, ffRate: 6.00 };
+      if (gp < 60000) return { tier: 3, offRate: 4.0, ffRate: 2.67 };
+      if (gp < 75000) return { tier: 4, offRate: 5.0, ffRate: 3.33 };
+      if (gp < 100000) return { tier: 5, offRate: 6.0, ffRate: 4.00 };
+      if (gp < 125000) return { tier: 6, offRate: 7.0, ffRate: 4.67 };
+      if (gp < 150000) return { tier: 7, offRate: 8.0, ffRate: 5.33 };
+      if (gp < 175000) return { tier: 8, offRate: 9.0, ffRate: 6.00 };
       return { tier: 9, offRate: 10.0, ffRate: 6.67 };
     }
 
