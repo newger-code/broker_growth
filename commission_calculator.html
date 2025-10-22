@@ -1870,7 +1870,9 @@
         managerTotal += calculateManagerCommission(managerName);
       });
 
-      const netTotal = totalCommission + totalAgentCost + sprintTotal + managerTotal;
+      // Net Total = Commission payouts only (agents + managers)
+      // Excludes overhead costs (employee costs, sprints)
+      const netTotal = totalCommission + managerTotal;
 
       document.getElementById('total-agents').textContent = totalSelectedAgents;
       document.getElementById('total-deals').textContent = totalDeals;
