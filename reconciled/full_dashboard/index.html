@@ -46,8 +46,9 @@
         <h1 class="app-title">
           <span>Commission Intelligence Platform</span>
           <div class="header-actions">
-            <a href="../sensitivity/index.html" target="_blank" class="btn btn-secondary" style="font-size: var(--text-sm); padding: var(--space-2) var(--space-3);" title="Financial Model - Broker growth sensitivity analysis">
-              📊
+            <a href="../sensitivity/index.html" target="_blank" class="btn btn-secondary header-quick-link" title="Financial Model - Broker growth sensitivity analysis">
+              <span aria-hidden="true">📊</span>
+              <span class="header-quick-link__label">Sensitivity Model</span>
             </a>
           </div>
         </h1>
@@ -171,12 +172,20 @@
       </div>
 
       <div class="section" data-section="executive-alerts">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Executive Pulse</h3>
-            <p class="card-description">Auto-generated highlights and callouts from September&#8217;s reconciliation</p>
+        <div class="card" data-collapsible="exec-alerts">
+          <div class="card-header card-header--with-toggle">
+            <div>
+              <h3 class="card-title">Executive Pulse</h3>
+              <p class="card-description">Auto-generated highlights and callouts from September&#8217;s reconciliation</p>
+            </div>
+            <button type="button" class="card-toggle" id="exec-alerts-toggle" aria-expanded="true" aria-controls="exec-alerts">
+              <span class="toggle-icon" aria-hidden="true">▾</span>
+              <span class="sr-only">Collapse Executive Pulse</span>
+            </button>
           </div>
-          <div id="exec-alerts" class="alert-stream"></div>
+          <div class="collapsible-content" id="exec-alerts-wrapper">
+            <div id="exec-alerts" class="alert-stream"></div>
+          </div>
         </div>
       </div>
 

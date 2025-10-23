@@ -187,6 +187,8 @@ const DashboardTab = {
     const dispoAgents = AppState.getDispositionAgents();
     const managers = AppState.getManagerSummary().breakdown || [];
 
+    const formatCurrency = (value, decimals = 0) => Utils.formatCurrency(value, decimals);
+
     const adjustmentPool = [...acqAgents, ...dispoAgents];
 
     const positiveAdjustment = adjustmentPool
@@ -205,13 +207,13 @@ const DashboardTab = {
 
     const alerts = [];
 
-    if ((aggregates.sprint_pool || 0) > 0) {
+    if ((aggregates.sprint_pool || 0) > 0 || (aggregates.mentor_bonuses || 0) > 0) {
       alerts.push({
         icon: '🚀',
         tone: 'positive',
         title: 'Incentive pool deployed',
-        detail: `Sprint pool at ${Utils.formatCurrency(aggregates.sprint_pool)} with ${Utils.formatCurrency(aggregates.mentor_bonuses)} in mentor bonuses.`,
-        footnote: `${Utils.formatCurrency(aggregates.manual_adjustments)} in manual adjustments reconciled to ledger.`
+        detail: `Sprint pool at ${formatCurrency(aggregates.sprint_pool, 0)} with ${formatCurrency(aggregates.mentor_bonuses, 0)} in mentor bonuses.`,
+        footnote: `${formatCurrency(aggregates.manual_adjustments, 2)} in manual adjustments reconciled to ledger.`
       });
     }
 
@@ -220,7 +222,7 @@ const DashboardTab = {
         icon: '⚡',
         tone: 'positive',
         title: `${positiveAdjustment.name} true-up posted`,
-        detail: `${Utils.formatCurrency(positiveAdjustment.manual_adjustment)} adjustment brings payout to ${Utils.formatCurrency(positiveAdjustment.total)}.`,
+        detail: `${formatCurrency(positiveAdjustment.manual_adjustment, 2)} adjustment brings payout to ${formatCurrency(positiveAdjustment.total, 2)}.`,
         footnote: positiveAdjustment.summary_bucket === 'acq_training' ? 'Training pod payout fully reconciled.' : 'Ledger aligned with manager tally.'
       });
     }
@@ -230,7 +232,7 @@ const DashboardTab = {
         icon: '🛠️',
         tone: 'negative',
         title: `${negativeAdjustment.name} adjustment applied`,
-        detail: `${Utils.formatCurrency(negativeAdjustment.manual_adjustment)} correction keeps payout at ${Utils.formatCurrency(negativeAdjustment.total)}.`,
+        detail: `${formatCurrency(negativeAdjustment.manual_adjustment, 2)} correction keeps payout at ${formatCurrency(negativeAdjustment.total, 2)}.`,
         footnote: 'Review policy-driven tweaks before payroll approval.'
       });
     }
@@ -238,11 +240,13 @@ const DashboardTab = {
     if (underwriting) {
       const trxPct = underwriting.trx_target ? (underwriting.trx_actual / underwriting.trx_target) * 100 : 0;
       const gpPct = underwriting.gp_target ? (underwriting.gp_actual / underwriting.gp_target) * 100 : 0;
+      const trxBonus = underwriting.components?.trx_bonus || 0;
+      const gpBonus = underwriting.components?.gp_bonus || 0;
       alerts.push({
         icon: '🎯',
         tone: 'neutral',
         title: 'Underwriting pacing update',
-        detail: `Dustin Hepburn at ${trxPct.toFixed(0)}% of transaction goal and ${gpPct.toFixed(0)}% of GP. Bonus split: ${Utils.formatCurrency(underwriting.components?.trx || 0)} / ${Utils.formatCurrency(underwriting.components?.gp || 0)}.`,
+        detail: `Dustin Hepburn at ${trxPct.toFixed(0)}% of transaction goal and ${gpPct.toFixed(0)}% of GP. Bonus split: ${formatCurrency(trxBonus, 2)} / ${formatCurrency(gpBonus, 2)}.`,
         footnote: 'Monitor October pipeline to close the remaining gap.'
       });
     }
@@ -252,7 +256,7 @@ const DashboardTab = {
         icon: '🏆',
         tone: 'positive',
         title: `${topManager.name} leading manager payouts`,
-        detail: `${Utils.formatCurrency(topManager.total)} total against ${Utils.formatCurrency(topManager.personal_gp || topManager.company_gp || 0)} personal GP influence.`,
+        detail: `${formatCurrency(topManager.total, 2)} total against ${formatCurrency(topManager.personal_gp || topManager.company_gp || 0, 0)} personal GP influence.`,
         footnote: `${(topManager.team_members || []).length || 'No'} direct reports attributed.`
       });
     }
@@ -277,6 +281,8 @@ const DashboardTab = {
         </div>
       </div>
     `).join('');
+
+    this.bindAlertToggle();
   },
 
   /**
@@ -641,5 +647,29 @@ const DashboardTab = {
         section.classList.add('is-hidden');
       }
     });
+  },
+
+  bindAlertToggle() {
+    const toggle = document.getElementById('exec-alerts-toggle');
+    const card = document.querySelector('[data-section="executive-alerts"] .card');
+    if (!toggle || !card) return;
+
+    const icon = toggle.querySelector('.toggle-icon');
+
+    const updateState = () => {
+      const expanded = !card.classList.contains('is-collapsed');
+      toggle.setAttribute('aria-expanded', expanded);
+      toggle.querySelector('.sr-only').textContent = expanded ? 'Collapse Executive Pulse' : 'Expand Executive Pulse';
+      if (icon) {
+        icon.textContent = expanded ? '▾' : '▸';
+      }
+    };
+
+    toggle.addEventListener('click', () => {
+      card.classList.toggle('is-collapsed');
+      updateState();
+    });
+
+    updateState();
   }
 };
