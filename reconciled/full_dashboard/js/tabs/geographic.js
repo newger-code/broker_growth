@@ -20,7 +20,7 @@ const GeographicTab = {
       <!-- Interactive Map -->
       <div class="section map-section">
         <div class="card map-card">
-          <div class="map-card-header">
+          <div class="card-header map-card-header">
             <div>
               <h3 class="card-title">Deal Heat Map</h3>
               <p class="card-description">Interactive US map &mdash; bubble size = deal volume, color = termination rate</p>
@@ -129,69 +129,83 @@ const GeographicTab = {
     const padding = 60;
     const maxDeals = Math.max(...markets.map(m => m.deals));
 
-    const bounds = {
-      minLon: -125,
-      maxLon: -65,
-      minLat: 24,
-      maxLat: 50
-    };
+    const RAD = Math.PI / 180;
+    const phi1 = 29.5 * RAD;
+    const phi2 = 45.5 * RAD;
+    const phi0 = 37.5 * RAD;
+    const lambda0 = -96 * RAD;
+    const n = 0.5 * (Math.sin(phi1) + Math.sin(phi2));
+    const C = Math.cos(phi1) * Math.cos(phi1) + 2 * n * Math.sin(phi1);
+    const rho = phi => Math.sqrt(Math.max(0, C - 2 * n * Math.sin(phi))) / n;
+    const rho0 = rho(phi0);
 
     const project = (lat, lon) => {
-      const x = padding + ((lon - bounds.minLon) / (bounds.maxLon - bounds.minLon)) * (width - padding * 2);
-      const y = height - padding - ((lat - bounds.minLat) / (bounds.maxLat - bounds.minLat)) * (height - padding * 2);
-      return { x, y };
+      const phi = lat * RAD;
+      const lambda = lon * RAD;
+      const rhoVal = rho(phi);
+      const theta = n * (lambda - lambda0);
+      return {
+        x: rhoVal * Math.sin(theta),
+        y: rho0 - rhoVal * Math.cos(theta)
+      };
     };
 
     const outlineLatLon = [
-      { lat: 48.9, lon: -125.0 },
-      { lat: 46.8, lon: -124.0 },
-      { lat: 45.0, lon: -123.5 },
-      { lat: 41.9, lon: -124.0 },
-      { lat: 38.5, lon: -123.0 },
-      { lat: 36.0, lon: -121.5 },
-      { lat: 33.4, lon: -118.5 },
-      { lat: 32.4, lon: -117.0 },
-      { lat: 31.3, lon: -114.8 },
-      { lat: 29.8, lon: -111.0 },
-      { lat: 28.8, lon: -106.5 },
-      { lat: 29.4, lon: -103.0 },
-      { lat: 27.8, lon: -99.0 },
-      { lat: 26.0, lon: -97.0 },
-      { lat: 27.3, lon: -95.5 },
-      { lat: 28.8, lon: -94.0 },
-      { lat: 29.2, lon: -92.3 },
-      { lat: 30.0, lon: -90.2 },
-      { lat: 29.8, lon: -88.5 },
-      { lat: 30.2, lon: -86.8 },
-      { lat: 29.9, lon: -85.0 },
-      { lat: 29.2, lon: -83.0 },
-      { lat: 28.0, lon: -82.0 },
-      { lat: 27.0, lon: -80.7 },
-      { lat: 25.0, lon: -80.1 },
-      { lat: 26.2, lon: -78.0 },
-      { lat: 28.0, lon: -77.0 },
-      { lat: 30.0, lon: -75.5 },
-      { lat: 33.0, lon: -74.8 },
-      { lat: 35.0, lon: -75.5 },
-      { lat: 37.5, lon: -74.5 },
-      { lat: 39.5, lon: -73.5 },
-      { lat: 41.5, lon: -70.0 },
-      { lat: 43.8, lon: -69.0 },
-      { lat: 45.5, lon: -70.5 },
-      { lat: 47.0, lon: -71.5 },
-      { lat: 48.6, lon: -75.0 },
-      { lat: 49.0, lon: -79.0 },
-      { lat: 49.0, lon: -95.0 },
-      { lat: 49.0, lon: -104.0 },
-      { lat: 48.5, lon: -110.0 },
-      { lat: 49.0, lon: -120.0 },
-      { lat: 48.9, lon: -125.0 }
+      { lat: 49.38, lon: -124.73 },
+      { lat: 48.45, lon: -124.2 },
+      { lat: 47.5, lon: -123.1 },
+      { lat: 46.3, lon: -123.0 },
+      { lat: 45.0, lon: -123.9 },
+      { lat: 43.0, lon: -124.1 },
+      { lat: 41.5, lon: -124.2 },
+      { lat: 39.0, lon: -123.5 },
+      { lat: 37.4, lon: -122.5 },
+      { lat: 35.7, lon: -121.0 },
+      { lat: 34.4, lon: -120.3 },
+      { lat: 32.5, lon: -117.1 },
+      { lat: 31.8, lon: -114.8 },
+      { lat: 31.3, lon: -111.0 },
+      { lat: 32.1, lon: -109.0 },
+      { lat: 32.0, lon: -106.0 },
+      { lat: 30.5, lon: -103.0 },
+      { lat: 29.0, lon: -99.0 },
+      { lat: 27.6, lon: -96.0 },
+      { lat: 27.2, lon: -94.5 },
+      { lat: 28.4, lon: -93.0 },
+      { lat: 29.3, lon: -91.5 },
+      { lat: 29.7, lon: -90.0 },
+      { lat: 29.6, lon: -88.5 },
+      { lat: 30.3, lon: -87.0 },
+      { lat: 30.7, lon: -85.0 },
+      { lat: 29.8, lon: -82.9 },
+      { lat: 28.7, lon: -82.5 },
+      { lat: 27.6, lon: -81.4 },
+      { lat: 25.8, lon: -80.1 },
+      { lat: 27.0, lon: -79.3 },
+      { lat: 29.0, lon: -78.2 },
+      { lat: 32.0, lon: -77.0 },
+      { lat: 34.5, lon: -76.0 },
+      { lat: 36.5, lon: -75.5 },
+      { lat: 38.5, lon: -74.5 },
+      { lat: 40.5, lon: -73.5 },
+      { lat: 42.0, lon: -71.5 },
+      { lat: 44.0, lon: -69.5 },
+      { lat: 45.5, lon: -67.2 },
+      { lat: 47.0, lon: -68.0 },
+      { lat: 48.5, lon: -69.8 },
+      { lat: 49.0, lon: -72.0 },
+      { lat: 49.0, lon: -80.5 },
+      { lat: 48.0, lon: -84.0 },
+      { lat: 47.0, lon: -87.5 },
+      { lat: 46.0, lon: -90.0 },
+      { lat: 47.3, lon: -95.0 },
+      { lat: 48.5, lon: -100.0 },
+      { lat: 48.8, lon: -105.0 },
+      { lat: 48.9, lon: -110.0 },
+      { lat: 48.0, lon: -114.0 },
+      { lat: 47.5, lon: -118.0 },
+      { lat: 49.0, lon: -124.73 }
     ];
-
-    const outlinePath = outlineLatLon.map((point, index) => {
-      const { x, y } = project(point.lat, point.lon);
-      return `${index === 0 ? 'M' : 'L'}${x} ${y}`;
-    }).join(' ') + ' Z';
 
     const coordsLookup = {
       'Phoenix, AZ': { lat: 33.4484, lon: -112.074 },
@@ -211,11 +225,41 @@ const GeographicTab = {
       'Albuquerque, NM': { lat: 35.0844, lon: -106.6504 }
     };
 
-    const bubbleMarkup = markets.map(market => {
+    const projectedOutline = outlineLatLon.map(point => project(point.lat, point.lon));
+    const projectedMarkets = markets.map(market => {
       const key = `${market.city}, ${market.state}`;
       const coords = coordsLookup[key];
-      if (!coords) return '';
-      const { x, y } = project(coords.lat, coords.lon);
+      if (!coords) return null;
+      return {
+        market,
+        projected: project(coords.lat, coords.lon)
+      };
+    }).filter(Boolean);
+
+    const allPoints = projectedOutline.concat(projectedMarkets.map(m => m.projected));
+    const xs = allPoints.map(p => p.x);
+    const ys = allPoints.map(p => p.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const scale = Math.min(
+      (width - padding * 2) / (maxX - minX),
+      (height - padding * 2) / (maxY - minY)
+    );
+
+    const toScreen = ({ x, y }) => ({
+      x: padding + (x - minX) * scale,
+      y: padding + (maxY - y) * scale
+    });
+
+    const outlinePath = projectedOutline.map((point, index) => {
+      const { x, y } = toScreen(point);
+      return `${index === 0 ? 'M' : 'L'}${x.toFixed(2)} ${y.toFixed(2)}`;
+    }).join(' ') + ' Z';
+
+    const bubbleMarkup = projectedMarkets.map(({ market, projected }) => {
+      const { x, y } = toScreen(projected);
       const radius = 8 + (market.deals / maxDeals) * 28;
       const termColor = market.termination_rate > 0.3 ? '#f43f5e' :
                        market.termination_rate > 0.2 ? '#f59e0b' :
