@@ -1,0 +1,6 @@
+  <!-- Data (loaded as JS to avoid CORS issues) -->
+  <script src="js/data.js"></script>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commission Intelligence Platform | Rebuilt × Picket</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <!-- ApexCharts for Sparklines -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.0/dist/apexcharts.min.js"></script>
+</head>
+<body>
+  <!-- Password Protection -->
+  <div id="password-overlay" class="password-overlay">
+    <div class="password-box">
+      <h2>🔒 Secure Access</h2>
+      <p>This dashboard contains sensitive commission data.<br>Please enter the access code to continue.</p>
+      <input type="password" id="password-input" placeholder="Enter access code" onkeypress="if(event.key==='Enter') checkPassword()">
+      <button onclick="checkPassword()">Access Dashboard</button>
+      <div class="password-error" id="password-error">Incorrect password. Please try again.</div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+      <span class="nav-brand">📊 Rebuilt Intelligence Suite</span>
+      <a href="../commission_calculator.html">Commission Calculator</a>
+      <a href="../sensitivity/index.html">Sensitivity Model</a>
+      <a href="index.html" class="active">Dashboard Analytics</a>
+    </nav>
+
+    <!-- Sticky Header (scrolls up then freezes) -->
+    <div class="sticky-header" id="sticky-header">
+      <!-- Header -->
+      <header class="app-header">
+        <h1 class="app-title">
+          <span>Commission Intelligence Platform</span>
+          <div class="header-actions">
+            <a href="../sensitivity/index.html" target="_blank" class="btn btn-secondary" style="font-size: var(--text-sm); padding: var(--space-2) var(--space-3);" title="Financial Model - Broker growth sensitivity analysis">
+              📊
+            </a>
+          </div>
+        </h1>
+        <p class="app-subtitle">
+          Transform commission calculations into strategic financial planning.
+          Model scenarios, validate payroll, and track efficiency gains from Picket technology.
+        </p>
+        <div class="app-meta">
+          <span>
+            <strong>Rebuilt</strong> × <strong>Picket</strong>
+          </span>
+          <span id="current-period">
+            <strong>Period:</strong> September 2025
+          </span>
+          <span id="data-status">
+            <strong>Status:</strong> <span class="badge badge-success" style="font-size: 10px;">Live Data</span>
+          </span>
+        </div>
+      </header>
+
+      <!-- Tab Navigation -->
+      <nav class="tab-nav" role="tablist">
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-forecast" data-tab="forecast">
+          <span class="tab-icon">📊</span>
+          Forecast
+        </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-actuals" data-tab="actuals">
+          <span class="tab-icon">✅</span>
+          Commissions
+        </button>
+        <button class="tab-button active" role="tab" aria-selected="true" aria-controls="tab-dashboard" data-tab="dashboard">
+          <span class="tab-icon">📈</span>
+          Dashboard
+        </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-efficiency" data-tab="efficiency">
+          <span class="tab-icon">⚡</span>
+          Efficiency
+        </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-details" data-tab="details">
+          <span class="tab-icon">📋</span>
+          Details
+        </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-agent-timeline" data-tab="agent-timeline">
+          <span class="tab-icon">📅</span>
+          Timeline
+        </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-geographic" data-tab="geographic">
+          <span class="tab-icon">🗺️</span>
+          Markets
+        </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-deal-analytics" data-tab="deal-analytics">
+          <span class="tab-icon">💰</span>
+          Deals
+        </button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-predictive" data-tab="predictive">
+          <span class="tab-icon">🔮</span>
+          Predictive
+        </button>
+      </nav>
+    </div>
+
+    <!-- Tab Panels -->
+
+    <!-- Tab 1: Forecast & Scenarios -->
+    <div id="tab-forecast" class="tab-panel" role="tabpanel">
+      <div class="section">
+        <h2 class="section-title">Coming Soon: Forecast Engine</h2>
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">🚀</div>
+            <h3 class="empty-state-title">Scenario Modeling in Development</h3>
+            <p class="empty-state-description">
+              Soon you'll be able to model hiring scenarios, adjust commission structures,
+              and project expenses across 12-month horizons with real-time calculations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Actuals & Payroll -->
+    <div id="tab-actuals" class="tab-panel" role="tabpanel">
+      <div class="section">
+        <h2 class="section-title">Coming Soon: Actuals Processor</h2>
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">📥</div>
+            <h3 class="empty-state-title">Payroll Automation in Development</h3>
+            <p class="empty-state-description">
+              Upload deal CSVs, auto-calculate all commissions, validate against forecasts,
+              and export directly to payroll systems.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Executive Dashboard (default active) -->
+    <div id="tab-dashboard" class="tab-panel active" role="tabpanel">
+      <div class="section">
+        <h2 class="section-title">Financial Overview</h2>
+        <div class="grid-4" id="hero-metrics"></div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Commission Breakdown</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">By Role</h3>
+              <p class="card-description">Total commission expense by agent type</p>
+            </div>
+            <div id="role-breakdown"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">By Manager Type</h3>
+              <p class="card-description">7 managers across 3 compensation structures</p>
+            </div>
+            <div id="manager-breakdown"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Team Composition</h2>
+        <div class="card">
+          <div class="grid-3" id="team-composition"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Top Performers</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Acquisition Leaders</h3>
+              <p class="card-description">Top GP producers</p>
+            </div>
+            <div id="top-acq"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Disposition Leaders</h3>
+              <p class="card-description">Top GP producers</p>
+            </div>
+            <div id="top-dispo"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Efficiency & Growth -->
+    <div id="tab-efficiency" class="tab-panel" role="tabpanel">
+      <div class="section">
+        <h2 class="section-title">Productivity Metrics (Per-Agent)</h2>
+        <p class="section-subtitle">How Picket technology is improving individual agent performance</p>
+        <div class="grid-4" id="productivity-metrics"></div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Funnel Conversion Tracking</h2>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Deal Flow Efficiency</h3>
+            <p class="card-description">Conversion rates at each stage of the pipeline</p>
+          </div>
+          <div id="funnel-chart"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Capacity & Growth Headroom</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Current Utilization</h3>
+              <p class="card-description">Team output vs maximum capacity</p>
+            </div>
+            <div id="capacity-analysis"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Manager Leverage</h3>
+              <p class="card-description">Team GP multiplier for player-coach managers</p>
+            </div>
+            <div id="manager-leverage"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Commission Efficiency Trend</h2>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Commission % of GP (Declining Rate Impact)</h3>
+            <p class="card-description">How declining rates + efficiency gains reduce commission expense ratio</p>
+          </div>
+          <div class="chart-container" id="commission-trend-chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 5: Detailed Commission Report -->
+    <div id="tab-details" class="tab-panel" role="tabpanel">
+      <div class="section">
+        <h2 class="section-title">Detailed Commission Report - September 2025</h2>
+        <p class="section-subtitle">Complete agent-by-agent and manager breakdown with formulas</p>
+
+        <div id="detailed-report">
+          <!-- Will be populated by details.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 6: Agent Performance Timeline -->
+    <div id="tab-agent-timeline" class="tab-panel" role="tabpanel">
+      <div id="agent-timeline-content">
+        <!-- Will be populated by agent-timeline.js -->
+      </div>
+    </div>
+
+    <!-- Tab 7: Geographic Analytics -->
+    <div id="tab-geographic" class="tab-panel" role="tabpanel">
+      <div id="geographic-content">
+        <!-- Will be populated by geographic.js -->
+      </div>
+    </div>
+
+    <!-- Tab 8: Deal Performance Analytics -->
+    <div id="tab-deal-analytics" class="tab-panel" role="tabpanel">
+      <div id="deal-analytics-content">
+        <!-- Will be populated by deal-analytics.js -->
+      </div>
+    </div>
+
+    <!-- Tab 9: Predictive Insights -->
+    <div id="tab-predictive" class="tab-panel" role="tabpanel">
+      <div id="predictive-content">
+        <!-- Will be populated by predictive.js -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Core JavaScript -->
+  <script src="js/core/state.js"></script>
+  <script src="js/core/calculations.js"></script>
+  <script src="js/core/tiers.js"></script>
+
+  <!-- Tab JavaScript -->
+  <script src="js/tabs/dashboard.js"></script>
+  <script src="js/tabs/efficiency.js"></script>
+  <script src="js/tabs/forecast.js"></script>
+  <script src="js/tabs/actuals.js"></script>
+  <script src="js/tabs/details.js"></script>
+  <script src="js/tabs/agent-timeline.js"></script>
+  <script src="js/tabs/geographic.js"></script>
+  <script src="js/tabs/deal-analytics.js"></script>
+  <script src="js/tabs/predictive.js"></script>
+
+  <!-- Components -->
+  <script src="js/components/chart.js"></script>
+
+  <!-- Data -->
+  <script src="js/data.js"></script>
+  <script src="js/data_extended.js"></script>
+
+  <!-- Main App -->
+  <script src="js/app.js"></script>
+  
+  <!-- Password Protection Script -->
+  <script>
+    // Password Protection (Session-based)
+    function checkPassword() {
+      const input = document.getElementById('password-input');
+      const error = document.getElementById('password-error');
+      const overlay = document.getElementById('password-overlay');
+
+      if (input.value === 'picket') {
+        // Store auth in sessionStorage (cleared when browser/tab closes)
+        sessionStorage.setItem('rebuilt_auth', 'true');
+        overlay.style.display = 'none';
+        error.style.display = 'none';
+      } else {
+        error.style.display = 'block';
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    // Check if already authenticated this session
+    window.addEventListener('DOMContentLoaded', function() {
+      if (sessionStorage.getItem('rebuilt_auth') === 'true') {
+        document.getElementById('password-overlay').style.display = 'none';
+      } else {
+        // Focus password input
+        document.getElementById('password-input').focus();
+      }
+    });
+  </script>
+
+  <!-- Sticky Header Script -->
+  <script>
+    // Add scrolled class to sticky header on scroll
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('sticky-header');
+      if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+  </script>
+</body>
+</html>
