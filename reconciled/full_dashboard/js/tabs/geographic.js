@@ -17,16 +17,31 @@ const GeographicTab = {
         ${this.renderSummaryCards()}
       </div>
 
-      <!-- Map and Top Markets -->
-      <div class="grid-2 mb-6">
-        <div class="card">
-          <h3 class="card-title">Deal Heat Map</h3>
-          <p class="card-description">Bubble size = deal volume, color = termination rate</p>
-          <div id="heat-map" style="height: 400px; position: relative;">
-            ${this.renderHeatMap()}
+      <!-- Interactive Map -->
+      <div class="section map-section">
+        <div class="card map-card">
+          <div class="map-card-header">
+            <div>
+              <h3 class="card-title">Deal Heat Map</h3>
+              <p class="card-description">Interactive US map &mdash; bubble size = deal volume, color = termination rate</p>
+            </div>
+            <div class="map-toolbar" role="group" aria-label="Map zoom controls">
+              <button type="button" class="map-zoom-btn" data-zoom="in" aria-label="Zoom in">+</button>
+              <button type="button" class="map-zoom-btn" data-zoom="out" aria-label="Zoom out">&minus;</button>
+            </div>
+          </div>
+          <div id="market-map" class="market-map"></div>
+          <div class="map-legend" aria-hidden="true">
+            <div><span class="legend-dot legend-good"></span>&lt;15% (Good)</div>
+            <div><span class="legend-dot legend-watch"></span>15-20%</div>
+            <div><span class="legend-dot legend-elevated"></span>20-30%</div>
+            <div><span class="legend-dot legend-risk"></span>&gt;30% (Risk)</div>
           </div>
         </div>
+      </div>
 
+      <!-- Top Markets -->
+      <div class="section">
         <div class="card">
           <h3 class="card-title">Top Markets</h3>
           <p class="card-description">Ranked by total closed GP</p>
@@ -59,6 +74,16 @@ const GeographicTab = {
         </div>
       </div>
     `;
+
+    // Defer drawing until layout calculated
+    requestAnimationFrame(() => this.drawMarketMap());
+
+    container.querySelectorAll('.map-zoom-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const direction = btn.dataset.zoom === 'in' ? 1 : -1;
+        this.adjustZoom(direction);
+      });
+    });
   },
 
   renderSummaryCards() {
@@ -93,80 +118,161 @@ const GeographicTab = {
     `;
   },
 
-  renderHeatMap() {
+  drawMarketMap() {
     const markets = window.EXTENDED_DATA.markets;
+    const container = document.getElementById('market-map');
+    if (!container) return;
 
-    // City coordinates (approximate)
-    const cityCoords = {
-      'Phoenix': { x: 180, y: 260 },
-      'San Antonio': { x: 380, y: 290 },
-      'Columbus': { x: 580, y: 180 },
-      'Indianapolis': { x: 550, y: 180 },
-      'Charlotte': { x: 640, y: 230 },
-      'Las Vegas': { x: 150, y: 220 },
-      'Nashville': { x: 560, y: 220 },
-      'Oklahoma City': { x: 400, y: 240 },
-      'Memphis': { x: 520, y: 240 },
-      'Jacksonville': { x: 640, y: 280 },
-      'Louisville': { x: 565, y: 200 },
-      'Raleigh': { x: 670, y: 230 },
-      'Birmingham': { x: 560, y: 260 },
-      'Tulsa': { x: 420, y: 230 },
-      'Albuquerque': { x: 280, y: 250 }
-    };
-
+    const rect = container.getBoundingClientRect();
+    const width = rect.width || 960;
+    const height = rect.height || 520;
+    const padding = 60;
     const maxDeals = Math.max(...markets.map(m => m.deals));
 
-    return `
-      <svg width="100%" height="400" viewBox="0 0 800 400" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: var(--radius-lg);">
-        <!-- US Map simplified background -->
-        <rect x="50" y="100" width="700" height="250" fill="none" stroke="var(--border-subtle)" stroke-width="2" rx="10"/>
+    const bounds = {
+      minLon: -125,
+      maxLon: -65,
+      minLat: 24,
+      maxLat: 50
+    };
 
-        <!-- Market bubbles -->
-        ${markets.map(market => {
-          const coords = cityCoords[market.city] || { x: 400, y: 250 };
-          const radius = 5 + (market.deals / maxDeals) * 40;
-          const termColor = market.termination_rate > 0.3 ? '#f43f5e' :
-                           market.termination_rate > 0.2 ? '#f59e0b' :
-                           market.termination_rate > 0.15 ? '#3b82f6' : '#10b981';
+    const project = (lat, lon) => {
+      const x = padding + ((lon - bounds.minLon) / (bounds.maxLon - bounds.minLon)) * (width - padding * 2);
+      const y = height - padding - ((lat - bounds.minLat) / (bounds.maxLat - bounds.minLat)) * (height - padding * 2);
+      return { x, y };
+    };
 
-          return `
-            <g class="market-bubble" style="cursor: pointer;">
-              <circle cx="${coords.x}" cy="${coords.y}" r="${radius}"
-                      fill="${termColor}" opacity="0.6" stroke="${termColor}" stroke-width="2">
-                <title>${market.city}, ${market.state}
-${market.deals} deals, ${Utils.formatCurrency(market.gp)}
-Termination: ${(market.termination_rate * 100).toFixed(1)}%</title>
-              </circle>
-              <text x="${coords.x}" y="${coords.y - radius - 5}" text-anchor="middle"
-                    font-size="10" fill="var(--text-primary)" font-weight="600">
-                ${market.city}
-              </text>
-              <text x="${coords.x}" y="${coords.y + 3}" text-anchor="middle"
-                    font-size="11" fill="white" font-weight="700">
-                ${market.deals}
-              </text>
-            </g>
-          `;
-        }).join('')}
+    const outlineLatLon = [
+      { lat: 48.9, lon: -125.0 },
+      { lat: 46.8, lon: -124.0 },
+      { lat: 45.0, lon: -123.5 },
+      { lat: 41.9, lon: -124.0 },
+      { lat: 38.5, lon: -123.0 },
+      { lat: 36.0, lon: -121.5 },
+      { lat: 33.4, lon: -118.5 },
+      { lat: 32.4, lon: -117.0 },
+      { lat: 31.3, lon: -114.8 },
+      { lat: 29.8, lon: -111.0 },
+      { lat: 28.8, lon: -106.5 },
+      { lat: 29.4, lon: -103.0 },
+      { lat: 27.8, lon: -99.0 },
+      { lat: 26.0, lon: -97.0 },
+      { lat: 27.3, lon: -95.5 },
+      { lat: 28.8, lon: -94.0 },
+      { lat: 29.2, lon: -92.3 },
+      { lat: 30.0, lon: -90.2 },
+      { lat: 29.8, lon: -88.5 },
+      { lat: 30.2, lon: -86.8 },
+      { lat: 29.9, lon: -85.0 },
+      { lat: 29.2, lon: -83.0 },
+      { lat: 28.0, lon: -82.0 },
+      { lat: 27.0, lon: -80.7 },
+      { lat: 25.0, lon: -80.1 },
+      { lat: 26.2, lon: -78.0 },
+      { lat: 28.0, lon: -77.0 },
+      { lat: 30.0, lon: -75.5 },
+      { lat: 33.0, lon: -74.8 },
+      { lat: 35.0, lon: -75.5 },
+      { lat: 37.5, lon: -74.5 },
+      { lat: 39.5, lon: -73.5 },
+      { lat: 41.5, lon: -70.0 },
+      { lat: 43.8, lon: -69.0 },
+      { lat: 45.5, lon: -70.5 },
+      { lat: 47.0, lon: -71.5 },
+      { lat: 48.6, lon: -75.0 },
+      { lat: 49.0, lon: -79.0 },
+      { lat: 49.0, lon: -95.0 },
+      { lat: 49.0, lon: -104.0 },
+      { lat: 48.5, lon: -110.0 },
+      { lat: 49.0, lon: -120.0 },
+      { lat: 48.9, lon: -125.0 }
+    ];
 
-        <!-- Legend -->
-        <g transform="translate(20, 320)">
-          <text x="0" y="0" font-size="10" fill="var(--text-secondary)" font-weight="600">Termination Rate:</text>
-          <circle cx="10" cy="15" r="6" fill="#10b981" opacity="0.6"/>
-          <text x="20" y="18" font-size="9" fill="var(--text-tertiary)">&lt;15% (Good)</text>
+    const outlinePath = outlineLatLon.map((point, index) => {
+      const { x, y } = project(point.lat, point.lon);
+      return `${index === 0 ? 'M' : 'L'}${x} ${y}`;
+    }).join(' ') + ' Z';
 
-          <circle cx="90" cy="15" r="6" fill="#3b82f6" opacity="0.6"/>
-          <text x="100" y="18" font-size="9" fill="var(--text-tertiary)">15-20%</text>
+    const coordsLookup = {
+      'Phoenix, AZ': { lat: 33.4484, lon: -112.074 },
+      'San Antonio, TX': { lat: 29.4241, lon: -98.4936 },
+      'Columbus, OH': { lat: 39.9612, lon: -82.9988 },
+      'Indianapolis, IN': { lat: 39.7684, lon: -86.1581 },
+      'Charlotte, NC': { lat: 35.2271, lon: -80.8431 },
+      'Las Vegas, NV': { lat: 36.1699, lon: -115.1398 },
+      'Nashville, TN': { lat: 36.1627, lon: -86.7816 },
+      'Oklahoma City, OK': { lat: 35.4676, lon: -97.5164 },
+      'Memphis, TN': { lat: 35.1495, lon: -90.049 },
+      'Jacksonville, FL': { lat: 30.3322, lon: -81.6557 },
+      'Louisville, KY': { lat: 38.2527, lon: -85.7585 },
+      'Raleigh, NC': { lat: 35.7796, lon: -78.6382 },
+      'Birmingham, AL': { lat: 33.5186, lon: -86.8104 },
+      'Tulsa, OK': { lat: 36.154, lon: -95.9928 },
+      'Albuquerque, NM': { lat: 35.0844, lon: -106.6504 }
+    };
 
-          <circle cx="160" cy="15" r="6" fill="#f59e0b" opacity="0.6"/>
-          <text x="170" y="18" font-size="9" fill="var(--text-tertiary)">20-30%</text>
+    const bubbleMarkup = markets.map(market => {
+      const key = `${market.city}, ${market.state}`;
+      const coords = coordsLookup[key];
+      if (!coords) return '';
+      const { x, y } = project(coords.lat, coords.lon);
+      const radius = 8 + (market.deals / maxDeals) * 28;
+      const termColor = market.termination_rate > 0.3 ? '#f43f5e' :
+                       market.termination_rate > 0.2 ? '#f59e0b' :
+                       market.termination_rate > 0.15 ? '#3b82f6' : '#10b981';
 
-          <circle cx="230" cy="15" r="6" fill="#f43f5e" opacity="0.6"/>
-          <text x="240" y="18" font-size="9" fill="var(--text-tertiary)">&gt;30% (Risk)</text>
+      return `
+        <g class="map-bubble" transform="translate(${x}, ${y})">
+          <circle r="${radius}" fill="${termColor}" fill-opacity="0.65" stroke="${termColor}" stroke-width="2"></circle>
+          <text text-anchor="middle" dy="${radius + 14}" class="map-label">${market.city}</text>
+          <text text-anchor="middle" dy="4" class="map-deals">${market.deals}</text>
+          <title>${market.city}, ${market.state}\n${market.deals} deals\n${Utils.formatCurrency(market.gp)} GP\nTermination: ${(market.termination_rate * 100).toFixed(1)}%</title>
+        </g>
+      `;
+    }).join('');
+
+    container.innerHTML = `
+      <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="US market heat map">
+        <defs>
+          <radialGradient id="map-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#15213a" stop-opacity="0.1" />
+            <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9" />
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="${width}" height="${height}" fill="url(#map-glow)" rx="${padding / 2}" />
+        <g class="map-transform">
+          <path d="${outlinePath}" class="map-outline" />
+          <g class="map-bubbles">
+            ${bubbleMarkup}
+          </g>
         </g>
       </svg>
     `;
+
+    this.zoomState = {
+      scale: 1,
+      svg: container.querySelector('svg'),
+      width,
+      height
+    };
+    this.applyZoom();
+  },
+
+  adjustZoom(direction) {
+    if (!this.zoomState) return;
+    const nextScale = this.zoomState.scale + direction * 0.2;
+    this.zoomState.scale = Math.min(2.2, Math.max(0.8, nextScale));
+    this.applyZoom();
+  },
+
+  applyZoom() {
+    if (!this.zoomState) return;
+    const { svg, width, height, scale } = this.zoomState;
+    const viewWidth = width / scale;
+    const viewHeight = height / scale;
+    const offsetX = (width - viewWidth) / 2;
+    const offsetY = (height - viewHeight) / 2;
+    svg.setAttribute('viewBox', `${offsetX} ${offsetY} ${viewWidth} ${viewHeight}`);
   },
 
   renderTopMarkets() {
