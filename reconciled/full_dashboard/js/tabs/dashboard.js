@@ -9,10 +9,13 @@ const DashboardTab = {
    */
   init() {
     this.renderHeroMetrics();
+    this.renderComparisonRail();
+    this.renderAlertStream();
     this.renderRoleBreakdown();
     this.renderManagerBreakdown();
     this.renderTeamComposition();
     this.renderTopPerformers();
+    this.setupViewPresets();
     // Initialize sparklines after DOM is ready
     setTimeout(() => this.initTopPerformerSparklines(), 100);
   },
@@ -81,6 +84,196 @@ const DashboardTab = {
         <div class="metric-change ${metric.changeType}">
           <span class="metric-change-icon">${Utils.getTrendIndicator(parseFloat(metric.change))}</span>
           <span>${metric.change} ${metric.description}</span>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  renderComparisonRail() {
+    const container = document.getElementById('comparison-rail');
+    if (!container) return;
+
+    const metadata = AppState.getMetadata();
+    const agentSummary = AppState.getAgentSummary();
+    const managerSummary = AppState.getManagerSummary();
+    const monthly = (window.EXTENDED_DATA && window.EXTENDED_DATA.monthly_summaries) || [];
+    const current = monthly[monthly.length - 1] || {};
+    const previous = monthly[monthly.length - 2] || {};
+
+    const totalAgents = metadata.team_count.acq_agents + metadata.team_count.dispo_agents;
+    const avgGpPerAgent = totalAgents ? metadata.total_gp / totalAgents : 0;
+    const prevAgents = previous.team_count ? (previous.team_count.acq_agents + previous.team_count.dispo_agents) : totalAgents;
+    const avgPrevGpPerAgent = prevAgents ? (previous.total_gp || 0) / prevAgents : avgGpPerAgent;
+
+    const targets = {
+      commission: previous.total_commission ? previous.total_commission * 1.02 : metadata.total_commission_paid,
+      gp: previous.total_gp ? previous.total_gp * 1.02 : metadata.total_gp,
+      manager: managerSummary.total_commission ? managerSummary.total_commission * 1.02 : managerSummary.total_commission,
+      gpPerAgent: avgPrevGpPerAgent ? avgPrevGpPerAgent * 1.03 : avgGpPerAgent
+    };
+
+    const metrics = [
+      {
+        label: 'Total Commission',
+        current: metadata.total_commission_paid,
+        previous: previous.total_commission,
+        target: targets.commission,
+        format: value => Utils.formatCurrency(value)
+      },
+      {
+        label: 'Company GP',
+        current: metadata.total_gp,
+        previous: previous.total_gp,
+        target: targets.gp,
+        format: value => Utils.formatCurrency(value)
+      },
+      {
+        label: 'Manager Payouts',
+        current: managerSummary.total_commission,
+        previous: previous.total_commission ? previous.total_commission * (managerSummary.total_commission / metadata.total_commission_paid) : null,
+        target: targets.manager,
+        format: value => Utils.formatCurrency(value)
+      },
+      {
+        label: 'GP per Agent',
+        current: avgGpPerAgent,
+        previous: avgPrevGpPerAgent,
+        target: targets.gpPerAgent,
+        format: value => Utils.formatCurrency(value, 0)
+      }
+    ];
+
+    const buildDelta = (currentValue, baseline) => {
+      if (!baseline) return null;
+      const change = Utils.calculateChange(currentValue, baseline);
+      return {
+        text: `${Utils.getTrendIndicator(change)} ${Math.abs(change).toFixed(1)}%`,
+        className: Utils.getChangeClass(change)
+      };
+    };
+
+    container.innerHTML = metrics.map(metric => {
+      const currentValue = metric.current || 0;
+      const previousValue = metric.previous;
+      const targetValue = metric.target;
+      const currentFormatted = metric.format(currentValue);
+      const previousFormatted = previousValue === undefined || previousValue === null ? '—' : metric.format(previousValue);
+      const targetFormatted = targetValue === undefined || targetValue === null ? '—' : metric.format(targetValue);
+
+      const momDelta = buildDelta(currentValue, previousValue);
+      const targetDelta = buildDelta(currentValue, targetValue);
+
+      return `
+        <div class="comparison-card">
+          <div class="metric-label">${metric.label}</div>
+          <div class="metric-value">${currentFormatted}</div>
+          <div class="comparison-meta">
+            <span>Prev: ${previousFormatted}</span>
+            <span>Target: ${targetFormatted}</span>
+          </div>
+          ${momDelta ? `<div class="comparison-delta ${momDelta.className}">MoM ${momDelta.text}</div>` : ''}
+          ${targetDelta ? `<div class="comparison-delta ${targetDelta.className}">Vs Target ${targetDelta.text}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  },
+
+  renderAlertStream() {
+    const container = document.getElementById('exec-alerts');
+    if (!container) return;
+
+    const aggregates = AppState.getAggregates();
+    const acqAgents = AppState.getAcquisitionAgents();
+    const dispoAgents = AppState.getDispositionAgents();
+    const managers = AppState.getManagerSummary().breakdown || [];
+
+    const adjustmentPool = [...acqAgents, ...dispoAgents];
+
+    const positiveAdjustment = adjustmentPool
+      .filter(agent => (agent.manual_adjustment || 0) > 0.05)
+      .sort((a, b) => (b.manual_adjustment || 0) - (a.manual_adjustment || 0))[0];
+
+    const negativeAdjustment = adjustmentPool
+      .filter(agent => (agent.manual_adjustment || 0) < -0.05)
+      .sort((a, b) => (a.manual_adjustment || 0) - (b.manual_adjustment || 0))[0];
+
+    const topManager = managers
+      .slice()
+      .sort((a, b) => (b.total || 0) - (a.total || 0))[0];
+
+    const underwriting = managers.find(mgr => mgr.summary_bucket === 'underwriting');
+
+    const alerts = [];
+
+    if ((aggregates.sprint_pool || 0) > 0) {
+      alerts.push({
+        icon: '🚀',
+        tone: 'positive',
+        title: 'Incentive pool deployed',
+        detail: `Sprint pool at ${Utils.formatCurrency(aggregates.sprint_pool)} with ${Utils.formatCurrency(aggregates.mentor_bonuses)} in mentor bonuses.`,
+        footnote: `${Utils.formatCurrency(aggregates.manual_adjustments)} in manual adjustments reconciled to ledger.`
+      });
+    }
+
+    if (positiveAdjustment) {
+      alerts.push({
+        icon: '⚡',
+        tone: 'positive',
+        title: `${positiveAdjustment.name} true-up posted`,
+        detail: `${Utils.formatCurrency(positiveAdjustment.manual_adjustment)} adjustment brings payout to ${Utils.formatCurrency(positiveAdjustment.total)}.`,
+        footnote: positiveAdjustment.summary_bucket === 'acq_training' ? 'Training pod payout fully reconciled.' : 'Ledger aligned with manager tally.'
+      });
+    }
+
+    if (negativeAdjustment) {
+      alerts.push({
+        icon: '🛠️',
+        tone: 'negative',
+        title: `${negativeAdjustment.name} adjustment applied`,
+        detail: `${Utils.formatCurrency(negativeAdjustment.manual_adjustment)} correction keeps payout at ${Utils.formatCurrency(negativeAdjustment.total)}.`,
+        footnote: 'Review policy-driven tweaks before payroll approval.'
+      });
+    }
+
+    if (underwriting) {
+      const trxPct = underwriting.trx_target ? (underwriting.trx_actual / underwriting.trx_target) * 100 : 0;
+      const gpPct = underwriting.gp_target ? (underwriting.gp_actual / underwriting.gp_target) * 100 : 0;
+      alerts.push({
+        icon: '🎯',
+        tone: 'neutral',
+        title: 'Underwriting pacing update',
+        detail: `Dustin Hepburn at ${trxPct.toFixed(0)}% of transaction goal and ${gpPct.toFixed(0)}% of GP. Bonus split: ${Utils.formatCurrency(underwriting.components?.trx || 0)} / ${Utils.formatCurrency(underwriting.components?.gp || 0)}.`,
+        footnote: 'Monitor October pipeline to close the remaining gap.'
+      });
+    }
+
+    if (topManager) {
+      alerts.push({
+        icon: '🏆',
+        tone: 'positive',
+        title: `${topManager.name} leading manager payouts`,
+        detail: `${Utils.formatCurrency(topManager.total)} total against ${Utils.formatCurrency(topManager.personal_gp || topManager.company_gp || 0)} personal GP influence.`,
+        footnote: `${(topManager.team_members || []).length || 'No'} direct reports attributed.`
+      });
+    }
+
+    if (!alerts.length) {
+      alerts.push({
+        icon: 'ℹ️',
+        tone: 'neutral',
+        title: 'All clear',
+        detail: 'No reconciliation variances detected for September.',
+        footnote: ''
+      });
+    }
+
+    container.innerHTML = alerts.slice(0, 4).map(alert => `
+      <div class="alert-card ${alert.tone}">
+        <div class="alert-icon">${alert.icon}</div>
+        <div>
+          <div class="alert-title">${alert.title}</div>
+          <div class="alert-detail">${alert.detail}</div>
+          ${alert.footnote ? `<div class="alert-footnote">${alert.footnote}</div>` : ''}
         </div>
       </div>
     `).join('');
@@ -393,6 +586,60 @@ const DashboardTab = {
 
       const chart = new ApexCharts(container, options);
       chart.render();
+    });
+  },
+
+  setupViewPresets() {
+    const select = document.getElementById('view-preset-select');
+    if (!select) return;
+
+    this.presets = {
+      default: {
+        label: 'Full Dashboard',
+        sections: ['financial-overview', 'comparison', 'executive-alerts', 'commission-breakdown', 'team-composition', 'top-performers']
+      },
+      executive: {
+        label: 'Executive Brief',
+        sections: ['financial-overview', 'comparison', 'executive-alerts', 'commission-breakdown']
+      },
+      operations: {
+        label: 'Revenue Ops Focus',
+        sections: ['financial-overview', 'comparison', 'executive-alerts', 'team-composition', 'top-performers']
+      },
+      managers: {
+        label: 'Manager Deep Dive',
+        sections: ['financial-overview', 'comparison', 'commission-breakdown', 'top-performers']
+      }
+    };
+
+    select.innerHTML = Object.entries(this.presets).map(([key, preset]) => `
+      <option value="${key}">${preset.label}</option>
+    `).join('');
+
+    select.value = 'default';
+
+    select.addEventListener('change', event => this.applyPreset(event.target.value));
+
+    // Apply default view on load
+    this.applyPreset(select.value || 'default');
+  },
+
+  applyPreset(presetKey) {
+    const preset = this.presets?.[presetKey] || this.presets?.default;
+    const allowedSections = preset ? new Set(preset.sections) : null;
+    const sections = document.querySelectorAll('#tab-dashboard .section[data-section]');
+
+    sections.forEach(section => {
+      const key = section.getAttribute('data-section');
+      if (key === 'controls') {
+        section.classList.remove('is-hidden');
+        return;
+      }
+      if (!allowedSections || allowedSections.has(key)) {
+        section.classList.remove('is-hidden');
+      } else {
+        section.classList.add('is-hidden');
+      }
     });
   }
 };

@@ -119,6 +119,155 @@
   height: 32px;
 }
 
+.control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-6);
+  box-shadow: var(--shadow-lg);
+}
+
+.control-title {
+  margin-bottom: var(--space-2);
+}
+
+.control-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+.preset-select {
+  min-width: 200px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+
+.comparison-rail {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.comparison-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.comparison-card .metric-label {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.comparison-card .metric-value {
+  font-size: var(--text-2xl);
+}
+
+.comparison-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.comparison-delta {
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.comparison-delta.positive {
+  color: var(--success);
+}
+
+.comparison-delta.negative {
+  color: var(--error);
+}
+
+.comparison-delta.neutral {
+  color: var(--text-tertiary);
+}
+
+.alert-stream {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.alert-card {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+.alert-card .alert-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--picket-blue-light);
+}
+
+.alert-card.positive .alert-icon {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.alert-card.negative .alert-icon {
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--error);
+}
+
+.alert-card .alert-title {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+}
+
+.alert-card .alert-detail {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.alert-card .alert-footnote {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--space-2);
+}
+
 /* Tables */
 .data-table {
   width: 100%;

@@ -230,6 +230,10 @@ body {
   margin-bottom: var(--space-8);
 }
 
+.section.is-hidden {
+  display: none;
+}
+
 .section-title {
   font-size: var(--text-xl);
   font-weight: var(--font-semibold);

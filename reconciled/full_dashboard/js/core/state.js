@@ -85,6 +85,18 @@ const AppState = {
   },
 
   /**
+   * Get aggregate payouts/adjustments
+   */
+  getAggregates() {
+    return this.data?.aggregates || {
+      agent_commission_base: 0,
+      manual_adjustments: 0,
+      mentor_bonuses: 0,
+      sprint_pool: 0
+    };
+  },
+
+  /**
    * Get efficiency baseline
    */
   getEfficiencyBaseline() {

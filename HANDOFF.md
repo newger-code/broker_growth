@@ -19,6 +19,7 @@
 **What's Ready:**
 - ✅ Commission Intelligence v2 platform functional (9 tabs, agent termination tracking)
 - ✅ Reconciled September 2025 dashboard (multi-tab copy at `/broker_growth/reconciled/full_dashboard/`)
+- ✅ Executive alert stream + comparison rail presets on reconciled dashboard
 - ✅ Visual Tracker production-ready (19,575-line SPA, 4,075-line FastAPI backend)
 - ✅ Market fit analysis (MARKET_FIT_AND_TRACTION_PLAN.md)
 - ✅ Updated roadmap (UPDATED_ROADMAP_OCT_2025.md)

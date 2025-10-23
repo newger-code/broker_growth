@@ -147,12 +147,40 @@
 
     <!-- Tab 3: Executive Dashboard (default active) -->
     <div id="tab-dashboard" class="tab-panel active" role="tabpanel">
-      <div class="section">
+      <div class="section controls" data-section="controls">
+        <div class="control-bar" id="preset-controls">
+          <div>
+            <h2 class="section-title control-title">Executive Views</h2>
+            <p class="section-subtitle">Switch between curated layouts for fast readouts</p>
+          </div>
+          <label class="control-label">
+            View Preset
+            <select id="view-preset-select" class="preset-select"></select>
+          </label>
+        </div>
+      </div>
+
+      <div class="section" data-section="financial-overview">
         <h2 class="section-title">Financial Overview</h2>
         <div class="grid-4" id="hero-metrics"></div>
       </div>
 
-      <div class="section">
+      <div class="section" data-section="comparison">
+        <h2 class="section-title">Comparative Snapshot</h2>
+        <div class="comparison-rail" id="comparison-rail"></div>
+      </div>
+
+      <div class="section" data-section="executive-alerts">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Executive Pulse</h3>
+            <p class="card-description">Auto-generated highlights and callouts from September&#8217;s reconciliation</p>
+          </div>
+          <div id="exec-alerts" class="alert-stream"></div>
+        </div>
+      </div>
+
+      <div class="section" data-section="commission-breakdown">
         <h2 class="section-title">Commission Breakdown</h2>
         <div class="grid-2">
           <div class="card">
@@ -172,14 +200,14 @@
         </div>
       </div>
 
-      <div class="section">
+      <div class="section" data-section="team-composition">
         <h2 class="section-title">Team Composition</h2>
         <div class="card">
           <div class="grid-3" id="team-composition"></div>
         </div>
       </div>
 
-      <div class="section">
+      <div class="section" data-section="top-performers">
         <h2 class="section-title">Top Performers</h2>
         <div class="grid-2">
           <div class="card">
