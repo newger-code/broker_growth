@@ -119,8 +119,19 @@
         const td = document.createElement('td');
         let value = col.accessor ? col.accessor(row) : row[col.key];
         if (col.format) value = col.format(value, row);
-        if (value === null || value === undefined || value === '') value = '—';
-        td.textContent = value;
+        const isEmpty = value === null || value === undefined || value === '';
+        const displayValue = isEmpty ? '—' : value;
+        const isAdjustmentCell = col.key === 'manual_adjustment' || col.key === 'adjustment';
+        const note = isAdjustmentCell ? (row.adjustment_note || null) : null;
+        if (note && !isEmpty) {
+          const span = document.createElement('span');
+          span.className = 'note-indicator';
+          span.title = note;
+          span.textContent = displayValue;
+          td.appendChild(span);
+        } else {
+          td.textContent = displayValue;
+        }
         if (col.className) td.classList.add(col.className);
         if (col.highlight && col.highlight(row)) td.classList.add('flag-adjustment');
         tr.appendChild(td);
@@ -198,25 +209,49 @@
       team_trx_rate: item.team_rates ? item.team_rates.trx : null,
       company_weight: item.weights ? item.weights.company : null,
       team_weight: item.weights ? item.weights.team : null,
+      trx_progress: null,
+      gp_progress: null,
+      bonus_split: null,
+      adjustment_note: item.adjustment_note || null,
       adjustment: item.manual_adjustment,
       payout: item.actual_payout
     })),
-    ...groups.underwriting.map(item => ({
-      name: item.name,
-      type: 'Underwriting',
-      company_gp: null,
-      company_trx: null,
-      company_gp_rate: null,
-      company_trx_rate: null,
-      team_gp: null,
-      team_trx: null,
-      team_gp_rate: null,
-      team_trx_rate: null,
-      company_weight: null,
-      team_weight: null,
-      adjustment: item.manual_adjustment,
-      payout: item.actual_payout
-    }))
+    ...groups.underwriting.map(item => {
+      const trxProgress = (item.trx_actual && item.trx_target) ? {
+        actual: item.trx_actual,
+        target: item.trx_target,
+        pct: item.trx_target ? item.trx_actual / item.trx_target : null
+      } : null;
+      const gpProgress = (item.gp_actual && item.gp_target) ? {
+        actual: item.gp_actual,
+        target: item.gp_target,
+        pct: item.gp_target ? item.gp_actual / item.gp_target : null
+      } : null;
+      const bonusSplit = item.components ? {
+        trx: item.components.trx_bonus,
+        gp: item.components.gp_bonus
+      } : null;
+      return {
+        name: item.name,
+        type: 'Underwriting',
+        company_gp: null,
+        company_trx: null,
+        company_gp_rate: null,
+        company_trx_rate: null,
+        team_gp: null,
+        team_trx: null,
+        team_gp_rate: null,
+        team_trx_rate: null,
+        company_weight: null,
+        team_weight: null,
+        trx_progress: trxProgress,
+        gp_progress: gpProgress,
+        bonus_split: bonusSplit,
+        adjustment_note: item.adjustment_note || null,
+        adjustment: item.manual_adjustment,
+        payout: item.actual_payout
+      };
+    })
   ];
 
   buildTable('leadership-table', [
@@ -229,6 +264,9 @@
     { header: 'Team Rate (GP)', key: 'team_gp_rate', className: 'numeric', format: fmtPercent },
     { header: 'Team Rate (Trx)', key: 'team_trx_rate', className: 'numeric', format: fmtPercent },
     { header: 'Weights (C/T)', accessor: row => row.company_weight === null ? '—' : `${fmtPercent(row.company_weight)} / ${fmtPercent(row.team_weight)}` },
+    { header: 'Trx Progress', accessor: row => row.trx_progress ? `${fmtNumber(row.trx_progress.actual)} / ${fmtNumber(row.trx_progress.target)} (${fmtPercent(row.trx_progress.pct)})` : '—', className: 'numeric' },
+    { header: 'GP Progress', accessor: row => row.gp_progress ? `${fmtCurrency(row.gp_progress.actual)} / ${fmtCurrency(row.gp_progress.target)} (${fmtPercent(row.gp_progress.pct)})` : '—', className: 'numeric' },
+    { header: 'Bonus Split', accessor: row => row.bonus_split ? `${fmtCurrency(row.bonus_split.trx)} / ${fmtCurrency(row.bonus_split.gp)}` : '—', className: 'numeric' },
     { header: 'Adjustment', key: 'adjustment', className: 'numeric', format: fmtCurrency, highlight: row => Math.abs(row.adjustment) > 0.05 },
     { header: 'Actual Payout', key: 'payout', className: 'numeric', format: fmtCurrency }
   ], leadershipRows);
