@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>V2 Dashboard Analysis</title>
+</head>
+<body>
+    <h1>V2 Dashboard Total Analysis</h1>
+    <div id="output"></div>
+
+    <script>
+        // Sprint data from calculator
+        const sprintData = {
+            'Brittany Taylor': 500,
+            'Terrell Johnson': 400,
+            'Alec Prieto': 350,
+            'Kyle Singer': 550,
+            'Ian Ross': 300,
+            'Jesse Sychowski': 300,
+            'Joe Haupt': 300,
+            'Garrett Paschal': 200,
+            'Steven Stack': 200,
+            'Ashley Preston': 150,
+            'Luis Guzman': 150,
+            'Christian Flasch': 100,
+            'Devin Buford': 100,
+            'Devin Cooper': 100,
+            'Devin Hoffman': 100,
+            'Jarod Weaver': 100,
+            'Kayla Watkins': 100,
+            'Kirk Schaafsma': 100,
+            'Mel Grant': 100,
+            'Miguel Aguilar': 100,
+            'Tamara Humbolt': 100,
+            'Warren Smith': 100
+        };
+
+        // Manager-agents
+        const managerAgentsAcq = ['Luis Guzman', 'Shon Yoshida', 'Devin Buford'];
+        const managerAgentsDispo = ['Joe Haupt', 'Maegan Grace'];
+        const managerAgents = [...managerAgentsAcq, ...managerAgentsDispo];
+
+        // Calculate totals
+        let allSprintsTotal = 0;
+        let nonManagerSprintsTotal = 0;
+        let managerSprintsTotal = 0;
+
+        const output = document.getElementById('output');
+        let html = '<h2>Sprint Analysis</h2>';
+        html += '<table border="1" cellpadding="5">';
+        html += '<tr><th>Agent</th><th>Sprint</th><th>Type</th></tr>';
+
+        for (const [name, amount] of Object.entries(sprintData)) {
+            const isManager = managerAgents.includes(name);
+            const type = isManager ? 'Manager-Agent' : 'Regular Agent';
+
+            html += `<tr style="background: ${isManager ? '#ffcccc' : '#ccffcc'}">`;
+            html += `<td>${name}</td>`;
+            html += `<td>$${amount}</td>`;
+            html += `<td>${type}</td>`;
+            html += '</tr>';
+
+            allSprintsTotal += amount;
+            if (isManager) {
+                managerSprintsTotal += amount;
+            } else {
+                nonManagerSprintsTotal += amount;
+            }
+        }
+
+        html += '</table>';
+
+        html += '<h2>Sprint Totals</h2>';
+        html += `<p><strong>All Sprints Total:</strong> $${allSprintsTotal.toLocaleString()} (22 agents)</p>`;
+        html += `<p><strong>Manager-Agent Sprints:</strong> $${managerSprintsTotal.toLocaleString()} (${managerAgents.length} agents)</p>`;
+        html += `<p><strong>Regular Agent Sprints:</strong> $${nonManagerSprintsTotal.toLocaleString()} (${22 - managerAgents.length} agents)</p>`;
+
+        html += '<h3>Key Finding:</h3>';
+        html += '<p style="color: red; font-weight: bold;">';
+        if (nonManagerSprintsTotal === 3050) {
+            html += '✓ MATCH! Regular agent sprints = $3,050 (matches V2 dashboard)';
+        } else {
+            html += `✗ Mismatch: Regular agent sprints = $${nonManagerSprintsTotal} (V2 shows $3,050)`;
+        }
+        html += '</p>';
+
+        // List manager-agents with sprints
+        html += '<h3>Manager-Agents with Sprints (excluded from agent totals):</h3>';
+        html += '<ul>';
+        for (const name of managerAgents) {
+            if (sprintData[name]) {
+                html += `<li>${name}: $${sprintData[name]}</li>`;
+            }
+        }
+        html += '</ul>';
+
+        // Expected commission totals from V2
+        html += '<h2>V2 Dashboard Target Totals (September 2025)</h2>';
+        html += '<ul>';
+        html += '<li><strong>Agent Commission:</strong> $55,601</li>';
+        html += '<li><strong>Manager Commission:</strong> $40,970</li>';
+        html += '<li><strong>Sprints:</strong> $3,050</li>';
+        html += '<li><strong>TOTAL PAID:</strong> $99,621</li>';
+        html += '</ul>';
+
+        output.innerHTML = html;
+    </script>
+</body>
+</html>

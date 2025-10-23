@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Calculator Totals</title>
+    <style>
+        table { border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: right; }
+        th { background: #f0f0f0; }
+        .highlight { background: yellow; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Calculator Total Debugging</h1>
+
+    <h2>Target from Excel</h2>
+    <p class="highlight">Total Commissions: $97,539</p>
+
+    <h2>Current V2 Dashboard Breakdown</h2>
+    <table>
+        <tr><th>Component</th><th>Amount</th></tr>
+        <tr><td>Agent Commission</td><td>$55,601</td></tr>
+        <tr><td>Manager Commission</td><td>$40,970</td></tr>
+        <tr><td>Sprints</td><td>$3,050</td></tr>
+        <tr class="highlight"><td>V2 Total</td><td>$99,621</td></tr>
+    </table>
+
+    <h2>Difference Analysis</h2>
+    <p>V2 Total ($99,621) - Excel Target ($97,539) = <span class="highlight">$2,082 OVER</span></p>
+
+    <h2>Possible Sources of $2,082 Difference:</h2>
+    <ol>
+        <li><strong>Sprint Difference:</strong> If Excel excludes some sprints that V2 includes</li>
+        <li><strong>Manager Commission Error:</strong> If V2 manager calculations are wrong</li>
+        <li><strong>Agent Commission Error:</strong> If tier calculations or rates are off</li>
+    </ol>
+
+    <h2>Sprint Analysis</h2>
+    <table>
+        <tr><th>Scenario</th><th>Sprint Total</th><th>Difference from V2</th></tr>
+        <tr><td>All 22 agents</td><td>$4,500</td><td>+$1,450</td></tr>
+        <tr><td>Excluding manager-agents & no-deals</td><td>$3,050</td><td>$0</td></tr>
+        <tr><td>Excluding only manager-agents</td><td>$3,950</td><td>+$900</td></tr>
+    </table>
+
+    <h2>Key Questions for Excel:</h2>
+    <ol>
+        <li>Does the $97,539 include ALL sprints or just selected ones?</li>
+        <li>Are manager commissions calculated differently in Excel?</li>
+        <li>Are there any agents excluded from the Excel total?</li>
+    </ol>
+
+    <h2>Next Steps:</h2>
+    <p>Need to examine the Excel file directly to understand:</p>
+    <ul>
+        <li>Which sprint total is used in the $97,539 figure</li>
+        <li>Exact formulas for manager commissions</li>
+        <li>Any exclusions or adjustments in Excel</li>
+    </ul>
+</body>
+</html>

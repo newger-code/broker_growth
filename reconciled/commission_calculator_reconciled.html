@@ -228,6 +228,26 @@
       background: #333333;
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
+    .sprint-only-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+    }
+    .sprint-only-list li {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #404040;
+      padding: 2px 0;
+      color: #e0e0e0;
+    }
+    .sprint-only-list li:last-child {
+      border-bottom: none;
+    }
+
     .agent-card.dispo-card {
       background: #1e3a5f;
       border-left: 3px solid #3b82f6;
@@ -951,6 +971,14 @@
           <div class="summary-cell-compact-value" id="manager-total">$0</div>
         </div>
         <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Manual Adj</div>
+          <div class="summary-cell-compact-value" id="manual-total">$0</div>
+        </div>
+        <div class="summary-cell-compact">
+          <div class="summary-cell-compact-label">Mentor</div>
+          <div class="summary-cell-compact-value" id="mentor-total">$0</div>
+        </div>
+        <div class="summary-cell-compact">
           <div class="summary-cell-compact-label">Sprints</div>
           <div class="summary-cell-compact-value" id="sprint-total">$0</div>
         </div>
@@ -1015,6 +1043,31 @@
       'Miguel Aguilar': 100,
       'Tamara Humbolt': 100,
       'Warren Smith': 100
+    };
+
+    const manualAdjustments = {
+      'Kyle Singer': 160
+    };
+
+    const manualAdjustmentsDispo = {
+      'Tamara Humbolt': -0.34
+    };
+    const sprintOnlyAcq = {
+      'Terrell Johnson': 400,
+      'Steven Stack': 200,
+      'Jarod Weaver': 100
+    };
+
+    const sprintOnlyDispo = {
+      'Kayla Watkins': 100,
+      'Kirk Schaafsma': 100
+    };
+
+    const managerSprintAgents = new Set(['Joe Haupt', 'Luis Guzman', 'Devin Buford']);
+    const excludedAcqAgents = new Set(['Ex Rebuilt', 'Scott Pennebaker']);
+    const mentorBonuses = {
+      'Jack Webster': 100,
+      'Miguel Aguilar': 220
     };
 
     // September 2025 Disposition Data - REAL DATA from Excel "Dispo Closings" sheet
@@ -1212,13 +1265,7 @@
         { addr: '1777 Old Frankfort Rd, Lawrenc', gp: 7500, ff: 'NO', organic: false },
         { addr: '410 Wellington Way, Winchester', gp: 13500, ff: 'NO', organic: false },
         { addr: '33 Bon Haven Ave, Winchester, ', gp: 2715, ff: 'YES', organic: false }
-      ],
-      // Sprint-only agents (no deals, only sprint bonuses)
-      'Terrell Johnson': [],
-      'Steven Stack': [],
-      'Jarod Weaver': [],
-      'Kayla Watkins': [],
-      'Kirk Schaafsma': []
+      ]
     };
 
     // September 2025 Manager Data
@@ -1230,14 +1277,14 @@
         isaGP: 682043,
         companyRate: 0.005,  // 0.5%
         isaRate: 0.004,      // 0.4%
-        total: 6043.56       // Verification from v2
+        total: 6043.564963246528       // Verification from v2
       },
       'Rob Gorski': {
         type: 1,
         role: 'Dispo Manager',
         companyGP: 682043,
         isaRate: 0.005,      // 0.5% of ISA GP
-        total: 3672.31       // Verification from v2
+        total: 3672.3052707377096       // Verification from v2
       },
       'Luis Guzman': {
         type: 2,
@@ -1255,7 +1302,7 @@
         teamGP: 89462,
         personalDeals: 6,
         teamMembers: ['Jesse Sychowski', 'Ashley Preston'],
-        total: 7513.40       // Verification from v2
+        total: 7513.400       // Verification from v2
       },
       'Devin Buford': {
         type: 2,
@@ -1264,7 +1311,7 @@
         teamGP: 6000,
         personalDeals: 3,
         teamMembers: ['Steve Shelburne'],
-        total: 1900.30       // Verification from v2
+        total: 1900.300       // Verification from v2
       },
       'Joe Haupt': {
         type: 2,
@@ -1282,7 +1329,7 @@
         teamGP: 81585,
         personalDeals: 5,
         teamMembers: ['Vincent Gnapi', 'Tamara Humbolt'],
-        total: 3260.74       // Verification from v2
+        total: 3260.7383333333337       // Verification from v2
       },
       'Dustin Hepburn': {
         type: 3,
@@ -1291,38 +1338,50 @@
         trxTarget: 97,
         gpActual: 682043,
         gpTarget: 1455000,
-        total: 1346.26       // Verification from v2
+        total: 1346.2568728522338,       // Verification from v2
+        components: { trxBonus: 760.3092783505, gpBonus: 585.9475945017 }
       }
     };
 
     // Manager-agents should NOT be counted in agent totals (only in manager section)
-    const managerAgentsAcq = ['Luis Guzman', 'Shon Yoshida', 'Devin Buford'];
-    const managerAgentsDispo = ['Joe Haupt', 'Maegan Grace'];
+    const managerAgentsAcq = new Set(['Luis Guzman', 'Shon Yoshida', 'Devin Buford']);
+    const managerAgentsDispo = new Set(['Joe Haupt', 'Maegan Grace']);
 
-    // Initialize with all agents EXCEPT manager-agents
-    let selectedDispoAgents = new Set(Object.keys(dispoData).filter(name => !managerAgentsDispo.includes(name)));
-    let selectedAcqAgents = new Set(Object.keys(acqData).filter(name => !managerAgentsAcq.includes(name)));
+    const baseAcqExclusions = new Set([...managerAgentsAcq, ...excludedAcqAgents]);
+
+    // Initialize with all agents EXCEPT manager-agents and excluded vendors
+    let selectedDispoAgents = new Set(Object.keys(dispoData).filter(name => !managerAgentsDispo.has(name)));
+    let selectedAcqAgents = new Set(Object.keys(acqData).filter(name => !baseAcqExclusions.has(name)));
     let selectedManagers = new Set(Object.keys(managerData));
     let viewMode = 'both';
     let sortMode = 'default';
 
     function formatCurrency(num) {
-      return '$' + Math.round(num).toLocaleString('en-US');
+      const value = Number(num || 0);
+      return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     // Dispo Tier Rates (9 tiers) - FROM EXCEL ALLPayOut2 $AA$4:$AE$12
-    // Rates are in decimal form (0.02 = 2%, 0.0667 = 6.67%)
-    // Flat-fee rate = 2/3 of off-market rate (using precise decimals from Excel)
+    // Rates pulled directly from the workbook (values already decimal percentages)
+    const DISPO_TIERS = [
+      { tier: 1, max: 24999, offRate: 0.02, ffRate: 0.013333 },
+      { tier: 2, max: 50000, offRate: 0.03, ffRate: 0.02 },
+      { tier: 3, max: 75000, offRate: 0.04, ffRate: 0.026667 },
+      { tier: 4, max: 100000, offRate: 0.05, ffRate: 0.033333 },
+      { tier: 5, max: 125000, offRate: 0.06, ffRate: 0.04 },
+      { tier: 6, max: 150000, offRate: 0.07, ffRate: 0.046667 },
+      { tier: 7, max: 175000, offRate: 0.08, ffRate: 0.053333 },
+      { tier: 8, max: 200000, offRate: 0.09, ffRate: 0.06 },
+      { tier: 9, max: Infinity, offRate: 0.10, ffRate: 0.066667 }
+    ];
+
     function getDispoTier(gp) {
-      if (gp < 25000) return { tier: 1, offRate: 0.02, ffRate: 0.013333 };
-      if (gp < 50000) return { tier: 2, offRate: 0.03, ffRate: 0.02 };
-      if (gp < 75000) return { tier: 3, offRate: 0.04, ffRate: 0.026667 };
-      if (gp < 100000) return { tier: 4, offRate: 0.05, ffRate: 0.033333 };
-      if (gp < 125000) return { tier: 5, offRate: 0.06, ffRate: 0.04 };
-      if (gp < 150000) return { tier: 6, offRate: 0.07, ffRate: 0.046667 };
-      if (gp < 175000) return { tier: 7, offRate: 0.08, ffRate: 0.053333 };
-      if (gp < 200000) return { tier: 8, offRate: 0.09, ffRate: 0.06 };
-      return { tier: 9, offRate: 0.10, ffRate: 0.066667 };
+      for (let i = 0; i < DISPO_TIERS.length; i++) {
+        if (gp < DISPO_TIERS[i].max) {
+          return DISPO_TIERS[i];
+        }
+      }
+      return DISPO_TIERS[DISPO_TIERS.length - 1];
     }
 
     // Acq Tier Rates (4 tiers) - FROM EXCEL PayoutChart $B$12:$D$15
@@ -1356,10 +1415,10 @@
         // Patrick Solomon: Company GP × 0.5% + ISA GP × 0.4%
         const companyPayout = manager.companyGP * manager.companyRate;
         const isaPayout = manager.isaGP * manager.isaRate;
-        return companyPayout + isaPayout;
+        return {"total": companyPayout + isaPayout};
       } else {
         // Rob Gorski: ISA GP × 0.5%
-        return manager.companyGP * manager.isaRate;
+        return {"total": manager.companyGP * manager.isaRate};
       }
     }
 
@@ -1373,7 +1432,7 @@
       const teamTier = getAcqTeamTier(manager.teamGP);
       const teamCommission = manager.teamGP * (teamTier.rate / 100);
 
-      return personalCommission + teamCommission;
+      return {"total": personalCommission + teamCommission, "personal": personalCommission, "team": teamCommission, "sprint": manager.sprint || 0};
     }
 
     // Type 2: Agent + Team (Dispo managers use progressive tiers)
@@ -1394,14 +1453,14 @@
       const teamCommission = (teamOffGP * (teamTier.offRate / 100)) +
                               (teamFfGP * (teamTier.ffRate / 100));
 
-      return personalCommission + teamCommission;
+      return {"total": personalCommission + teamCommission, "personal": personalCommission, "team": teamCommission, "sprint": manager.sprint || 0};
     }
 
     // Type 3: % of Goal
     function calculateType3Manager(manager) {
       const trxBonus = (manager.trxActual / manager.trxTarget) * 1250;
       const gpBonus = (manager.gpActual / manager.gpTarget) * 1250;
-      return trxBonus + gpBonus;
+      return {"total": trxBonus + gpBonus, "trx": trxBonus, "gp": gpBonus};
     }
 
     // Calculate manager commission based on type
@@ -1458,6 +1517,7 @@
       container.innerHTML = '';
 
       Object.keys(acqData).sort().forEach(name => {
+        if (baseAcqExclusions.has(name)) return;
         const dealCount = acqData[name].length;
         const div = document.createElement('div');
         div.className = 'agent-checkbox';
@@ -1479,7 +1539,7 @@
 
       Object.keys(managerData).sort().forEach(name => {
         const manager = managerData[name];
-        const commission = calculateManagerCommission(name);
+        const commissionInfo = calculateManagerCommission(name);
         const typeLabel = manager.type === 1 ? 'Type 1' : manager.type === 2 ? 'Type 2' : 'Type 3';
 
         const div = document.createElement('div');
@@ -1489,7 +1549,7 @@
                  onchange="toggleManager('${name}')">
           <label for="mgr-${name.replace(/\s+/g, '-')}">
             <span>${name}</span>
-            <span class="agent-checkbox-count">${typeLabel} • ${formatCurrency(commission)}</span>
+            <span class="agent-checkbox-count">${typeLabel} • ${formatCurrency(commissionInfo.total)}</span>
           </label>
         `;
         container.appendChild(div);
@@ -1616,6 +1676,7 @@
     function renderAgents() {
       const grid = document.getElementById('agents-grid');
       grid.innerHTML = '';
+      const includeSprints = document.getElementById('include-sprints').checked;
 
       // Render Dispo Agents
       if (viewMode === 'both' || viewMode === 'dispo') {
@@ -1634,29 +1695,17 @@
         });
 
           // Get tier info with special cases
-          let tierInfo;
-          if (agentName === 'Ex Rebuilt') {
-            tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
-          } else if (agentName === 'Alec Prieto') {
-            // Alec ALWAYS gets +1 tier (Tier 6 by default for his GP of $124,972)
-            // With checkbox, he gets +2 (Tier 7)
-            const normalTier = getDispoTier(totalGP); // This returns Tier 5 for $124,972
-            const extraBonus = document.getElementById('alec-tier-override').checked ? 2 : 1;
-            const finalTier = Math.min(normalTier.tier + extraBonus, 9);
-
-            // Get the rates for the final tier
-            if (finalTier === 1) tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.0133 };
-            else if (finalTier === 2) tierInfo = { tier: 2, offRate: 0.03, ffRate: 0.02 };
-            else if (finalTier === 3) tierInfo = { tier: 3, offRate: 0.04, ffRate: 0.0267 };
-            else if (finalTier === 4) tierInfo = { tier: 4, offRate: 0.05, ffRate: 0.0333 };
-            else if (finalTier === 5) tierInfo = { tier: 5, offRate: 0.06, ffRate: 0.04 };
-            else if (finalTier === 6) tierInfo = { tier: 6, offRate: 0.07, ffRate: 0.0467 };
-            else if (finalTier === 7) tierInfo = { tier: 7, offRate: 0.08, ffRate: 0.0533 };
-            else if (finalTier === 8) tierInfo = { tier: 8, offRate: 0.09, ffRate: 0.06 };
-            else tierInfo = { tier: 9, offRate: 0.10, ffRate: 0.0667 };
-          } else {
-            tierInfo = getDispoTier(totalGP);
-          }
+        let tierInfo;
+        if (agentName === 'Ex Rebuilt') {
+          tierInfo = { ...DISPO_TIERS[0] };
+        } else if (agentName === 'Alec Prieto') {
+          const normalTier = getDispoTier(totalGP);
+          const extraBonus = document.getElementById('alec-tier-override').checked ? 2 : 1;
+          const finalTierIndex = Math.min(normalTier.tier + extraBonus, DISPO_TIERS.length) - 1;
+          tierInfo = { ...DISPO_TIERS[finalTierIndex] };
+        } else {
+          tierInfo = { ...getDispoTier(totalGP) };
+        }
 
           // Rates are already in decimal form (0.07 = 7%), do NOT divide by 100
           const offMarketComm = offMarketGP * tierInfo.offRate;
@@ -1664,9 +1713,10 @@
           const baseComm = offMarketComm + flatFeeComm;
 
           // Get individual sprint amount
-          const includeSprints = document.getElementById('include-sprints').checked;
           const sprintAmount = (includeSprints && sprintData[agentName]) ? sprintData[agentName] : 0;
-          const totalComm = baseComm + sprintAmount;
+          const mentorAmount = mentorBonuses[agentName] || 0;
+          const manualAdjustment = manualAdjustmentsDispo[agentName] || 0;
+          const totalComm = baseComm + sprintAmount + mentorAmount + manualAdjustment;
 
           const card = document.createElement('div');
           card.className = 'agent-card dispo-card';
@@ -1677,7 +1727,7 @@
             <div class="agent-card-header">
               <span>[D] ${agentName}</span>
               <span class="deal-count-badge">${deals.length} deals</span>
-              <span class="agent-tier-badge">Tier ${tierInfo.tier} (${tierInfo.offRate.toFixed(1)}%)</span>
+              <span class="agent-tier-badge">Tier ${tierInfo.tier} (${(tierInfo.offRate * 100).toFixed(2)}%)</span>
             </div>
 
             <table class="deals-table">
@@ -1713,7 +1763,7 @@
                 </div>
                 <div class="calc-block">
                   <div>${formatCurrency(offMarketGP)}</div>
-                  <div>x ${tierInfo.offRate.toFixed(1)}%</div>
+                  <div>x ${(tierInfo.offRate * 100).toFixed(2)}%</div>
                   <div>= ${formatCurrency(offMarketComm).replace('$','')}</div>
                 </div>
               </div>
@@ -1725,7 +1775,7 @@
                 </div>
                 <div class="calc-block">
                   <div>${formatCurrency(flatFeeGP)}</div>
-                  <div>x ${tierInfo.ffRate.toFixed(2)}%</div>
+                  <div>x ${(tierInfo.ffRate * 100).toFixed(3)}%</div>
                   <div>= ${formatCurrency(flatFeeComm).replace('$','')}</div>
                 </div>
               </div>
@@ -1737,7 +1787,7 @@
 
               <div class="summary-cell cell-bottom-right">
                 <div class="cell-label">Total Commission</div>
-                <div class="cell-value">${formatCurrency(baseComm).replace('$','')}${sprintAmount > 0 ? ` + ${formatCurrency(sprintAmount).replace('$','')} sprint` : ''}</div>
+                <div class="cell-value">${formatCurrency(baseComm).replace('$','')}${sprintAmount > 0 ? ` + ${formatCurrency(sprintAmount).replace('$','')} sprint` : ''}${mentorAmount > 0 ? ` + ${formatCurrency(mentorAmount).replace('$','')} mentor` : ''}${manualAdjustment ? ` + ${formatCurrency(manualAdjustment).replace('$','')} adj` : ''}</div>
               </div>
             </div>
           `;
@@ -1763,18 +1813,18 @@
           });
 
           // Apply lowest tier for Ex-Rebuilt agents regardless of GP
-          const tierInfo = agentName === 'Ex Rebuilt'
-            ? { tier: 1, rate: 0.04, organicRate: 0.20 }
-            : getAcqTier(totalGP);
-          // Rates are already in decimal form (0.08 = 8%), do NOT divide by 100
-          const organicComm = organicGP * tierInfo.organicRate;
-          const nonOrganicComm = nonOrganicGP * tierInfo.rate;
-          const baseComm = organicComm + nonOrganicComm;
+        const tierInfo = agentName === 'Ex Rebuilt'
+          ? { tier: 1, rate: 0.04, organicRate: 0.20 }
+          : getAcqTier(totalGP);
+        // Rates are already in decimal form (0.08 = 8%), do NOT divide by 100
+        const organicComm = organicGP * tierInfo.organicRate;
+        const nonOrganicComm = nonOrganicGP * tierInfo.rate;
+        const baseComm = organicComm + nonOrganicComm;
 
-          // Get individual sprint amount
-          const includeSprints = document.getElementById('include-sprints').checked;
-          const sprintAmount = (includeSprints && sprintData[agentName]) ? sprintData[agentName] : 0;
-          const totalComm = baseComm + sprintAmount;
+        // Get individual sprint amount
+        const sprintAmount = (includeSprints && sprintData[agentName]) ? sprintData[agentName] : 0;
+        const manualAdjustment = manualAdjustments[agentName] || 0;
+        const totalComm = baseComm + sprintAmount + manualAdjustment;
 
           const card = document.createElement('div');
           card.className = 'agent-card acq-card';
@@ -1785,7 +1835,8 @@
             <div class="agent-card-header">
               <span>[A] ${agentName}</span>
               <span class="deal-count-badge">${deals.length} deals</span>
-              <span class="agent-tier-badge">Tier ${tierInfo.tier} (${tierInfo.rate.toFixed(1)}%)</span>
+              <span class="agent-tier-badge">Tier ${tierInfo.tier} (${(tierInfo.rate * 100).toFixed(1)}%)</span>
+              ${manualAdjustment ? `<span class="agent-tier-badge" style="background:#1e3a2a;color:#34d399;border-left:0;">+${formatCurrency(manualAdjustment)}</span>` : ''}
             </div>
 
             <table class="deals-table">
@@ -1828,7 +1879,7 @@
                 </div>
                 <div class="calc-block">
                   <div>${formatCurrency(nonOrganicGP)}</div>
-                  <div>x ${tierInfo.rate.toFixed(1)}%</div>
+                  <div>x ${(tierInfo.rate * 100).toFixed(1)}%</div>
                   <div>= ${formatCurrency(nonOrganicComm).replace('$','')}</div>
                 </div>
               </div>
@@ -1840,7 +1891,7 @@
                 </div>
                 <div class="calc-block">
                   <div>${formatCurrency(organicGP)}</div>
-                  <div>x ${tierInfo.organicRate.toFixed(1)}%</div>
+                  <div>x ${(tierInfo.organicRate * 100).toFixed(1)}%</div>
                   <div>= ${formatCurrency(organicComm).replace('$','')}</div>
                 </div>
               </div>
@@ -1860,6 +1911,39 @@
           grid.appendChild(card);
         });
       }
+      if (includeSprints) {
+        const sprintEntries = [];
+        if (viewMode === 'both' || viewMode === 'acq') {
+          Object.entries(sprintOnlyAcq).forEach(([name, amount]) => {
+            sprintEntries.push({ label: '[A]', name, amount });
+          });
+        }
+        if (viewMode === 'both' || viewMode === 'dispo') {
+          Object.entries(sprintOnlyDispo).forEach(([name, amount]) => {
+            sprintEntries.push({ label: '[D]', name, amount });
+          });
+        }
+        if (sprintEntries.length) {
+          const card = document.createElement('div');
+          card.className = 'agent-card';
+          card.innerHTML = `
+            <div class="agent-card-header">
+              <span>Sprint-Only Bonuses</span>
+              <span class="deal-count-badge">${sprintEntries.length} entries</span>
+            </div>
+            <ul class="sprint-only-list">
+              ${sprintEntries.map(entry => `
+                <li>
+                  <span>${entry.label} ${entry.name}</span>
+                  <span>${formatCurrency(entry.amount)}</span>
+                </li>
+              `).join('')}
+            </ul>
+          `;
+          grid.appendChild(card);
+        }
+      }
+
     }
 
     function updateGlobalSummary() {
@@ -1871,6 +1955,8 @@
 
       // Dispo Totals
       let dispoGP = 0, dispoOffMarket = 0, dispoFlatFee = 0, dispoCommission = 0;
+      let mentorTotal = 0;
+      let manualTotal = 0;
 
       selectedDispoAgents.forEach(agentName => {
         const deals = dispoData[agentName];
@@ -1886,32 +1972,24 @@
         dispoOffMarket += agentOffMarket;
         dispoFlatFee += agentFlatFee;
 
-        // Get tier info with special cases
         let tierInfo;
         if (agentName === 'Ex Rebuilt') {
-          // Ex-Rebuilt always uses Tier 1
-          tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.013333 };
+          tierInfo = { ...DISPO_TIERS[0] };
         } else if (agentName === 'Alec Prieto') {
-          // Alec ALWAYS gets +1 tier (Tier 6 by default for his GP of $124,972)
-          // With checkbox, he gets +2 (Tier 7)
-          const normalTier = getDispoTier(agentGP); // This returns Tier 5 for $124,972
+          const normalTier = getDispoTier(agentGP);
           const extraBonus = document.getElementById('alec-tier-override').checked ? 2 : 1;
-          const finalTier = Math.min(normalTier.tier + extraBonus, 9);
-
-          // Get the rates for the final tier (using precise decimals from Excel)
-          if (finalTier === 1) tierInfo = { tier: 1, offRate: 0.02, ffRate: 0.013333 };
-          else if (finalTier === 2) tierInfo = { tier: 2, offRate: 0.03, ffRate: 0.02 };
-          else if (finalTier === 3) tierInfo = { tier: 3, offRate: 0.04, ffRate: 0.026667 };
-          else if (finalTier === 4) tierInfo = { tier: 4, offRate: 0.05, ffRate: 0.033333 };
-          else if (finalTier === 5) tierInfo = { tier: 5, offRate: 0.06, ffRate: 0.04 };
-          else if (finalTier === 6) tierInfo = { tier: 6, offRate: 0.07, ffRate: 0.046667 };
-          else if (finalTier === 7) tierInfo = { tier: 7, offRate: 0.08, ffRate: 0.053333 };
-          else if (finalTier === 8) tierInfo = { tier: 8, offRate: 0.09, ffRate: 0.06 };
-          else tierInfo = { tier: 9, offRate: 0.10, ffRate: 0.066667 };
+          const finalTierIndex = Math.min(normalTier.tier + extraBonus, DISPO_TIERS.length) - 1;
+          tierInfo = { ...DISPO_TIERS[finalTierIndex] };
         } else {
-          tierInfo = getDispoTier(agentGP);
+          tierInfo = { ...getDispoTier(agentGP) };
         }
-        dispoCommission += (agentOffMarket * tierInfo.offRate) + (agentFlatFee * tierInfo.ffRate);
+
+        const mentorAmount = mentorBonuses[agentName] || 0;
+        const manualAdjustmentDispo = manualAdjustmentsDispo[agentName] || 0;
+        mentorTotal += mentorAmount;
+        manualTotal += manualAdjustmentDispo;
+        const agentCommission = (agentOffMarket * tierInfo.offRate) + (agentFlatFee * tierInfo.ffRate);
+        dispoCommission += agentCommission + mentorAmount;
       });
 
       // Acq Totals
@@ -1926,18 +2004,18 @@
           if (d.organic) agentOrganic += d.gp;
           else agentNonOrganic += d.gp;
 
-          // Track offmarket vs flatfee for display
           if (d.ff === 'YES' || d.ff === 'FF_APPROVED') acqFlatFee += d.gp;
           else acqOffMarket += d.gp;
         });
 
         acqGP += agentGP;
 
-        // Apply lowest tier for Ex-Rebuilt agents regardless of GP
-        const tierInfo = agentName === 'Ex Rebuilt'
-          ? { tier: 1, rate: 0.04, organicRate: 0.20 }
-          : getAcqTier(agentGP);
-        acqCommission += (agentNonOrganic * tierInfo.rate) + (agentOrganic * tierInfo.organicRate);
+        const tierInfo = getAcqTier(agentGP);
+        const manualAdjustment = manualAdjustments[agentName] || 0;
+        const agentCommission = (agentNonOrganic * tierInfo.rate) + (agentOrganic * tierInfo.organicRate);
+        const roundedAgentCommission = Math.round(agentCommission * 100) / 100;
+        acqCommission += roundedAgentCommission;
+        manualTotal += manualAdjustment;
       });
 
       // Update Dispo Row (show total unique deals for both)
@@ -1978,9 +2056,8 @@
       const includeSprints = document.getElementById('include-sprints').checked;
 
       if (includeSprints) {
-        // Sum up sprints for selected agents
         selectedDispoAgents.forEach(agentName => {
-          if (sprintData[agentName]) {
+          if (sprintData[agentName] && !managerSprintAgents.has(agentName)) {
             sprintTotal += sprintData[agentName];
           }
         });
@@ -1990,6 +2067,13 @@
             sprintTotal += sprintData[agentName];
           }
         });
+
+        Object.entries(sprintOnlyAcq).forEach(([, amount]) => {
+          sprintTotal += amount;
+        });
+        Object.entries(sprintOnlyDispo).forEach(([, amount]) => {
+          sprintTotal += amount;
+        });
       }
 
       // Manager Commissions - calculate based on selected managers
@@ -1998,10 +2082,9 @@
         managerTotal += calculateManagerCommission(managerName);
       });
 
-      // Net Total = Commission payouts (agents + managers) + sprints
-      // Sprints are displayed separately but must be added to total to match Excel
+      // Net Total = Commission payouts (agents + managers) + optional sprints
       // Excludes overhead costs (employee costs)
-      const netTotal = totalCommission + managerTotal + sprintTotal;
+      const netTotal = totalCommission + managerTotal + manualTotal + sprintTotal;
 
       document.getElementById('total-agents').textContent = totalSelectedAgents;
       document.getElementById('total-deals').textContent = totalDeals;
@@ -2009,8 +2092,11 @@
       document.getElementById('employee-cost').textContent = formatCurrency(totalAgentCost);
       document.getElementById('total-commission').textContent = formatCurrency(totalCommission);
       document.getElementById('manager-total').textContent = formatCurrency(managerTotal);
+      document.getElementById('manual-total').textContent = formatCurrency(manualTotal);
+      document.getElementById('mentor-total').textContent = formatCurrency(mentorTotal);
       document.getElementById('sprint-total').textContent = formatCurrency(sprintTotal);
       document.getElementById('net-total').textContent = formatCurrency(netTotal);
+      window.__managerBreakdown = managerBreakdown;
     }
 
     // Initialize
