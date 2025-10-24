@@ -1,3 +1,17 @@
+# macOS
 .DS_Store
-.DS_Store
-.DS_Store
+.AppleDouble
+.LSOverride
+
+# Cache and temp
+.cache/
+*.pyc
+__pycache__/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
