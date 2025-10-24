@@ -29,43 +29,35 @@ const GeographicTab = {
   normalizedActualDeals: null,
   defaultActualPeriod: 'unknown',
   overlaySources: {
-    waterways: {
-      label: '<span style="color:#0ea5e9;font-size:18px">●</span> Waterways (OSM)',
-      url: 'data/geospatial/osm_waterways.geojson',
-      style: {
-        color: '#0ea5e9',
-        weight: 8,
-        opacity: 1,
-        className: 'overlay-line overlay-line--water'
-      },
-      pane: 'overlay-waterways',
-      popupProperty: 'name'
+    powerLines: {
+      label: '<span style="color:#ef4444;font-size:16px">●</span> Power Transmission Lines',
+      url: 'data/geospatial/power_lines.geojson',
+      style: { color: '#ef4444', weight: 7, opacity: 0.8, dashArray: '8 4', className: 'overlay-line overlay-line--power' },
+      popupProperty: 'OWNER',
+      defaultOn: false
     },
     railroads: {
-      label: '<span style="color:#a855f7;font-size:18px">●</span> Railroads (FRA sample)',
+      label: '<span style="color:#a855f7;font-size:16px">●</span> Railroads (National Network)',
       url: 'data/geospatial/railroads.geojson',
-      style: {
-        color: '#a855f7',
-        weight: 6,
-        opacity: 1,
-        dashArray: '10 6',
-        className: 'overlay-line overlay-line--rail'
-      },
-      pane: 'overlay-railroads',
-      popupProperty: 'name'
+      style: { color: '#a855f7', weight: 7, opacity: 0.85, dashArray: '12 8', className: 'overlay-line overlay-line--rail' },
+      popupProperty: 'RROWNER',
+      defaultOn: false
     },
-    powerLines: {
-      label: '<span style="color:#ff0000;font-size:18px">●</span> Power Lines (Transmission)',
-      url: 'data/geospatial/power_lines.geojson',
-      style: {
-        color: '#ff0000',
-        weight: 6,
-        opacity: 1,
-        dashArray: '6 4',
-        className: 'overlay-line overlay-line--power'
-      },
-      pane: 'overlay-power',
-      popupProperty: 'name'
+    cellTowers: {
+      label: '<span style="color:#22c55e;font-size:16px">●</span> Cell Towers',
+      url: 'data/geospatial/cell_towers.geojson',
+      style: { radius: 4, color: '#22c55e', fillColor: '#22c55e', weight: 1, fillOpacity: 0.6, className: 'overlay-point overlay-point--cell' },
+      popupProperty: 'site_name',
+      defaultOn: false,
+      type: 'point'
+    },
+    starbucks: {
+      label: '<span style="color:#00704A;font-size:16px">●</span> Starbucks Locations',
+      url: 'data/geospatial/starbucks.geojson',
+      style: { radius: 3, color: '#00704A', fillColor: '#00704A', weight: 1, fillOpacity: 0.5, className: 'overlay-point overlay-point--starbucks' },
+      popupProperty: 'name',
+      defaultOn: false,
+      type: 'point'
     }
   },
   overlayLayers: {},
@@ -166,6 +158,7 @@ const GeographicTab = {
 
     // Defer drawing until layout calculated
     requestAnimationFrame(() => this.drawMarketMap());
+    // TODO: Extend map legend to visualize the census income gradient once tract dataset is finalized.
 
     container.querySelectorAll('.map-zoom-btn[data-zoom]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -275,24 +268,111 @@ const GeographicTab = {
     const layerGroup = this.overlayLayers[key];
     if (!def || !layerGroup) return;
     layerGroup.clearLayers();
+    const pane = def.pane;
+    if (def.type === 'choropleth') {
+      const features = Array.isArray(data?.features) ? data.features : [];
+      const incomeValues = features
+        .map(feature => Number(feature?.properties?.[def.popupProperty]))
+        .filter(value => Number.isFinite(value));
+      const minIncome = incomeValues.length ? Math.min(...incomeValues) : 0;
+      const maxIncome = incomeValues.length ? Math.max(...incomeValues) : minIncome;
+      const getGradientColor = value => {
+        if (!Number.isFinite(value) || maxIncome === minIncome) {
+          return '#475569';
+        }
+        const t = (value - minIncome) / (maxIncome - minIncome);
+        const lerp = (a, b, amount) => Math.round(a + (b - a) * amount);
+        const red = [239, 68, 68];
+        const yellow = [251, 191, 36];
+        const green = [34, 197, 94];
+        let color;
+        if (t <= 0.5) {
+          const localT = t / 0.5;
+          color = [
+            lerp(red[0], yellow[0], localT),
+            lerp(red[1], yellow[1], localT),
+            lerp(red[2], yellow[2], localT)
+          ];
+        } else {
+          const localT = (t - 0.5) / 0.5;
+          color = [
+            lerp(yellow[0], green[0], localT),
+            lerp(yellow[1], green[1], localT),
+            lerp(yellow[2], green[2], localT)
+          ];
+        }
+        return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+      };
+      L.geoJSON(data, {
+        pane,
+        style: feature => {
+          const value = Number(feature?.properties?.[def.popupProperty]);
+          const fillColor = getGradientColor(value);
+          return {
+            weight: 0.5,
+            color: '#0f172a',
+            fillColor,
+            fillOpacity: 0.62,
+            className: 'overlay-choropleth'
+          };
+        },
+        onEachFeature: (feature, layer) => {
+          const rawValue = Number(feature?.properties?.[def.popupProperty]);
+          const formattedIncome = Number.isFinite(rawValue)
+            ? Utils.formatCurrency(rawValue, 0)
+            : 'Not available';
+          let title = feature?.properties?.NAME || feature?.properties?.tract || 'Census Tract';
+          if (feature?.properties?.STATEFP && feature?.properties?.COUNTYFP) {
+            title += ` (${feature.properties.STATEFP}${feature.properties.COUNTYFP}${feature.properties.TRACT || ''})`;
+          }
+          layer.bindPopup(`
+            <div style="min-width:220px;">
+              <strong style="display:block;margin-bottom:6px;">${title}</strong>
+              <div style="display:flex;justify-content:space-between;">
+                <span>Median income</span>
+                <span><strong>${formattedIncome}</strong></span>
+              </div>
+            </div>
+          `);
+        }
+      }).addTo(layerGroup);
+      layerGroup._choroplethMeta = { minIncome, maxIncome };
+      return;
+    }
+
+    if (def.type === 'point') {
+      const circleOptions = def.style || {};
+      L.geoJSON(data, {
+        pane,
+        pointToLayer: (feature, latlng) => L.circleMarker(latlng, { ...circleOptions }),
+        onEachFeature: (feature, layer) => {
+          if (def.popupProperty && feature?.properties?.[def.popupProperty]) {
+            layer.bindPopup(`<strong>${feature.properties[def.popupProperty]}</strong>`);
+          }
+        }
+      }).addTo(layerGroup);
+      return;
+    }
+
     L.geoJSON(data, {
+      pane,
       style: def.style,
-      pane: def.pane,
       onEachFeature: (feature, layer) => {
         if (def.popupProperty && feature?.properties?.[def.popupProperty]) {
           layer.bindPopup(`<strong>${feature.properties[def.popupProperty]}</strong>`);
         }
       }
     }).addTo(layerGroup);
-    if (this.map && !this.map.hasLayer(layerGroup)) {
-      layerGroup.addTo(this.map);
-    }
   },
 
   prefetchOverlayData() {
-    ['waterways', 'railroads', 'powerLines'].forEach(key => {
+    Object.entries(this.overlaySources).forEach(([key, def]) => {
+      if (!def.defaultOn) return;
       if (!this.overlayLayers[key]) {
         this.overlayLayers[key] = L.layerGroup();
+      }
+      if (this.overlayCache[key] || this.overlayFetchPromises[key]) {
+        return;
       }
       this.loadOverlayGeoJson(key);
     });
@@ -696,27 +776,19 @@ const GeographicTab = {
     overlayLayers['Market Bubbles'] = marketLayer;
 
     const dealLayer = this.buildDealLayer(map);
-    if (dealLayer) {
-      overlayLayers['Deal Pins (Closings)'] = dealLayer.layer;
-    }
+   if (dealLayer) {
+     overlayLayers['Deal Pins (Closings)'] = dealLayer.layer;
+   }
 
-    const waterwaysLayer = this.getOverlayLayer(map, 'waterways');
-    if (waterwaysLayer) {
-      waterwaysLayer.addTo(map);
-      overlayLayers[this.overlaySources.waterways.label] = waterwaysLayer;
-    }
-
-    const railLayer = this.getOverlayLayer(map, 'railroads');
-    if (railLayer) {
-      railLayer.addTo(map);
-      overlayLayers[this.overlaySources.railroads.label] = railLayer;
-    }
-
-    const powerLayer = this.getOverlayLayer(map, 'powerLines');
-    if (powerLayer) {
-      powerLayer.addTo(map);
-      overlayLayers[this.overlaySources.powerLines.label] = powerLayer;
-    }
+    ['waterways', 'railroads', 'powerLines', 'cellTowers', 'wastewater', 'starbucks', 'censusIncome'].forEach(key => {
+      const layer = this.getOverlayLayer(map, key);
+      const def = this.overlaySources[key];
+      if (!layer || !def) return;
+      overlayLayers[def.label] = layer;
+      if (def.defaultOn) {
+        layer.addTo(map);
+      }
+    });
 
     const control = L.control.layers(baseLayers, overlayLayers, { position: 'topright', collapsed: false });
     control.addTo(map);
@@ -770,15 +842,34 @@ const GeographicTab = {
 
   ensureOverlayPanes(map) {
     if (!map) return;
-    const panes = [
-      { key: 'overlay-waterways', zIndex: 650 },
-      { key: 'overlay-railroads', zIndex: 651 },
-      { key: 'overlay-power', zIndex: 652 }
-    ];
-    panes.forEach(({ key, zIndex }) => {
-      if (!map.getPane(key)) {
-        const pane = map.createPane(key);
+    const baseIndex = {
+      choropleth: 620,
+      line: 650,
+      point: 680
+    };
+    let lineOffset = 0;
+    let pointOffset = 0;
+    let choroplethOffset = 0;
+    Object.entries(this.overlaySources).forEach(([key, def]) => {
+      const type = def.type || 'line';
+      let zIndex = baseIndex.line + lineOffset;
+      if (type === 'point') {
+        zIndex = baseIndex.point + pointOffset;
+        pointOffset += 1;
+      } else if (type === 'choropleth') {
+        zIndex = baseIndex.choropleth + choroplethOffset;
+        choroplethOffset += 1;
+      } else {
+        lineOffset += 1;
+      }
+      const paneKey = `overlay-${type}-${key}`;
+      def.pane = paneKey;
+      if (!map.getPane(paneKey)) {
+        const pane = map.createPane(paneKey);
         pane.style.zIndex = zIndex;
+        if (type === 'choropleth') {
+          pane.style.mixBlendMode = 'multiply';
+        }
       }
     });
   },
