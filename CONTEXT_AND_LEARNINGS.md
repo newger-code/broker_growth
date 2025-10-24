@@ -196,6 +196,72 @@ Total: $4,500
 ## Session History
 - **2025-10-22**: Initial context document created
 - **2025-10-22**: Added detailed self-inflicted error patterns and prevention strategies based on user feedback
+- **2025-10-23**: Commission calculator work - attempted fixes but calculator has fundamental data issues
+  - Calculator total: $100,517 vs Excel target: $97,539 (difference: $2,978)
+  - Root cause: Many agents in wrong categories, incorrect GP amounts in data
+  - Decision: **Calculator mothballed** - removed from navigation in sensitivity/index.html
+- **2025-10-23**: Sensitivity Model UI improvements
+  - Replaced info icon tooltips with text-based tooltips (dotted underline on hover)
+  - Fixed label wrapping issues - labels now stay on one line
+  - Updated navigation: removed Commission Calculator link, updated Dashboard Analytics link to point to reconciled/full_dashboard/index.html
+  - Confirmed contribution mix tooltips use live data (dynamically update with sliders)
+- **2025-10-24**: Geospatial overlay layers implementation (COMPLETE)
+  - Added 5 complete professional geospatial datasets to dashboard (1.4 GB total, 1.6+ million features)
+  - **Power Transmission Lines**: 97 MB, 52,244 features (HIFLD)
+  - **Railroads**: 355 MB, 302,638 features (BTS National Transportation Atlas)
+  - **Cell Towers**: 11 MB, ~50,000 features (HIFLD/NASA)
+  - **Waterways**: 911 MB, 1,235,424 features (OpenStreetMap)
+  - **Starbucks Locations**: 3.4 MB, 13,608 stores (GitHub open data)
+  - Created pagination script to bypass ArcGIS REST API transfer limits (was getting incomplete data)
+  - Script location: `/Users/jimnewgent/Projects/broker_growth/scripts/geospatial_processing/download_full_arcgis_dataset.py`
+  - Dataset files location: `/Users/jimnewgent/Projects/broker_growth/reconciled/full_dashboard/data/geospatial/*.geojson`
+  - Map configuration: `/Users/jimnewgent/Projects/broker_growth/reconciled/full_dashboard/js/tabs/geographic.js`
+  - All datasets committed to git (commit 2de053e)
+
+### Geospatial Dataset Update Schedules
+Research completed on update frequencies for each data source:
+
+1. **HIFLD Power Transmission Lines**
+   - Update frequency: Annually (typically Q4)
+   - Source: DHS Homeland Infrastructure Foundation-Level Data
+   - Last update: 2024 (reflected in current download)
+   - Recommended refresh: **Annually in Q4**
+   - Data age acceptable: Infrastructure changes slowly
+
+2. **BTS North American Rail Network (NTAD)**
+   - Update frequency: Quarterly releases (Winter, Spring, Summer, Fall)
+   - Source: Bureau of Transportation Statistics
+   - Current data: 2025 Summer release confirmed active
+   - Recommended refresh: **Quarterly** (but semi-annually is acceptable)
+   - Note: Railroad infrastructure is relatively stable
+
+3. **HIFLD Cell Towers**
+   - Update frequency: Quarterly
+   - Source: FCC registrations via HIFLD
+   - Known limitation: Only includes FCC-registered towers (subset of all towers)
+   - Recommended refresh: **Quarterly**
+   - Note: Cell infrastructure changes frequently with 5G rollout
+
+4. **OpenStreetMap Waterways**
+   - Update frequency: Continuous (crowd-sourced)
+   - Source: OSM Overpass API
+   - Data freshness: Real-time but completeness varies by region
+   - Recommended refresh: **Semi-annually or as needed**
+   - Note: Major rivers/streams rarely change
+
+5. **Starbucks Locations**
+   - Update frequency: Dataset archived (last updated 2022)
+   - Source: GitHub chrismeller/StarbucksLocations (archived repo)
+   - Known issue: Repository marked read-only as of Aug 2022
+   - Recommended refresh: **Annually** (may need alternative data source)
+   - Note: Serves as proxy for retail density, exactness less critical
+
+### Pagination Script Technical Notes
+- Bypasses default 2000-feature API limits using `resultOffset` pagination
+- Downloads in 1000-feature batches for reliability
+- Reassembles complete datasets into single GeoJSON files
+- Handles errors gracefully with retries
+- Can be rerun to update datasets as sources are updated
 
 ## For Next Session
 1. Read this entire file FIRST before doing any work

@@ -43,6 +43,13 @@ const GeographicTab = {
       popupProperty: 'RROWNER',
       defaultOn: false
     },
+    waterways: {
+      label: '<span style="color:#0ea5e9;font-size:16px">●</span> Waterways',
+      url: 'data/geospatial/waterways.geojson',
+      style: { color: '#0ea5e9', weight: 3, opacity: 0.7, className: 'overlay-line overlay-line--water' },
+      popupProperty: 'name',
+      defaultOn: false
+    },
     cellTowers: {
       label: '<span style="color:#22c55e;font-size:16px">●</span> Cell Towers',
       url: 'data/geospatial/cell_towers.geojson',

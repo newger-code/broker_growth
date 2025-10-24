@@ -193,6 +193,11 @@ Bundling Commission Intelligence + Visual Tracker as single marketplace.picket.a
 
 ## 🎯 KEY DECISIONS PENDING
 
+### Interactive Map Upgrade
+- **Status:** WIP (requires follow-up)
+- **Notes:** Current “Deal Heat Map” uses custom-drawn outline + Albers projection. Exec feedback: still “amateur” and should use an actual tiled/light map background with proper zoom/pan. Next agent needs to source a production-ready US basemap/tileset (e.g., static SVG/GeoJSON or Mapbox/Leaflet integration) and wire bubbles onto it.
+- **Hand-off Prompt:** “Replace custom Albers outline with real US basemap, complete zoom/pan, and deliver polished styling.”
+
 ### Decision 1: Backend Migration (YES/NO)
 **Question:** Invest 12 weeks to build FastAPI backend with PostgreSQL?
 
