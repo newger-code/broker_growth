@@ -30,30 +30,33 @@ const GeographicTab = {
   defaultActualPeriod: 'unknown',
   overlaySources: {
     powerLines: {
-      label: '<span style="color:#ef4444;font-size:16px">●</span> Power Transmission Lines',
+      label: '<span style="color:#ef4444;font-size:16px">●</span> Power Lines <span style="font-size:11px;opacity:0.6">(zoom to region)</span>',
       url: 'data/geospatial/power_lines.geojson',
-      style: { color: '#ef4444', weight: 5.6, opacity: 0.8, dashArray: '8 4', className: 'overlay-line overlay-line--power' },
+      style: { color: '#ef4444', weight: 3, opacity: 0.8, dashArray: '8 4', className: 'overlay-line overlay-line--power' },
       popupProperty: 'OWNER',
-      defaultOn: false
+      defaultOn: false,
+      minZoom: 9  // Only available at state/regional view
     },
     railroads: {
-      label: '<span style="color:#a855f7;font-size:16px">●</span> Railroads (National Network)',
+      label: '<span style="color:#a855f7;font-size:16px">●</span> Railroads <span style="font-size:11px;opacity:0.6">(zoom to region)</span>',
       url: 'data/geospatial/railroads.geojson',
-      style: { color: '#a855f7', weight: 5.6, opacity: 0.85, dashArray: '12 8', className: 'overlay-line overlay-line--rail' },
+      style: { color: '#a855f7', weight: 3, opacity: 0.85, dashArray: '12 8', className: 'overlay-line overlay-line--rail' },
       popupProperty: 'RROWNER',
-      defaultOn: false
+      defaultOn: false,
+      minZoom: 9  // Only available at state/regional view
     },
     waterways: {
-      label: '<span style="color:#0ea5e9;font-size:16px">●</span> Waterways',
-      url: 'data/geospatial/waterways.geojson',
-      style: { color: '#0ea5e9', weight: 3, opacity: 0.7, className: 'overlay-line overlay-line--water' },
+      label: '<span style="color:#0ea5e9;font-size:16px">●</span> Waterways <span style="font-size:11px;opacity:0.6">(zoom to region)</span>',
+      url: 'data/geospatial/waterways_filtered.geojson',
+      style: { color: '#0ea5e9', weight: 2, opacity: 0.6, className: 'overlay-line overlay-line--water' },
       popupProperty: 'name',
-      defaultOn: false
+      defaultOn: false,
+      minZoom: 9  // Only available at state/regional view
     },
     cellTowers: {
       label: '<span style="color:#ec4899;font-size:16px">●</span> Cell Towers',
       url: 'data/geospatial/cell_towers.geojson',
-      style: { radius: 3.6, color: '#ec4899', fillColor: '#ec4899', weight: 1, fillOpacity: 0.6, className: 'overlay-point overlay-point--cell' },
+      style: { radius: 2.5, color: '#ec4899', fillColor: '#ec4899', weight: 1, fillOpacity: 0.7, className: 'overlay-point overlay-point--cell' },
       popupProperty: 'site_name',
       defaultOn: false,
       type: 'point'
@@ -229,6 +232,32 @@ const GeographicTab = {
       note.innerHTML = '';
       note.style.display = 'none';
     }
+  },
+
+  updateOverlayVisibilityByZoom() {
+    if (!this.map) return;
+    const currentZoom = this.map.getZoom();
+
+    Object.keys(this.overlaySources).forEach(key => {
+      const def = this.overlaySources[key];
+      const layer = this.overlayLayers[key];
+
+      if (!def || !layer || !def.minZoom) return;
+
+      // Check if layer is currently added to map
+      const isOnMap = this.map.hasLayer(layer);
+      const shouldBeVisible = currentZoom >= def.minZoom;
+
+      if (shouldBeVisible && !isOnMap) {
+        // Layer should be visible but isn't - don't auto-add, just prefetch data
+        this.loadOverlayGeoJson(key);
+      } else if (!shouldBeVisible && isOnMap) {
+        // Layer is visible but shouldn't be - remove it and uncheck
+        console.log(`[Zoom ${currentZoom}] Auto-removing ${key} (requires zoom ${def.minZoom}+)`);
+        this.map.removeLayer(layer);
+        // The layer control will automatically update the checkbox
+      }
+    });
   },
 
   getOverlayLayer(map, key) {
@@ -800,6 +829,39 @@ const GeographicTab = {
     const control = L.control.layers(baseLayers, overlayLayers, { position: 'topright', collapsed: false });
     control.addTo(map);
 
+    // Intercept layer toggle events to enforce minZoom restrictions
+    map.on('overlayadd', (e) => {
+      // Find which layer key this corresponds to
+      const layerKey = Object.keys(this.overlaySources).find(key => {
+        const def = this.overlaySources[key];
+        return def && def.label === e.name;
+      });
+
+      if (!layerKey) return;
+
+      const def = this.overlaySources[layerKey];
+      if (!def || !def.minZoom) return;
+
+      const currentZoom = map.getZoom();
+      if (currentZoom < def.minZoom) {
+        // Remove the layer immediately - do this FIRST before alert
+        console.log(`[overlayadd] Blocking ${e.name} - zoom ${currentZoom} < required ${def.minZoom}`);
+        map.removeLayer(e.layer);
+
+        // Also clear any rendered features from the layer group
+        if (e.layer && e.layer.clearLayers) {
+          e.layer.clearLayers();
+        }
+
+        // Show alert after removing
+        setTimeout(() => {
+          alert(`Please zoom in closer to view ${e.name.replace(/<[^>]*>/g, '').replace(/\(zoom.*\)/, '').trim()}.\n\nThis layer is only available at regional/state zoom levels to maintain performance.`);
+        }, 50);
+
+        return false; // Try to prevent default behavior
+      }
+    });
+
     if (boundsPoints.length) {
       const bounds = L.latLngBounds(boundsPoints);
       this.marketBounds = bounds;
@@ -810,6 +872,9 @@ const GeographicTab = {
 
     // Recompute layout once map is visible
     setTimeout(() => map.invalidateSize(), 200);
+
+    // Add zoom listener for progressive layer loading
+    map.on('zoomend', () => this.updateOverlayVisibilityByZoom());
 
     this.map = map;
     this.marketLayer = marketLayer;
