@@ -46,13 +46,6 @@
     .tooltip-enhanced::after{content:'';position:absolute;top:100%;left:50%;margin-left:-5px;border-width:5px;border-style:solid;border-color:#1f1f1f transparent transparent transparent}
     .has-tooltip:hover .tooltip-enhanced{visibility:visible;opacity:1}
 
-    /* Info icon tooltips */
-    .info-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-size:11px;font-weight:bold;margin-left:6px;cursor:help;position:relative;border:1px solid #3b82f6;transition:all 0.2s;flex-shrink:0}
-    .info-icon::before{content:'i';display:block}
-    .info-icon:hover{background:linear-gradient(135deg,#3b82f6,#2563eb);transform:scale(1.1);box-shadow:0 0 8px rgba(37,99,235,0.6)}
-    .info-icon .info-tooltip{visibility:hidden;background:#1f1f1f;color:#e0e0e0;border-radius:6px;padding:8px 12px;position:absolute;z-index:60;bottom:130%;left:50%;transform:translateX(-50%);width:max-content;max-width:220px;text-align:left;opacity:0;transition:opacity 0.3s,visibility 0.3s;box-shadow:0 4px 12px rgba(0,0,0,0.7);border:1px solid #3b82f6;font-size:11px;line-height:1.5;font-weight:normal;white-space:normal}
-    .info-icon .info-tooltip::after{content:'';position:absolute;top:100%;left:50%;margin-left:-4px;border-width:4px;border-style:solid;border-color:#1f1f1f transparent transparent transparent}
-    .info-icon:hover .info-tooltip{visibility:visible;opacity:1}
 
     /* Navigation Bar */
     .nav-bar{background:linear-gradient(135deg,#1e3a8a 0%,#1e40af 100%);padding:12px 24px;border-bottom:2px solid #3b82f6;display:flex;align-items:center;gap:24px;box-shadow:0 4px 12px rgba(0,0,0,0.5)}
@@ -77,11 +70,12 @@
     function roundToNearestTenK(n){ if(!isFinite(n)) return 0; return Math.round(n/10000)*10000; }
     function formatUSD(n){ return n.toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0}); }
 
-    // Info icon component with tooltip
-    function InfoIcon({text}){
+    // Underlined tooltip component
+    function TooltipText({children, text}){
       return (
-        <span className="info-icon">
-          <span className="info-tooltip">{text}</span>
+        <span className="has-tooltip relative inline-block">
+          <span className="underline decoration-dotted decoration-blue-400 cursor-help">{children}</span>
+          <span className="tooltip-enhanced">{text}</span>
         </span>
       );
     }
@@ -659,8 +653,9 @@
                 <div className="mt-4 grid gap-4">
                   <div>
                     <div className="text-sm">
-                      Off-Market Share: <span className="font-medium">{Math.round(offMarketShare*100)}%</span>
-                      <InfoIcon text="% of closed deals that are off-market assignments vs MLS-listed properties" />
+                      <TooltipText text="% of closed deals that are off-market assignments vs MLS-listed properties">
+                        Off-Market Share:
+                      </TooltipText> <span className="font-medium">{Math.round(offMarketShare*100)}%</span>
                     </div>
                     <input type="range" min={0} max={1} step={0.01} value={offMarketShare} onChange={e=>setOffMarketShare(parseFloat(e.target.value))}/>
                     <div className="mt-1 text-xs text-neutral-500">Off-Mkt: {economics.offMktAnnual.toLocaleString()} • MLS: {economics.mlsAnnual.toLocaleString()}</div>
@@ -668,22 +663,25 @@
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div>
                       <div>
-                        Off-Mkt Capture: <span className="font-medium">{Math.round(offMarketCapture*100)}%</span>
-                        <InfoIcon text="% of off-market deals where Rebuilt captures the assignment fee (vs seller backing out or deal falling through)" />
+                        <TooltipText text="% of off-market deals where Rebuilt captures the assignment fee (vs seller backing out or deal falling through)">
+                          Off-Mkt Capture:
+                        </TooltipText> <span className="font-medium">{Math.round(offMarketCapture*100)}%</span>
                       </div>
                       <input type="range" min={0.4} max={1} step={0.01} value={offMarketCapture} onChange={e=>setOffMarketCapture(parseFloat(e.target.value))}/>
                     </div>
                     <div>
                       <div>
-                        Off-Mkt Revenue: <span className="font-medium">{formatUSD(offMarketFee)}</span>
-                        <InfoIcon text="Gross profit per off-market deal (assignment fee after transaction costs)" />
+                        <TooltipText text="Gross profit per off-market deal (assignment fee after transaction costs)">
+                          Off-Mkt Revenue:
+                        </TooltipText> <span className="font-medium">{formatUSD(offMarketFee)}</span>
                       </div>
                       <input type="range" min={0} max={20000} step={500} value={offMarketFee} onChange={e=>setOffMarketFee(parseInt(e.target.value))}/>
                     </div>
                     <div>
                       <div>
-                        Title Direct Capture: <span className="font-medium">{Math.round(titleDirectCaptureRate*100)}%</span>
-                        <InfoIcon text="% of Rebuilt off-market deals where we also close title through National Title Service" />
+                        <TooltipText text="% of Rebuilt off-market deals where we also close title through National Title Service">
+                          Title Direct Capture:
+                        </TooltipText> <span className="font-medium">{Math.round(titleDirectCaptureRate*100)}%</span>
                       </div>
                       <input type="range" min={0.5} max={1} step={0.01} value={titleDirectCaptureRate} onChange={e=>setTitleDirectCaptureRate(parseFloat(e.target.value))}/>
                     </div>
