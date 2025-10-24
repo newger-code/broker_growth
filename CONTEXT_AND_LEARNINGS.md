@@ -207,11 +207,11 @@ Total: $4,500
   - Confirmed contribution mix tooltips use live data (dynamically update with sliders)
 - **2025-10-24**: Geospatial overlay layers implementation (COMPLETE)
   - Added 5 complete professional geospatial datasets to dashboard (1.4 GB total, 1.6+ million features)
-  - **Power Transmission Lines**: 97 MB, 52,244 features (HIFLD)
-  - **Railroads**: 355 MB, 302,638 features (BTS National Transportation Atlas)
-  - **Cell Towers**: 11 MB, ~50,000 features (HIFLD/NASA)
-  - **Waterways**: 911 MB, 1,235,424 features (OpenStreetMap)
-  - **Starbucks Locations**: 3.4 MB, 13,608 stores (GitHub open data)
+  - **Power Transmission Lines**: 97 MB, 52,244 features (HIFLD) - red dashed lines, weight 5.6
+  - **Railroads**: 355 MB, 302,638 features (BTS National Transportation Atlas) - purple dashed lines, weight 5.6
+  - **Cell Towers**: 11 MB, ~50,000 features (HIFLD/NASA) - hot pink dots, radius 3.6
+  - **Waterways**: 911 MB, 1,235,424 features (OpenStreetMap) - cyan lines, weight 3
+  - **Starbucks Locations**: 3.4 MB, 13,608 stores (GitHub open data) - dark green dots, radius 3
   - Created pagination script to bypass ArcGIS REST API transfer limits (was getting incomplete data)
   - Script location: `/Users/jimnewgent/Projects/broker_growth/scripts/geospatial_processing/download_full_arcgis_dataset.py`
   - Dataset files location: `/Users/jimnewgent/Projects/broker_growth/reconciled/full_dashboard/data/geospatial/*.geojson`

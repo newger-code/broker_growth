@@ -32,14 +32,14 @@ const GeographicTab = {
     powerLines: {
       label: '<span style="color:#ef4444;font-size:16px">●</span> Power Transmission Lines',
       url: 'data/geospatial/power_lines.geojson',
-      style: { color: '#ef4444', weight: 7, opacity: 0.8, dashArray: '8 4', className: 'overlay-line overlay-line--power' },
+      style: { color: '#ef4444', weight: 5.6, opacity: 0.8, dashArray: '8 4', className: 'overlay-line overlay-line--power' },
       popupProperty: 'OWNER',
       defaultOn: false
     },
     railroads: {
       label: '<span style="color:#a855f7;font-size:16px">●</span> Railroads (National Network)',
       url: 'data/geospatial/railroads.geojson',
-      style: { color: '#a855f7', weight: 7, opacity: 0.85, dashArray: '12 8', className: 'overlay-line overlay-line--rail' },
+      style: { color: '#a855f7', weight: 5.6, opacity: 0.85, dashArray: '12 8', className: 'overlay-line overlay-line--rail' },
       popupProperty: 'RROWNER',
       defaultOn: false
     },
@@ -51,9 +51,9 @@ const GeographicTab = {
       defaultOn: false
     },
     cellTowers: {
-      label: '<span style="color:#22c55e;font-size:16px">●</span> Cell Towers',
+      label: '<span style="color:#ec4899;font-size:16px">●</span> Cell Towers',
       url: 'data/geospatial/cell_towers.geojson',
-      style: { radius: 4, color: '#22c55e', fillColor: '#22c55e', weight: 1, fillOpacity: 0.6, className: 'overlay-point overlay-point--cell' },
+      style: { radius: 3.6, color: '#ec4899', fillColor: '#ec4899', weight: 1, fillOpacity: 0.6, className: 'overlay-point overlay-point--cell' },
       popupProperty: 'site_name',
       defaultOn: false,
       type: 'point'
