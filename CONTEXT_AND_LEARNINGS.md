@@ -205,18 +205,33 @@ Total: $4,500
   - Fixed label wrapping issues - labels now stay on one line
   - Updated navigation: removed Commission Calculator link, updated Dashboard Analytics link to point to reconciled/full_dashboard/index.html
   - Confirmed contribution mix tooltips use live data (dynamically update with sliders)
-- **2025-10-24**: Geospatial overlay layers implementation (COMPLETE)
-  - Added 5 complete professional geospatial datasets to dashboard (1.4 GB total, 1.6+ million features)
-  - **Power Transmission Lines**: 97 MB, 52,244 features (HIFLD) - red dashed lines, weight 5.6
-  - **Railroads**: 355 MB, 302,638 features (BTS National Transportation Atlas) - purple dashed lines, weight 5.6
-  - **Cell Towers**: 11 MB, ~50,000 features (HIFLD/NASA) - hot pink dots, radius 3.6
-  - **Waterways**: 911 MB, 1,235,424 features (OpenStreetMap) - cyan lines, weight 3
-  - **Starbucks Locations**: 3.4 MB, 13,608 stores (GitHub open data) - dark green dots, radius 3
-  - Created pagination script to bypass ArcGIS REST API transfer limits (was getting incomplete data)
-  - Script location: `/Users/jimnewgent/Projects/broker_growth/scripts/geospatial_processing/download_full_arcgis_dataset.py`
-  - Dataset files location: `/Users/jimnewgent/Projects/broker_growth/reconciled/full_dashboard/data/geospatial/*.geojson`
-  - Map configuration: `/Users/jimnewgent/Projects/broker_growth/reconciled/full_dashboard/js/tabs/geographic.js`
-  - All datasets committed to git (commit 2de053e)
+- **2025-10-24**: Geospatial overlay layers implementation (COMPLETE + OPTIMIZED)
+  - Added 5 complete professional geospatial datasets to dashboard
+  - **Performance optimization implemented**: Zoom-based progressive loading (minZoom: 9) to prevent browser lockup
+
+  **Current Layer Configuration:**
+  - **Power Transmission Lines**: 97 MB, 52,244 features (HIFLD) - red dashed lines, weight 3, minZoom: 9
+  - **Railroads**: 355 MB, 302,638 features (BTS National Transportation Atlas) - purple dashed lines, weight 3, minZoom: 9
+  - **Cell Towers**: 11 MB, ~50,000 features (HIFLD/NASA) - hot pink dots, radius 2.5 (no zoom restriction)
+  - **Waterways (Filtered)**: 85 MB, 140,926 features (OpenStreetMap) - cyan lines, weight 2, minZoom: 9
+    - Original waterways: 911 MB, 1.2M features caused Chrome lockup
+    - **Filtered to 50-mile radius around 19 property locations** → 90.7% size reduction
+    - Filter script: `scripts/geospatial_processing/filter_waterways_by_properties.py`
+  - **Starbucks Locations**: 3.4 MB, 13,608 stores (GitHub open data) - dark green dots, radius 3 (no zoom restriction)
+
+  **Performance Features:**
+  - Heavy layers (powerlines, railroads, waterways) only available at zoom 9+ (regional/state view)
+  - At national view (zoom 4-6): Only lightweight layers load (~15 MB)
+  - Layer blocking: Alert users if they try to enable restricted layers at wrong zoom level
+  - Auto-removal: Layers automatically hide when zooming out below minZoom threshold
+  - Labels show "(zoom to region)" hint for restricted layers
+
+  **Scripts and Files:**
+  - Pagination script: `scripts/geospatial_processing/download_full_arcgis_dataset.py` (bypasses 2000-feature API limits)
+  - Waterways filter: `scripts/geospatial_processing/filter_waterways_by_properties.py` (creates proximity-based subset)
+  - Dataset files: `reconciled/full_dashboard/data/geospatial/*.geojson`
+  - Map configuration: `reconciled/full_dashboard/js/tabs/geographic.js`
+  - All datasets committed to git (initial: 2de053e, optimized: 51d992b)
 
 ### Geospatial Dataset Update Schedules
 Research completed on update frequencies for each data source:
